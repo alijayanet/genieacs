@@ -14,7 +14,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
-  secret: 'rahasia-portal-anda', // Ganti dengan string random yang aman
+  secret: getSetting('session_secret', 'rahasia-portal-pelanggan-default-ganti-ini'), // Bisa diubah di settings.json: "session_secret"
   resave: false,
   saveUninitialized: true,
   cookie: { secure: false }
@@ -53,6 +53,11 @@ app.get('/health', (req, res) => {
 
 // Redirect root ke portal pelanggan
 app.get('/', (req, res) => {
+  res.redirect('/customer/login');
+});
+
+// Alias singkat: /login → /customer/login
+app.get('/login', (req, res) => {
   res.redirect('/customer/login');
 });
 

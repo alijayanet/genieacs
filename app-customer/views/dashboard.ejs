@@ -379,9 +379,10 @@
 
       <div class="form-section">
         <h6><i class="bi bi-wifi"></i>Ganti Nama WiFi (SSID)</h6>
+        <p class="text-muted small mb-2"><i class="bi bi-info-circle me-1"></i>SSID saat ini: <strong><%= customer.ssid %></strong> &nbsp;(5GHz: <strong><%= customer.ssid %>-5G</strong>)</p>
         <form method="POST" action="/customer/change-ssid" class="row g-2 align-items-center">
           <div class="col-12 col-md-8 mb-2 mb-md-0">
-            <input type="text" class="form-control" name="ssid" placeholder="Nama WiFi baru" required maxlength="32">
+            <input type="text" class="form-control" name="ssid" value="<%= customer.ssid !== '-' ? customer.ssid : '' %>" placeholder="Nama WiFi baru" required maxlength="32">
           </div>
           <div class="col-12 col-md-4">
             <button class="btn btn-action btn-ssid w-100" type="submit">
@@ -395,7 +396,7 @@
         <h6><i class="bi bi-shield-lock"></i>Ganti Password WiFi</h6>
         <form method="POST" action="/customer/change-password" class="row g-2 align-items-center">
           <div class="col-12 col-md-8 mb-2 mb-md-0">
-            <input type="text" class="form-control" name="password" placeholder="Password baru" required maxlength="32">
+            <input type="password" class="form-control" name="password" placeholder="Password baru" required maxlength="32" minlength="8" autocomplete="new-password">
           </div>
           <div class="col-12 col-md-4">
             <button class="btn btn-action btn-password w-100" type="submit">
@@ -432,7 +433,7 @@
                   <th>IP</th>
                   <th>MAC</th>
                   <th>Interface</th>
-                  <th>Waktu</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -442,7 +443,13 @@
                     <td><%= user.ip %></td>
                     <td><%= user.mac %></td>
                     <td><%= user.iface %></td>
-                    <td><%= user.waktu %></td>
+                    <td>
+                      <% if (user.status === 'Online') { %>
+                        <span class="badge bg-success">Online</span>
+                      <% } else { %>
+                        <span class="badge bg-secondary">Offline</span>
+                      <% } %>
+                    </td>
                   </tr>
                 <% }) %>
               </tbody>

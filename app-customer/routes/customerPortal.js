@@ -1,11 +1,10 @@
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
 const axios = require('axios');
-const { getSettingsWithCache, getSetting } = require('../config/settingsManager');
+const { getSettingsWithCache } = require('../config/settingsManager');
 const router = express.Router();
 
-// Ganti findDeviceByTag dengan implementasi pencarian device langsung di sini atau gunakan dari modul lain yang masih ada
+// ─── Helper: Cari perangkat di GenieACS berdasarkan tag pelanggan ───────────
+// Digunakan untuk validasi login — hanya ambil _id dan _tags (efisien)
 async function findDeviceByTag(phone) {
   const settings = getSettingsWithCache();
   const genieacsUrl = settings.genieacs_url || 'http://localhost:7557';
@@ -14,12 +13,14 @@ async function findDeviceByTag(phone) {
   try {
     const response = await axios.get(`${genieacsUrl}/devices`, {
       params: {
-        query: JSON.stringify({ _tags: phone })
+        query: JSON.stringify({ _tags: phone }),
+        projection: '_id,_tags'  // Hanya ambil field yang diperlukan, bukan seluruh data device
       },
-      auth: { username, password }
+      auth: { username, password },
+      timeout: 10000  // Timeout 10 detik agar tidak hang
     });
     if (response.data && response.data.length > 0) {
-      return response.data[0]; // Device ditemukan
+      return response.data[0];
     }
     return null;
   } catch (e) {
@@ -27,10 +28,29 @@ async function findDeviceByTag(phone) {
   }
 }
 
-// Simpan OTP sementara di memory (bisa diganti redis/db)
-const otpStore = {};
+// ─── Helper: Ambil data LENGKAP perangkat (untuk dashboard) ─────────────────
+// Berbeda dengan findDeviceByTag, fungsi ini mengambil semua field
+async function fetchFullDevice(phone) {
+  const settings = getSettingsWithCache();
+  const genieacsUrl = settings.genieacs_url || 'http://localhost:7557';
+  const username = settings.genieacs_username || '';
+  const password = settings.genieacs_password || '';
+  try {
+    const response = await axios.get(`${genieacsUrl}/devices`, {
+      params: { query: JSON.stringify({ _tags: phone }) },
+      auth: { username, password },
+      timeout: 15000
+    });
+    if (response.data && response.data.length > 0) {
+      return response.data[0];
+    }
+    return null;
+  } catch (e) {
+    return null;
+  }
+}
 
-// parameterPaths dan getParameterWithPaths dari WhatsApp bot
+// ─── Mapping parameter paths dari GenieACS ──────────────────────────────────
 const parameterPaths = {
   rxPower: [
     'VirtualParameters.RXPower',
@@ -55,9 +75,10 @@ const parameterPaths = {
     'InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.TotalAssociations'
   ]
 };
+
 function getParameterWithPaths(device, paths) {
-  for (const path of paths) {
-    const parts = path.split('.');
+  for (const p of paths) {
+    const parts = p.split('.');
     let value = device;
     for (const part of parts) {
       if (value && typeof value === 'object' && part in value) {
@@ -73,13 +94,13 @@ function getParameterWithPaths(device, paths) {
   return 'N/A';
 }
 
-// Helper: Ambil info perangkat dan user terhubung dari GenieACS
+// ─── Helper: Ambil data lengkap perangkat pelanggan ─────────────────────────
 async function getCustomerDeviceData(phone) {
-  const device = await findDeviceByTag(phone);
+  const device = await fetchFullDevice(phone);  // Gunakan fetchFullDevice untuk data lengkap
   if (!device) return null;
-  // Ambil SSID
+
   const ssid = device?.InternetGatewayDevice?.LANDevice?.['1']?.WLANConfiguration?.['1']?.SSID?._value || '-';
-  // Status online/offline
+
   const lastInform =
     device?._lastInform
       ? new Date(device._lastInform).toLocaleString('id-ID')
@@ -88,8 +109,18 @@ async function getCustomerDeviceData(phone) {
         : device?.InternetGatewayDevice?.DeviceInfo?.['1']?.LastInform?._value
           ? new Date(device.InternetGatewayDevice.DeviceInfo['1'].LastInform._value).toLocaleString('id-ID')
           : '-';
-  const status = lastInform !== '-' ? 'Online' : 'Unknown';
-  // User terhubung (WiFi)
+
+  // FIX BUG #2: Status berdasarkan selisih waktu lastInform dengan sekarang
+  // Jika lastInform dalam 15 menit terakhir -> Online, jika lebih -> Offline, jika tidak ada -> Unknown
+  let status = 'Unknown';
+  if (device?._lastInform) {
+    const diffMs = Date.now() - new Date(device._lastInform).getTime();
+    status = diffMs < 15 * 60 * 1000 ? 'Online' : 'Offline';
+  } else if (device?.Events?.Inform) {
+    const diffMs = Date.now() - new Date(device.Events.Inform).getTime();
+    status = diffMs < 15 * 60 * 1000 ? 'Online' : 'Offline';
+  }
+
   let connectedUsers = [];
   try {
     const hosts = device?.InternetGatewayDevice?.LANDevice?.['1']?.Hosts?.Host;
@@ -99,212 +130,163 @@ async function getCustomerDeviceData(phone) {
           const entry = hosts[key];
           connectedUsers.push({
             hostname: typeof entry?.HostName === 'object' ? entry?.HostName?._value || '-' : entry?.HostName || '-',
-            ip: typeof entry?.IPAddress === 'object' ? entry?.IPAddress?._value || '-' : entry?.IPAddress || '-',
-            mac: typeof entry?.MACAddress === 'object' ? entry?.MACAddress?._value || '-' : entry?.MACAddress || '-',
-            iface: typeof entry?.InterfaceType === 'object' ? entry?.InterfaceType?._value || '-' : entry?.InterfaceType || entry?.Interface || '-',
-            waktu: entry?.Active?._value === 'true' ? 'Aktif' : 'Tidak Aktif'
+            ip:       typeof entry?.IPAddress === 'object' ? entry?.IPAddress?._value || '-' : entry?.IPAddress || '-',
+            mac:      typeof entry?.MACAddress === 'object' ? entry?.MACAddress?._value || '-' : entry?.MACAddress || '-',
+            iface:    typeof entry?.InterfaceType === 'object' ? entry?.InterfaceType?._value || '-' : entry?.InterfaceType || entry?.Interface || '-',
+            status:   entry?.Active?._value === 'true' ? 'Online' : 'Offline'
           });
         }
       }
     }
   } catch (e) {}
-  // Ambil data dengan helper agar sama dengan WhatsApp
-  const rxPower = getParameterWithPaths(device, parameterPaths.rxPower);
-  const pppoeIP = getParameterWithPaths(device, parameterPaths.pppoeIP);
-  const pppoeUsername = getParameterWithPaths(device, parameterPaths.pppUsername);
-  const serialNumber =
-    device?.DeviceID?.SerialNumber ||
-    device?.InternetGatewayDevice?.DeviceInfo?.SerialNumber?._value ||
-    device?.InternetGatewayDevice?.DeviceInfo?.['1']?.SerialNumber?._value ||
-    device?.SerialNumber ||
-    '-';
-  const productClass =
-    device?.DeviceID?.ProductClass ||
-    device?.InternetGatewayDevice?.DeviceInfo?.ProductClass?._value ||
-    device?.InternetGatewayDevice?.DeviceInfo?.['1']?.ProductClass?._value ||
-    device?.ProductClass ||
-    '-';
-  let lokasi = device?.Tags || '-';
-  if (Array.isArray(lokasi)) lokasi = lokasi.join(', ');
-  const softwareVersion = device?.InternetGatewayDevice?.DeviceInfo?.SoftwareVersion?._value || '-';
-  const model =
-    device?.InternetGatewayDevice?.DeviceInfo?.ModelName?._value ||
-    device?.InternetGatewayDevice?.DeviceInfo?.['1']?.ModelName?._value ||
-    device?.ModelName ||
-    '-';
-  const uptime = getParameterWithPaths(device, parameterPaths.uptime);
+
+  const rxPower        = getParameterWithPaths(device, parameterPaths.rxPower);
+  const pppoeIP        = getParameterWithPaths(device, parameterPaths.pppoeIP);
+  const pppoeUsername  = getParameterWithPaths(device, parameterPaths.pppUsername);
+  const uptimeRaw      = getParameterWithPaths(device, parameterPaths.uptime);
   const totalAssociations = getParameterWithPaths(device, parameterPaths.userConnected);
+
+  // Format uptime dari detik ke format hari/jam/menit
+  function formatUptime(seconds) {
+    if (!seconds || isNaN(seconds) || seconds === 'N/A') return seconds || 'N/A';
+    const s = parseInt(seconds);
+    const d = Math.floor(s / 86400);
+    const h = Math.floor((s % 86400) / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    if (d > 0) return `${d}h ${h}j ${m}m`;
+    if (h > 0) return `${h}j ${m}m`;
+    return `${m}m`;
+  }
+  const uptime = formatUptime(uptimeRaw);
+
+  const serialNumber   = device?.DeviceID?.SerialNumber || device?.InternetGatewayDevice?.DeviceInfo?.SerialNumber?._value || '-';
+  const productClass   = device?.DeviceID?.ProductClass || device?.InternetGatewayDevice?.DeviceInfo?.ProductClass?._value || '-';
+  const softwareVersion = device?.InternetGatewayDevice?.DeviceInfo?.SoftwareVersion?._value || '-';
+  const model          = device?.InternetGatewayDevice?.DeviceInfo?.ModelName?._value || device?.ModelName || '-';
+
+  // FIX BUG #1: GenieACS REST API mengembalikan field "_tags", bukan "Tags"
+  let lokasi = device?._tags || '-';
+  if (Array.isArray(lokasi)) lokasi = lokasi.join(', ');
+
   return {
-    phone,
-    ssid,
-    status,
-    lastInform,
-    connectedUsers,
-    rxPower,
-    pppoeIP,
-    pppoeUsername,
-    serialNumber,
-    productClass,
-    lokasi,
-    softwareVersion,
-    model,
-    uptime,
-    totalAssociations
+    phone, ssid, status, lastInform, connectedUsers,
+    rxPower, pppoeIP, pppoeUsername,
+    serialNumber, productClass, lokasi, softwareVersion, model,
+    uptime, totalAssociations
   };
 }
 
-// Helper: Update SSID (real ke GenieACS)
+// ─── Helper: Objek fallback lengkap agar EJS tidak crash ────────────────────
+function fallbackCustomer(phone) {
+  return {
+    phone,
+    ssid: '-', status: 'Tidak ditemukan', lastInform: '-',
+    connectedUsers: [],
+    rxPower: '-', pppoeIP: '-', pppoeUsername: '-',
+    serialNumber: '-', productClass: '-', lokasi: '-',
+    softwareVersion: '-', model: '-',
+    uptime: '-', totalAssociations: '-'
+  };
+}
+
+// ─── Helper: Update SSID ke GenieACS ────────────────────────────────────────
 async function updateSSID(phone, newSSID) {
   try {
     const device = await findDeviceByTag(phone);
     if (!device) return false;
-    const deviceId = device._id;
-    const encodedDeviceId = encodeURIComponent(deviceId);
+    const deviceId = encodeURIComponent(device._id);
     const settings = getSettingsWithCache();
     const genieacsUrl = settings.genieacs_url || 'http://localhost:7557';
-    const username = settings.genieacs_username || '';
-    const password = settings.genieacs_password || '';
-    // Update SSID 2.4GHz
-    await axios.post(
-      `${genieacsUrl}/devices/${encodedDeviceId}/tasks`,
-      {
-        name: "setParameterValues",
-        parameterValues: [
-          ["InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.SSID", newSSID, "xsd:string"]
-        ]
-      },
-      { auth: { username, password } }
-    );
-    // Update SSID 5GHz (index 5-8, ambil yang berhasil saja)
+    const auth = { username: settings.genieacs_username || '', password: settings.genieacs_password || '' };
+
+    await axios.post(`${genieacsUrl}/devices/${deviceId}/tasks`, {
+      name: 'setParameterValues',
+      parameterValues: [['InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.SSID', newSSID, 'xsd:string']]
+    }, { auth });
+
     const newSSID5G = `${newSSID}-5G`;
-    const ssid5gIndexes = [5, 6, 7, 8];
-    for (const idx of ssid5gIndexes) {
+    for (const idx of [5, 6, 7, 8]) {
       try {
-        await axios.post(
-          `${genieacsUrl}/devices/${encodedDeviceId}/tasks`,
-          {
-            name: "setParameterValues",
-            parameterValues: [
-              [`InternetGatewayDevice.LANDevice.1.WLANConfiguration.${idx}.SSID`, newSSID5G, "xsd:string"]
-            ]
-          },
-          { auth: { username, password } }
-        );
+        await axios.post(`${genieacsUrl}/devices/${deviceId}/tasks`, {
+          name: 'setParameterValues',
+          parameterValues: [[`InternetGatewayDevice.LANDevice.1.WLANConfiguration.${idx}.SSID`, newSSID5G, 'xsd:string']]
+        }, { auth });
         break;
       } catch (e) {}
     }
-    // Hanya refresh, tidak perlu reboot
-    await axios.post(
-      `${genieacsUrl}/devices/${encodedDeviceId}/tasks`,
-      { name: "refreshObject", objectName: "InternetGatewayDevice.LANDevice.1.WLANConfiguration" },
-      { auth: { username, password } }
-    );
+
+    await axios.post(`${genieacsUrl}/devices/${deviceId}/tasks`, {
+      name: 'refreshObject',
+      objectName: 'InternetGatewayDevice.LANDevice.1.WLANConfiguration'
+    }, { auth });
+
     return true;
   } catch (e) {
     return false;
   }
 }
-// Helper: Update Password (real ke GenieACS)
+
+// ─── Helper: Update Password WiFi ke GenieACS ───────────────────────────────
 async function updatePassword(phone, newPassword) {
   try {
     if (newPassword.length < 8) return false;
     const device = await findDeviceByTag(phone);
     if (!device) return false;
-    const deviceId = device._id;
-    const encodedDeviceId = encodeURIComponent(deviceId);
+    const deviceId = encodeURIComponent(device._id);
     const settings = getSettingsWithCache();
     const genieacsUrl = settings.genieacs_url || 'http://localhost:7557';
-    const username = settings.genieacs_username || '';
-    const password = settings.genieacs_password || '';
-    const tasksUrl = `${genieacsUrl}/devices/${encodedDeviceId}/tasks`;
-    // Update password 2.4GHz
+    const auth = { username: settings.genieacs_username || '', password: settings.genieacs_password || '' };
+    const tasksUrl = `${genieacsUrl}/devices/${deviceId}/tasks`;
+
+    // Update password 2.4GHz (index 1)
     await axios.post(tasksUrl, {
-      name: "setParameterValues",
+      name: 'setParameterValues',
       parameterValues: [
-        ["InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.KeyPassphrase", newPassword, "xsd:string"],
-        ["InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.PreSharedKey.1.KeyPassphrase", newPassword, "xsd:string"]
+        ['InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.KeyPassphrase', newPassword, 'xsd:string'],
+        ['InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.PreSharedKey.1.KeyPassphrase', newPassword, 'xsd:string']
       ]
-    }, { auth: { username, password } });
-    // Update password 5GHz
+    }, { auth });
+
+    // FIX BUG #5: Update password 5GHz dengan retry index 5-8 (sama seperti SSID)
+    for (const idx of [5, 6, 7, 8]) {
+      try {
+        await axios.post(tasksUrl, {
+          name: 'setParameterValues',
+          parameterValues: [
+            [`InternetGatewayDevice.LANDevice.1.WLANConfiguration.${idx}.KeyPassphrase`, newPassword, 'xsd:string'],
+            [`InternetGatewayDevice.LANDevice.1.WLANConfiguration.${idx}.PreSharedKey.1.KeyPassphrase`, newPassword, 'xsd:string']
+          ]
+        }, { auth });
+        break; // Berhenti setelah berhasil
+      } catch (e) {}
+    }
+
     await axios.post(tasksUrl, {
-      name: "setParameterValues",
-      parameterValues: [
-        ["InternetGatewayDevice.LANDevice.1.WLANConfiguration.5.KeyPassphrase", newPassword, "xsd:string"],
-        ["InternetGatewayDevice.LANDevice.1.WLANConfiguration.5.PreSharedKey.1.KeyPassphrase", newPassword, "xsd:string"]
-      ]
-    }, { auth: { username, password } });
-    // Refresh
-    await axios.post(tasksUrl, {
-      name: "refreshObject",
-      objectName: "InternetGatewayDevice.LANDevice.1.WLANConfiguration"
-    }, { auth: { username, password } });
+      name: 'refreshObject',
+      objectName: 'InternetGatewayDevice.LANDevice.1.WLANConfiguration'
+    }, { auth });
+
     return true;
   } catch (e) {
     return false;
   }
 }
 
-// GET: Login page
+// ─── ROUTES ──────────────────────────────────────────────────────────────────
+
+// GET: Halaman login
 router.get('/login', (req, res) => {
   const settings = getSettingsWithCache();
-  res.render('login', { 
-    error: null,
-    settings: settings
-  });
+  res.render('login', { error: null, settings });
 });
 
-// POST: Proses login
+// POST: Proses login — langsung ke dashboard tanpa OTP
 router.post('/login', async (req, res) => {
   const { phone } = req.body;
   const settings = getSettingsWithCache();
-  if (!await findDeviceByTag(phone)) { // Changed from isValidCustomer
-    return res.render('login', { error: 'Nomor HP tidak valid atau belum terdaftar.' });
+  if (!await findDeviceByTag(phone)) {
+    return res.render('login', { error: 'ID/Tag tidak valid atau belum terdaftar.', settings });
   }
-  if (settings.customerPortalOtp) {
-    // Generate OTP sesuai jumlah digit di settings
-    const otpLength = settings.otp_length || 6;
-    const min = Math.pow(10, otpLength - 1);
-    const max = Math.pow(10, otpLength) - 1;
-    const otp = Math.floor(min + Math.random() * (max - min)).toString();
-    otpStore[phone] = { otp, expires: Date.now() + 5 * 60 * 1000 };
-    
-    // Kirim OTP ke WhatsApp pelanggan
-    try {
-      const waJid = phone.replace(/^0/, '62') + '@s.whatsapp.net';
-      const msg = `🔐 *KODE OTP PORTAL PELANGGAN*\n\n` +
-        `Kode OTP Anda adalah: *${otp}*\n\n` +
-        `⏰ Kode ini berlaku selama 5 menit\n` +
-        `🔒 Jangan bagikan kode ini kepada siapapun`;
-      
-      // Removed sendMessage call
-    } catch (error) {
-      console.error(`Gagal mengirim OTP ke ${phone}:`, error);
-    }
-    return res.render('otp', { phone, error: null, otp_length: otpLength });
-  } else {
-    req.session.phone = phone;
-    return res.redirect('/customer/dashboard');
-  }
-});
-
-// GET: Halaman OTP
-router.get('/otp', (req, res) => {
-  const { phone } = req.query;
-  const settings = getSettingsWithCache();
-  res.render('otp', { phone, error: null, otp_length: settings.otp_length || 6 });
-});
-
-// POST: Verifikasi OTP
-router.post('/otp', (req, res) => {
-  const { phone, otp } = req.body;
-  const data = otpStore[phone];
-  const settings = getSettingsWithCache();
-  if (!data || data.otp !== otp || Date.now() > data.expires) {
-    return res.render('otp', { phone, error: 'OTP salah atau sudah kadaluarsa.', otp_length: settings.otp_length || 6 });
-  }
-  // Sukses login
-  delete otpStore[phone];
-  req.session = req.session || {};
   req.session.phone = phone;
   return res.redirect('/customer/dashboard');
 });
@@ -314,8 +296,11 @@ router.get('/dashboard', async (req, res) => {
   const phone = req.session && req.session.phone;
   if (!phone) return res.redirect('/customer/login');
   const data = await getCustomerDeviceData(phone);
-  if (!data) return res.render('dashboard', { customer: { phone, ssid: '-', status: 'Tidak ditemukan', lastChange: '-' }, connectedUsers: [], notif: 'Data perangkat tidak ditemukan.' });
-  res.render('dashboard', { customer: data, connectedUsers: data.connectedUsers });
+  res.render('dashboard', {
+    customer: data || fallbackCustomer(phone),
+    connectedUsers: data ? data.connectedUsers : [],
+    notif: data ? null : 'Data perangkat tidak ditemukan.'
+  });
 });
 
 // POST: Ganti SSID
@@ -324,34 +309,26 @@ router.post('/change-ssid', async (req, res) => {
   if (!phone) return res.redirect('/customer/login');
   const { ssid } = req.body;
   const ok = await updateSSID(phone, ssid);
-  if (ok) {
-    // Kirim notifikasi WhatsApp ke pelanggan
-    const waJid = phone.replace(/^0/, '62') + '@s.whatsapp.net';
-    const msg = `✅ *PERUBAHAN NAMA WIFI*\n\nNama WiFi Anda telah diubah menjadi:\n• WiFi 2.4GHz: ${ssid}\n• WiFi 5GHz: ${ssid}-5G\n\nSilakan hubungkan ulang perangkat Anda ke WiFi baru.`;
-    try { 
-      // Removed sendMessage call
-    } catch (e) {}
-  }
   const data = await getCustomerDeviceData(phone);
-  res.render('dashboard', { customer: data || { phone, ssid: '-', status: '-', lastChange: '-' }, connectedUsers: data ? data.connectedUsers : [], notif: ok ? 'Nama WiFi (SSID) berhasil diubah.' : 'Gagal mengubah SSID.' });
+  res.render('dashboard', {
+    customer: data || fallbackCustomer(phone),
+    connectedUsers: data ? data.connectedUsers : [],
+    notif: ok ? 'Nama WiFi (SSID) berhasil diubah.' : 'Gagal mengubah SSID.'
+  });
 });
 
-// POST: Ganti Password
+// POST: Ganti Password WiFi
 router.post('/change-password', async (req, res) => {
   const phone = req.session && req.session.phone;
   if (!phone) return res.redirect('/customer/login');
   const { password } = req.body;
   const ok = await updatePassword(phone, password);
-  if (ok) {
-    // Kirim notifikasi WhatsApp ke pelanggan
-    const waJid = phone.replace(/^0/, '62') + '@s.whatsapp.net';
-    const msg = `✅ *PERUBAHAN PASSWORD WIFI*\n\nPassword WiFi Anda telah diubah menjadi:\n• Password Baru: ${password}\n\nSilakan hubungkan ulang perangkat Anda dengan password baru.`;
-    try { 
-      // Removed sendMessage call
-    } catch (e) {}
-  }
   const data = await getCustomerDeviceData(phone);
-  res.render('dashboard', { customer: data || { phone, ssid: '-', status: '-', lastChange: '-' }, connectedUsers: data ? data.connectedUsers : [], notif: ok ? 'Password WiFi berhasil diubah.' : 'Gagal mengubah password.' });
+  res.render('dashboard', {
+    customer: data || fallbackCustomer(phone),
+    connectedUsers: data ? data.connectedUsers : [],
+    notif: ok ? 'Password WiFi berhasil diubah.' : 'Gagal mengubah password. Pastikan minimal 8 karakter.'
+  });
 });
 
 // POST: Reboot perangkat
@@ -363,13 +340,12 @@ router.post('/reboot', async (req, res) => {
   if (device && device._id) {
     const settings = getSettingsWithCache();
     const genieacsUrl = settings.genieacs_url || 'http://localhost:7557';
-    const username = settings.genieacs_username || '';
-    const password = settings.genieacs_password || '';
+    const auth = { username: settings.genieacs_username || '', password: settings.genieacs_password || '' };
     try {
       await axios.post(
         `${genieacsUrl}/devices/${encodeURIComponent(device._id)}/tasks`,
         { name: 'reboot', timestamp: new Date().toISOString() },
-        { auth: { username, password } }
+        { auth }
       );
       notif = 'Perangkat berhasil direboot. Silakan tunggu beberapa menit hingga perangkat online kembali.';
     } catch (e) {
@@ -379,7 +355,11 @@ router.post('/reboot', async (req, res) => {
     notif = 'Perangkat tidak ditemukan.';
   }
   const data = await getCustomerDeviceData(phone);
-  res.render('dashboard', { customer: data || { phone, ssid: '-', status: '-', lastChange: '-' }, connectedUsers: data ? data.connectedUsers : [], notif });
+  res.render('dashboard', {
+    customer: data || fallbackCustomer(phone),
+    connectedUsers: data ? data.connectedUsers : [],
+    notif
+  });
 });
 
 // POST: Ubah ID/Tag pelanggan
@@ -389,26 +369,28 @@ router.post('/change-tag', async (req, res) => {
   if (!oldTag) return res.redirect('/customer/login');
   if (!newTag || newTag === oldTag) {
     const data = await getCustomerDeviceData(oldTag);
-    return res.render('dashboard', { customer: data || { phone: oldTag, ssid: '-', status: '-', lastChange: '-' }, connectedUsers: data ? data.connectedUsers : [], notif: 'ID/Tag baru tidak boleh kosong atau sama dengan yang lama.' });
+    return res.render('dashboard', {
+      customer: data || fallbackCustomer(oldTag),
+      connectedUsers: data ? data.connectedUsers : [],
+      notif: 'ID/Tag baru tidak boleh kosong atau sama dengan yang lama.'
+    });
   }
   const device = await findDeviceByTag(oldTag);
   let notif = '';
   if (device && device._id) {
     const settings = getSettingsWithCache();
     const genieacsUrl = settings.genieacs_url || 'http://localhost:7557';
-    const username = settings.genieacs_username || '';
-    const password = settings.genieacs_password || '';
+    const auth = { username: settings.genieacs_username || '', password: settings.genieacs_password || '' };
     try {
-      // Update tag: hapus tag lama, tambah tag baru
-      const tags = Array.isArray(device.Tags) ? device.Tags.filter(t => t !== oldTag) : [];
+      // FIX BUG #3: GenieACS REST API menggunakan "_tags", bukan "Tags"
+      const tags = Array.isArray(device._tags) ? device._tags.filter(t => t !== oldTag) : [];
       tags.push(newTag);
-      // PUT hanya _id dan Tags
       await axios.put(
         `${genieacsUrl}/devices/${encodeURIComponent(device._id)}`,
-        { _id: device._id, Tags: tags },
-        { auth: { username, password } }
+        { _id: device._id, _tags: tags },
+        { auth }
       );
-      req.session.phone = newTag; // Update session ke tag baru HANYA jika berhasil
+      req.session.phone = newTag;
       notif = 'ID/Tag berhasil diubah.';
     } catch (e) {
       notif = 'Gagal mengubah ID/Tag pelanggan.';
@@ -416,15 +398,20 @@ router.post('/change-tag', async (req, res) => {
   } else {
     notif = 'Perangkat tidak ditemukan.';
   }
-  const data = await getCustomerDeviceData(notif === 'ID/Tag berhasil diubah.' ? newTag : oldTag);
-  res.render('dashboard', { customer: data || { phone: notif === 'ID/Tag berhasil diubah.' ? newTag : oldTag, ssid: '-', status: '-', lastChange: '-' }, connectedUsers: data ? data.connectedUsers : [], notif });
+  const resolvedPhone = notif === 'ID/Tag berhasil diubah.' ? newTag : oldTag;
+  const data = await getCustomerDeviceData(resolvedPhone);
+  res.render('dashboard', {
+    customer: data || fallbackCustomer(resolvedPhone),
+    connectedUsers: data ? data.connectedUsers : [],
+    notif
+  });
 });
 
-// POST: Logout pelanggan (letakkan sebelum module.exports)
+// POST: Logout
 router.post('/logout', (req, res) => {
   req.session.destroy(() => {
     res.redirect('/customer/login');
   });
 });
 
-module.exports = router; 
+module.exports = router;
