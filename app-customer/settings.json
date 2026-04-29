@@ -1,9 +1,0 @@
-{
-  "genieacs_url": "http://192.168.8.89:7557",
-  "genieacs_username": "admin",
-  "genieacs_password": "admin",
-  "company_header": "ALIJAYA WEBPORTAL",
-  "footer_info": "Internet Tanpa Batas",
-  "server_port": 3001,
-  "server_host": "localhost"
-}
