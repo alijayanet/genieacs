@@ -1,0 +1,1275 @@
+{
+  "common": {
+    "menu": "Menu",
+    "home": "Beranda",
+    "login": "Login",
+    "search": "Cari",
+    "filter": "Filter",
+    "reset": "Reset",
+    "refresh": "Refresh",
+    "loading": "Memuat data...",
+    "loading_short": "Memuat...",
+    "all_status": "Semua Status",
+    "view_all": "Lihat Semua",
+    "close": "Tutup",
+    "processing": "Memproses...",
+    "success": "Berhasil",
+    "failed": "Gagal",
+    "details": "Detail",
+    "active": "Aktif",
+    "inactive": "Nonaktif",
+    "cancel": "Batal",
+    "back_to": "Kembali ke",
+    "portal": "Portal",
+    "edit": "Edit",
+    "delete": "Hapus",
+    "save": "Simpan",
+    "add": "Tambah",
+    "actions": "Aksi",
+    "copy_link": "Salin Link",
+    "logout": "Logout",
+    "language": "Bahasa"
+  },
+  "admin": {
+    "panel": "Admin Panel",
+    "login": {
+      "subtitle": "Administrator Portal",
+      "username": "Username",
+      "password": "Password",
+      "sign_in": "Masuk Sekarang",
+      "back_customer": "Kembali ke Portal Pelanggan"
+    },
+    "role": {
+      "admin": "Admin",
+      "cashier": "Kasir"
+    },
+    "dashboard": {
+      "live_update": "Live Update",
+      "portal_link": "Link Portal Pelanggan",
+      "monitoring_onu": "Monitoring ONU",
+      "onu_status_title": "Status ONU",
+      "total_onu": "Total ONU",
+      "onu_registered": "Perangkat terdaftar",
+      "online": "Online",
+      "active_now": "Aktif saat ini",
+      "offline": "Offline",
+      "no_response": "Tidak merespons",
+      "warning": "Warning",
+      "needs_attention": "Perlu perhatian",
+      "billing_summary_month": "Ringkasan Billing Bulan Ini",
+      "revenue_month": "Pendapatan Bulan Ini",
+      "collected": "Sudah terkumpul",
+      "active_customers": "Pelanggan Aktif",
+      "from": "Dari",
+      "total_customers_suffix": "total pelanggan",
+      "unpaid_invoices": "Tagihan Belum Bayar",
+      "awaiting_payment": "Menunggu pembayaran",
+      "total_receivable": "Total Piutang",
+      "not_collected": "Belum tertagih",
+      "quick_actions": "Aksi Cepat",
+      "qa_add_customer": "Tambah Pelanggan",
+      "qa_manage_packages": "Kelola Paket",
+      "qa_create_invoice": "Buat Tagihan",
+      "qa_reports": "Laporan",
+      "qa_monitor_onu": "Monitor ONU",
+      "qa_bulk": "Bulk Config",
+      "latest_offline": "ONU Offline Terbaru",
+      "uptime": "Uptime",
+      "search_placeholder": "Cari tag, SN, atau username pppoe...",
+      "realtime": "Realtime Monitoring",
+      "onu_device_list": "Daftar Perangkat ONU",
+      "loading_onu": "Memuat data ONU...",
+      "loading_devices": "Memuat perangkat...",
+      "table": {
+        "tag_customer": "Tag / Pelanggan",
+        "device": "Perangkat",
+        "network": "Jaringan",
+        "status_info": "Status / Info",
+        "actions": "Aksi"
+      },
+      "device_detail": "Detail Perangkat",
+      "edit_ssid": "Ubah SSID",
+      "new_ssid": "SSID Baru",
+      "new_ssid_placeholder": "Nama WiFi baru",
+      "edit_wifi_password": "Ubah Password WiFi",
+      "new_password": "Password Baru",
+      "new_password_placeholder": "Minimal 8 karakter",
+      "devices_suffix": "perangkat",
+      "update_prefix": "Update:",
+      "all_onu_online": "Semua ONU online!",
+      "never": "Tidak pernah",
+      "seconds_ago": "detik lalu",
+      "minutes_ago": "menit lalu",
+      "hours_ago": "jam lalu",
+      "days_ago": "hari lalu",
+      "reboot_confirm_prefix": "Yakin reboot ONU:",
+      "reboot_sent": "Reboot terkirim",
+      "load_failed": "Gagal memuat data",
+      "no_devices_found": "Tidak ada perangkat ditemukan",
+      "onu_device_fallback": "ONU Device",
+      "no_ip": "No IP",
+      "connected_suffix": "dev tersambung",
+      "edit_password": "Ubah Password",
+      "reboot": "Reboot",
+      "ssid_required": "SSID tidak boleh kosong",
+      "ssid_sent": "Perubahan SSID telah dikirim ke perangkat.",
+      "ssid_failed": "Gagal mengubah SSID.",
+      "password_min": "Password minimal 8 karakter",
+      "password_sent": "Perubahan Password telah dikirim ke perangkat.",
+      "password_failed": "Gagal mengubah password.",
+      "connection_error": "Terjadi kesalahan koneksi.",
+      "portal_link_copied": "Link Portal berhasil disalin!",
+      "connected_devices": "Perangkat Terhubung",
+      "no_connected_devices": "Tidak ada perangkat terhubung",
+      "detail_load_failed": "Gagal memuat detail",
+      "detail": {
+        "tag": "Tag",
+        "status": "Status",
+        "ssid": "SSID",
+        "serial": "Serial",
+        "model": "Model",
+        "software": "SW Version",
+        "pppoe_user": "PPPoE User",
+        "ip": "IP",
+        "rx_power": "RX Power",
+        "uptime": "Uptime",
+        "last_inform": "Last Inform",
+        "user_conn": "User Conn."
+      }
+    },
+    "mikrotik": {
+      "default_router": "-- Default Router --",
+      "backup_rsc": "Backup RSC",
+      "search_placeholder": "Cari...",
+      "stats": {
+        "pppoe_online": "PPPoE Online",
+        "hotspot_online": "Hotspot Online",
+        "total_secrets": "Total Secrets",
+        "total_hotspot": "Total Hotspot"
+      },
+      "tabs": {
+        "pppoe_secrets": "PPPoE Secrets",
+        "hotspot_users": "Hotspot Users",
+        "pppoe_profiles": "PPPoE Profiles",
+        "hotspot_profiles": "Hotspot Profiles"
+      },
+      "pppoe": {
+        "title": "Daftar PPPoE Secrets"
+      },
+      "hotspot": {
+        "title": "Daftar Hotspot Users"
+      },
+      "pppoe_profiles": {
+        "title": "Daftar PPPoE Profiles"
+      },
+      "hotspot_profiles": {
+        "title": "Daftar Hotspot User Profiles",
+        "price": "Harga",
+        "duration": "Durasi"
+      },
+      "actions": {
+        "add_secret": "Tambah Secret",
+        "edit_secret": "Edit Secret",
+        "add_user": "Tambah User",
+        "add_profile": "Tambah Profile",
+        "add_hotspot_user": "Tambah User Hotspot",
+        "edit_hotspot_user": "Edit User Hotspot",
+        "add_pppoe_profile": "Tambah PPPoE Profile",
+        "edit_pppoe_profile": "Edit PPPoE Profile",
+        "add_hotspot_profile": "Tambah Hotspot Profile",
+        "edit_hotspot_profile": "Edit Hotspot Profile"
+      },
+      "confirm": {
+        "delete_secret": "Hapus secret ini?",
+        "delete_hotspot_user": "Hapus user hotspot ini?",
+        "delete_profile": "Hapus profile ini?"
+      },
+      "empty": {
+        "secrets": "Tidak ada data secret",
+        "hotspot_users": "Tidak ada data user hotspot"
+      },
+      "errors": {
+        "save_failed": "Gagal menyimpan",
+        "delete_failed": "Gagal menghapus",
+        "load_failed": "Gagal memuat data"
+      },
+      "status": {
+        "online": "Online",
+        "offline": "Offline",
+        "disabled": "Disabled"
+      }
+    },
+    "vouchers": {
+      "default_router": "-- Default Router --",
+      "stats": {
+        "batches": "Batch",
+        "vouchers": "Voucher",
+        "used": "Terpakai",
+        "unused": "Belum"
+      },
+      "create": {
+        "title": "Buat Voucher Batch",
+        "profile": "Hotspot User Profile",
+        "qty": "Jumlah",
+        "price": "Harga (Rp)",
+        "mode": "Mode",
+        "mode_voucher": "Voucher (User=Pass)",
+        "mode_member": "Member (User & Pass Beda)",
+        "charset": "Karakter",
+        "charset_numbers": "Hanya Angka",
+        "charset_letters": "Hanya Huruf (Kecil)",
+        "charset_mixed": "Huruf & Angka",
+        "length": "Panjang",
+        "prefix": "Prefix",
+        "create_btn": "Buat",
+        "hint_default": "Durasi diambil dari metadata profile. Harga bisa diisi manual (kalau kosong akan pakai dari profile)."
+      },
+      "batches": {
+        "title": "Batch Voucher"
+      },
+      "table": {
+        "router": "Router",
+        "used": "Terpakai",
+        "created": "Dibuat"
+      },
+      "detail": {
+        "title": "Detail Batch",
+        "code": "Kode",
+        "password": "Password",
+        "used_at": "Terpakai",
+        "last_seen": "Last Seen"
+      },
+      "actions": {
+        "sync": "Sync",
+        "print": "Print",
+        "csv": "CSV"
+      },
+      "js": {
+        "price_prefix": "Harga:",
+        "duration_prefix": "Durasi:",
+        "mode_voucher_hint": "Mode Voucher: Username dan Password sama. Durasi diambil dari metadata profile. Harga bisa diisi manual.",
+        "mode_member_hint": "Mode Member: Username dan Password di-generate secara terpisah. Durasi diambil dari metadata profile. Harga bisa diisi manual.",
+        "choose_profile_first": "Pilih profile hotspot terlebih dulu.",
+        "invalid_qty": "Jumlah voucher tidak valid.",
+        "processing": "Proses...",
+        "create_failed": "Gagal membuat batch",
+        "batch_created_prefix": "Batch",
+        "batch_created_suffix": "dibuat. Sistem sedang membuat voucher di MikroTik.",
+        "no_batches": "Belum ada batch voucher.",
+        "default_router": "Default",
+        "detail_failed": "Gagal mengambil detail",
+        "detail_title_prefix": "Detail Batch",
+        "no_vouchers": "Tidak ada voucher.",
+        "sync_failed": "Gagal sync",
+        "sync_done_prefix": "Sync selesai. Used baru:",
+        "sync_done_middle": "Missing:",
+        "delete_creating_warn": "Batch sedang diproses. Tunggu sampai statusnya selesai, lalu coba hapus lagi.",
+        "delete_confirm_prefix": "Hapus Batch",
+        "delete_confirm_line1": "- Data voucher batch ini akan dihapus dari sistem.",
+        "delete_confirm_line2": "- Ini TIDAK menghapus user Hotspot yang sudah terbuat di MikroTik.",
+        "delete_confirm_continue": "Lanjutkan?",
+        "delete_failed": "Gagal menghapus batch",
+        "delete_success_prefix": "Batch",
+        "delete_success_suffix": "berhasil dihapus.",
+        "deleted_vouchers_prefix": "Vouchers terhapus:",
+        "used_prefix": "Terpakai:"
+      }
+    },
+    "routers": {
+      "list_title": "Daftar Router MikroTik",
+      "add": "Tambah Router",
+      "empty": "Belum ada router yang ditambahkan",
+      "table": {
+        "name": "Nama Router",
+        "host": "Host / IP",
+        "port": "Port",
+        "username": "Username",
+        "status": "Status"
+      },
+      "form": {
+        "name": "Nama Router",
+        "name_placeholder": "Contoh: Router Pusat",
+        "host": "Host / IP",
+        "api_port": "Port API",
+        "username": "Username MikroTik",
+        "password": "Password",
+        "password_keep": "Password (Kosongkan jika tetap)",
+        "status": "Status",
+        "description": "Deskripsi / Lokasi",
+        "optional": "Opsional..."
+      },
+      "actions": {
+        "test": "Test Koneksi",
+        "save": "Simpan Router",
+        "edit_title": "Edit Router",
+        "update": "Update Router"
+      },
+      "confirm": {
+        "delete": "Hapus router ini?",
+        "test": "Test koneksi ke router ini?"
+      },
+      "js": {
+        "system_error": "Terjadi kesalahan sistem."
+      }
+    },
+    "tickets": {
+      "list_title": "Daftar Keluhan",
+      "empty": "Tidak ada tiket keluhan",
+      "no_technician": "Belum ada",
+      "stats": {
+        "total": "Total Tiket"
+      },
+      "status": {
+        "open": "Belum Ditangani",
+        "in_progress": "Sedang Dikerjakan",
+        "working_short": "Dikerjakan",
+        "resolved": "Selesai"
+      },
+      "table": {
+        "time": "Waktu",
+        "customer": "Pelanggan",
+        "issue": "Kendala",
+        "technician": "Teknisi",
+        "status": "Status"
+      },
+      "actions": {
+        "update_status": "Update Status",
+        "save_changes": "Simpan Perubahan"
+      },
+      "confirm": {
+        "delete": "Hapus keluhan ini?"
+      },
+      "modal": {
+        "title": "Update Status Keluhan",
+        "message": "Detail Pesan"
+      }
+    },
+    "whatsapp": {
+      "status_title": "Status WhatsApp",
+      "checking": "Mengecek status...",
+      "please_wait": "Harap tunggu sebentar.",
+      "connected": "Terhubung",
+      "need_scan": "Perlu Pemindaian",
+      "qr_instruction": "Silakan pindai QR Code ini dengan aplikasi WhatsApp Anda:",
+      "qr_auto_refresh": "QR Code akan diperbarui secara otomatis.",
+      "connected_title": "WhatsApp Terhubung",
+      "connected_as": "Terhubung sebagai:",
+      "last_updated": "Terakhir diperbarui:",
+      "refresh_status": "Refresh Status",
+      "reset_session": "Hapus Sesi / Reset",
+      "test_notification": "Kirim Test Notif",
+      "confirm_test": "Kirim test notifikasi WhatsApp ke admin sekarang?",
+      "confirm_reset": "Apakah Anda yakin ingin menghapus sesi WhatsApp? Anda harus scan QR ulang setelah ini.",
+      "desc_open": "Bot WhatsApp aktif dan siap mengirim notifikasi.",
+      "desc_qr": "Sesi tidak ditemukan atau kedaluwarsa.",
+      "disconnected_prefix": "Terputus",
+      "desc_off": "Bot WhatsApp sedang offline atau sedang mencoba menghubungkan ulang.",
+      "device_fallback": "Device",
+      "wait_qr_lib": "Menunggu library QR Code...",
+      "qr_fail": "Gagal memproses QR Code. Silakan cek konsol browser."
+    },
+    "broadcast": {
+      "title": "Broadcast WhatsApp",
+      "start": "Mulai Broadcast",
+      "target": "Target Penerima",
+      "delay": "Jeda Antar Pesan (Detik)",
+      "message": "Isi Pesan WhatsApp",
+      "send_mass": "Kirim Pesan Massal",
+      "sending": "Mengirim:",
+      "failed": "Gagal",
+      "confirm_send": "Kirim pesan broadcast sekarang? Pastikan target dan pesan sudah benar.",
+      "info": "Pesan akan dikirim menggunakan nomor WhatsApp Bot Anda secara otomatis dengan jeda aman per pesan agar tidak terdeteksi sebagai spam.",
+      "target_all": "Semua Pelanggan (Aktif & Isolir)",
+      "target_active": "Hanya Pelanggan Aktif",
+      "target_suspended": "Hanya Pelanggan Terisolir",
+      "target_unpaid": "Pelanggan yang Punya Tunggakan Tagihan",
+      "warning_title": "PERINGATAN PENTING:",
+      "warning_body": "Penggunaan fitur broadcast massal berisiko menyebabkan akun WhatsApp Anda DIBLOKIR (BANNED) oleh pihak Meta jika dianggap melanggar ketentuan spam. Pastikan pesan relevan bagi pelanggan. Developer aplikasi tidak bertanggung jawab atas segala risiko pemblokiran akun.",
+      "variables": "Variabel:",
+      "portal_link": "Link Portal",
+      "formatting": "Gunakan *Tebal*, _Miring_, atau ~Coret~ sesuai standar WhatsApp.",
+      "confirm_change_target": "Ganti target penerima? Pesan yang sudah Anda ketik akan ditimpa dengan template baru.",
+      "sending_btn": "Sedang Mengirim...",
+      "done_prefix": "Selesai:",
+      "sent_suffix": "dikirim"
+    },
+    "billing": {
+      "title": "Tagihan",
+      "manage_title": "Manajemen Tagihan",
+      "generate": "Generate Tagihan",
+      "search_placeholder": "Cari nama / telepon...",
+      "all_months": "Semua Bulan",
+      "all_status": "Semua Status",
+      "unpaid": "Belum Bayar",
+      "paid": "Sudah Bayar",
+      "list": "Daftar Tagihan",
+      "empty": "Tidak ada tagihan. Generate tagihan bulanan terlebih dahulu.",
+      "summary": {
+        "total": "Total Tagihan",
+        "paid": "Sudah Bayar",
+        "unpaid": "Belum Bayar",
+        "collected_pct": "% Terkumpul"
+      },
+      "table": {
+        "customer": "Pelanggan",
+        "period": "Periode",
+        "package": "Paket",
+        "amount": "Jumlah",
+        "status": "Status",
+        "paid_by": "Dibayar Oleh",
+        "paid_time": "Waktu Bayar",
+        "actions": "Aksi"
+      },
+      "status": {
+        "paid": "Lunas",
+        "unpaid": "Belum Bayar"
+      },
+      "actions": {
+        "mark_paid": "Tandai Lunas",
+        "unisolate": "Buka Isolir",
+        "send_wa": "Kirim Tagihan WA",
+        "print_invoice": "Cetak Struk/Invoice",
+        "unpay": "Batalkan Lunas",
+        "isolate_manual": "Isolir Manual"
+      },
+      "confirm": {
+        "unisolate_without_payment": "Buka isolir pelanggan ini tanpa bayar?",
+        "unpay": "Batalkan status lunas?",
+        "isolate_manual": "Isolir pelanggan ini secara manual?",
+        "delete": "Hapus tagihan ini?"
+      },
+      "generate_monthly": "Generate Tagihan Bulanan",
+      "generate_hint": "Tagihan akan dibuat untuk semua pelanggan aktif yang belum memiliki tagihan di periode yang dipilih.",
+      "month": "Bulan",
+      "year": "Tahun",
+      "choose_invoice": "Pilih Tagihan yang akan dilunasi:",
+      "received_by": "Diterima Oleh",
+      "received_by_placeholder": "Nama petugas / teknisi",
+      "notes_optional": "Catatan (opsional)",
+      "notes_placeholder": "Transfer BRI, tunai, dll...",
+      "confirm_paid": "Konfirmasi Lunas",
+      "loading_other_invoices": "Loading tagihan lainnya...",
+      "js": {
+        "customer_prefix": "Pelanggan:",
+        "package_fallback": "Internet"
+      }
+    },
+    "reports": {
+      "total_revenue_year": "Total Pendapatan",
+      "this_month": "Bulan Ini",
+      "pending_receivable": "Piutang Belum Bayar",
+      "active_customers_total": "Total Pelanggan Aktif",
+      "revenue_via_agent_year": "Pendapatan Via Agent",
+      "agent_deposit_year": "Deposit Agent Masuk",
+      "cash_in_year": "Kas Masuk (Tanpa Double)",
+      "this_month_prefix": "Bulan ini:",
+      "monthly_revenue": "Pendapatan Bulanan",
+      "top_unpaid": "Piutang Tertinggi",
+      "all_paid": "Semua pelanggan sudah lunas",
+      "invoices_suffix": "tagihan",
+      "monthly_breakdown": "Rincian Per Bulan",
+      "no_data_year_prefix": "Belum ada data untuk tahun",
+      "recent_payments": "Pembayaran Terakhir",
+      "no_payments": "Belum ada pembayaran",
+      "table": {
+        "month": "Bulan",
+        "total_invoices": "Total Tagihan",
+        "paid": "Sudah Bayar",
+        "unpaid": "Belum Bayar",
+        "revenue": "Pendapatan",
+        "pct": "Persentase",
+        "customer": "Pelanggan",
+        "period": "Periode",
+        "amount": "Jumlah",
+        "recorded_by": "Dicatat Oleh",
+        "time": "Waktu"
+      },
+      "chart": {
+        "revenue_label": "Pendapatan (Rp)"
+      }
+    },
+    "customers": {
+      "title": "Pelanggan",
+      "manage_title": "Manajemen Pelanggan",
+      "list": "Daftar Pelanggan",
+      "add": "Tambah Pelanggan",
+      "export_excel": "Export Excel",
+      "import_excel": "Import Excel",
+      "search_placeholder": "Cari nama, telepon, tag...",
+      "empty": "Belum ada pelanggan",
+      "stats": {
+        "total": "Total",
+        "active": "Aktif",
+        "suspended": "Disuspend",
+        "inactive": "Nonaktif"
+      },
+      "filter": {
+        "all_status": "Semua Status",
+        "active": "Aktif",
+        "suspended": "Suspend",
+        "inactive": "Nonaktif"
+      },
+      "table": {
+        "name": "Nama",
+        "phone_tag": "Telepon / Tag ONU",
+        "package": "Paket",
+        "address": "Alamat",
+        "status": "Status",
+        "unpaid": "Tagihan Belum Bayar",
+        "actions": "Aksi"
+      },
+      "auto_isolate": {
+        "label": "Auto Isolir",
+        "off": "OFF",
+        "date_prefix": "Tgl "
+      },
+      "unpaid_suffix": "tagihan",
+      "paid_label": "Lunas",
+      "confirm_delete": "Hapus pelanggan ini?",
+      "actions": {
+        "generate_invoice": "Generate Tagihan",
+        "pay_invoice": "Bayar Tagihan"
+      },
+      "generate_invoice_title": "Generate Tagihan (Pelanggan)",
+      "generate_invoice_hint": "Tagihan hanya dibuat untuk pelanggan yang dipilih. Jika sudah ada, tidak akan dibuat ulang.",
+      "generate_invoice_customer": "Pelanggan",
+      "generate_invoice_btn": "Generate",
+      "pay_invoice_title": "Bayar Tagihan (Pelanggan)",
+      "pay_invoice_hint": "Untuk pembayaran di muka: pilih periode. Jika tagihan belum ada, sistem akan membuat tagihan lalu langsung menandai Lunas.",
+      "pay_invoice_customer": "Pelanggan",
+      "pay_invoice_notes_placeholder": "Contoh: Bayar di muka",
+      "pay_invoice_btn": "Bayar",
+      "paid_badge": "Lunas",
+      "paid_months_label": "Sudah lunas:",
+      "none_paid": "Belum ada yang lunas",
+      "total_selected_label": "Total dipilih:",
+      "months_suffix": "bulan"
+    },
+    "agents": {
+      "title": "Agent",
+      "manage_title": "Manajemen Agent",
+      "list": "Daftar Agent",
+      "add": "Tambah Agent",
+      "empty": "Belum ada agent.",
+      "confirm_delete": "Hapus agent ini?",
+      "table": {
+        "name": "Nama",
+        "username": "Username",
+        "phone": "No. HP",
+        "balance": "Saldo",
+        "billing_fee": "Fee Tagihan",
+        "status": "Status",
+        "actions": "Aksi"
+      },
+      "reports": {
+        "title": "Laporan",
+        "open": "Buka Laporan Agent"
+      },
+      "modal": {
+        "add_title": "Tambah Agent Baru",
+        "edit_title": "Edit Agent"
+      },
+      "form": {
+        "name": "Nama",
+        "username": "Username",
+        "password": "Password",
+        "phone": "No. HP",
+        "billing_fee": "Fee Tagihan (Rp)",
+        "initial_balance": "Saldo Awal (Rp)",
+        "status": "Status"
+      },
+      "topup": {
+        "title": "Topup Saldo Agent",
+        "agent": "Agent",
+        "amount": "Nominal (Rp)",
+        "note": "Catatan",
+        "note_placeholder": "Contoh: topup awal shift",
+        "process": "Proses"
+      },
+      "prices": {
+        "title": "Harga Voucher Agent",
+        "agent": "Agent",
+        "add_update": "Tambah / Update Harga",
+        "router": "Router",
+        "default_router": "(Default)",
+        "profile": "Profile Hotspot",
+        "choose_profile": "Pilih profile",
+        "validity": "Validitas",
+        "validity_placeholder": "Contoh: 1d",
+        "buy": "Harga Beli (potong saldo) (Rp)",
+        "sell": "Harga Jual (tampil struk) (Rp)",
+        "status": "Status",
+        "save": "Simpan Harga",
+        "active_list": "Harga Aktif",
+        "table": {
+          "router": "Router",
+          "profile": "Profile",
+          "validity": "Validitas",
+          "buy": "Beli",
+          "sell": "Jual",
+          "status": "Status",
+          "actions": "Aksi"
+        },
+        "empty_select_agent": "Pilih agent",
+        "empty_no_prices": "Belum ada harga",
+        "required_agent_profile": "Agent dan profile wajib diisi",
+        "save_failed": "Gagal menyimpan",
+        "confirm_delete_price": "Hapus harga ini?",
+        "delete_failed": "Gagal hapus"
+      }
+    },
+    "agent_reports": {
+      "title": "Laporan Agent",
+      "history": "Riwayat Transaksi",
+      "empty": "Belum ada transaksi.",
+      "transactions_suffix": "transaksi",
+      "invoice_prefix": "INV #",
+      "filter": {
+        "all_agents": "Semua Agent"
+      },
+      "type": {
+        "topup": "TOPUP",
+        "invoice": "TAGIHAN",
+        "voucher": "VOUCHER",
+        "adjust": "ADJUST"
+      },
+      "table": {
+        "time": "Waktu",
+        "agent": "Agent",
+        "type": "Jenis",
+        "detail": "Detail",
+        "deduct": "Potong Saldo",
+        "sell": "Harga Jual",
+        "fee": "Fee/Profit",
+        "balance_after": "Saldo Akhir"
+      }
+    },
+    "cashiers": {
+      "add": "Tambah Kasir",
+      "list": "Daftar Petugas Kasir",
+      "empty": "Belum ada data kasir.",
+      "confirm_delete": "Hapus kasir ini?",
+      "save_changes": "Simpan Perubahan",
+      "table": {
+        "name": "Nama",
+        "username": "Username",
+        "password": "Password",
+        "phone": "No. HP",
+        "status": "Status",
+        "actions": "Aksi"
+      },
+      "modal": {
+        "add_title": "Tambah Kasir Baru",
+        "edit_title": "Edit Data Kasir"
+      },
+      "form": {
+        "full_name": "Nama Lengkap",
+        "login_username": "Username Login",
+        "password": "Password",
+        "phone": "No. HP",
+        "phone_placeholder": "Contoh: 08123456789",
+        "account_status": "Status Akun"
+      }
+    },
+    "technicians": {
+      "add": "Tambah Teknisi",
+      "list": "Daftar Teknisi Lapangan",
+      "empty": "Belum ada data teknisi.",
+      "confirm_delete": "Hapus teknisi ini?",
+      "save_changes": "Simpan Perubahan",
+      "table": {
+        "name": "Nama",
+        "username": "Username",
+        "password": "Password",
+        "whatsapp": "WhatsApp",
+        "area": "Area Tugas",
+        "status": "Status",
+        "actions": "Aksi"
+      },
+      "modal": {
+        "add_title": "Tambah Teknisi Baru",
+        "edit_title": "Edit Data Teknisi"
+      },
+      "form": {
+        "full_name": "Nama Lengkap",
+        "login_username": "Username Login",
+        "password": "Password",
+        "whatsapp": "No. WhatsApp",
+        "whatsapp_placeholder": "Contoh: 08123456789",
+        "area": "Area Tugas",
+        "area_placeholder": "Contoh: Kelurahan A, Blok B",
+        "account_status": "Status Akun"
+      }
+    },
+    "olts": {
+      "manage": "Kelola OLT",
+      "add": "Tambah OLT",
+      "select_label": "Pilih Perangkat OLT:",
+      "no_data": "Tidak ada data OLT",
+      "refresh_data": "Refresh Data",
+      "loading": "Mengambil Data OLT...",
+      "onu_list_title": "Daftar Perangkat ONU Terdaftar",
+      "search_placeholder": "Cari ID / SN...",
+      "last_update": "Update Terakhir",
+      "empty_select": "Pilih perangkat OLT di atas untuk memantau data ONU.",
+      "confirm_delete": "Hapus OLT ini?",
+      "confirm_reboot": "Yakin ingin reboot ONU ini?",
+      "reboot_sent": "Perintah reboot berhasil dikirim.",
+      "failed_prefix": "Gagal",
+      "error_prefix": "Error",
+      "status": {
+        "online": "Online",
+        "offline": "Offline"
+      },
+      "stats": {
+        "total_onu": "Total ONU",
+        "online": "Online",
+        "offline": "Offline",
+        "weak_signal": "Sinyal Lemah"
+      },
+      "system": {
+        "temp": "Suhu",
+        "cpu": "CPU",
+        "ram": "RAM",
+        "uptime": "Uptime",
+        "traffic_in": "Traffic Masuk",
+        "traffic_out": "Traffic Keluar"
+      },
+      "table": {
+        "no": "No",
+        "id": "ID",
+        "serial": "Serial Number",
+        "status": "Status",
+        "tx": "TxPower",
+        "rx": "RxPower",
+        "oid": "Index OID"
+      },
+      "manage_modal": {
+        "title": "Manajemen Perangkat OLT",
+        "table": {
+          "name": "Nama OLT",
+          "host": "Host / IP",
+          "brand": "Brand",
+          "status": "Status",
+          "actions": "Aksi"
+        }
+      },
+      "add_modal": {
+        "title": "Tambah OLT Baru",
+        "save": "Simpan Perangkat"
+      },
+      "edit_modal": {
+        "title": "Edit Data OLT",
+        "update": "Update Perangkat"
+      },
+      "form": {
+        "name": "Nama OLT",
+        "name_placeholder": "Contoh: OLT Pusat",
+        "host": "IP Address / Host",
+        "snmp_port": "SNMP Port",
+        "brand": "Brand / Type",
+        "snmp_community": "SNMP Community",
+        "web_user_optional": "Login User (Optional)",
+        "web_password_optional": "Login Pass (Optional)",
+        "web_user": "Login User",
+        "web_password": "Login Pass",
+        "description": "Deskripsi / Lokasi",
+        "monitoring_status": "Status Monitoring"
+      },
+      "actions": {
+        "try_again": "Coba Lagi",
+        "rename_prompt": "Masukkan nama baru untuk ONU:",
+        "rename": "Ubah Nama",
+        "reboot": "Reboot ONU"
+      },
+      "errors": {
+        "server_connect_failed": "Gagal menghubungi server"
+      },
+      "empty_no_onu": "Tidak ada data ONU ditemukan."
+    },
+    "map": {
+      "add_odp": "Tambah ODP",
+      "stats": {
+        "total_odp": "Total ODP",
+        "active_customers": "Pelanggan Aktif",
+        "suspended_customers": "Isolir / Nonaktif"
+      },
+      "legend": {
+        "odp": "ODP (Box)",
+        "active": "Aktif",
+        "suspended": "Isolir"
+      },
+      "add_modal": {
+        "title": "Tambah ODP Baru",
+        "save": "Simpan ODP"
+      },
+      "edit_modal": {
+        "title": "Edit Data ODP",
+        "update": "Update ODP"
+      },
+      "form": {
+        "name": "Nama ODP",
+        "name_placeholder": "Contoh: ODP-A-01",
+        "pick_location": "Pilih Lokasi di Peta",
+        "adjust_location": "Sesuaikan Lokasi di Peta",
+        "lat": "Latitude",
+        "lng": "Longitude",
+        "tips": "*Tips: Geser marker atau klik pada peta untuk menentukan posisi presisi",
+        "description": "Deskripsi"
+      },
+      "layers": {
+        "osm": "OpenStreetMap",
+        "hybrid": "Satelit (Hybrid)"
+      },
+      "popup": {
+        "description": "Deskripsi",
+        "location": "Lokasi",
+        "status": "Status",
+        "package": "Paket",
+        "address": "Alamat",
+        "view_details": "Lihat Detail"
+      },
+      "status": {
+        "active": "Aktif",
+        "suspended": "Isolir"
+      }
+    },
+    "print_invoice": {
+      "title": "Cetak Struk Tagihan",
+      "address_fallback": "Pusat Layanan Internet",
+      "contact_label": "Telp/WA",
+      "receipt_no": "No. Struk",
+      "date": "Tanggal",
+      "cashier": "Kasir",
+      "system": "Sistem",
+      "notes": "Catatan",
+      "dear": "Yth.",
+      "id_tag": "ID/Tag",
+      "payment_title": "Pembayaran Tagihan Internet",
+      "period": "Periode",
+      "package": "Paket",
+      "package_fallback": "Internet Service",
+      "total_paid": "TOTAL BAYAR",
+      "paid": "LUNAS",
+      "manager": "Manajer",
+      "manager_fallback": "Admin Pusat",
+      "footer": {
+        "thanks": "Terima kasih atas pembayaran Anda.",
+        "keep_receipt": "Simpan struk ini sebagai bukti pembayaran yang sah.",
+        "printed_from": "Dicetak dari Sistem Billing"
+      }
+    },
+    "print_vouchers": {
+      "title": "Cetak Voucher Batch",
+      "days": "hari",
+      "hint_user_pass": "Masukkan User (U) dan Pass (P).",
+      "contact_label": "Telp/WA"
+    },
+    "packages": {
+      "title": "Paket Internet",
+      "list": "Daftar Paket",
+      "add": "Tambah Paket",
+      "edit": "Edit Paket",
+      "update": "Update",
+      "empty": "Belum ada paket. Tambah paket pertama!",
+      "customers_suffix": "pelanggan",
+      "table": {
+        "name": "Nama Paket",
+        "price_month": "Harga / Bulan",
+        "speed": "Kecepatan",
+        "description": "Deskripsi",
+        "customers": "Pelanggan",
+        "status": "Status"
+      },
+      "form": {
+        "name_profile": "Nama Paket (Profile MikroTik)",
+        "pick_from_mikrotik": "-- Pilih dari MikroTik --",
+        "type_manual": "Atau ketik manual...",
+        "price_month": "Harga / Bulan (Rp)",
+        "speed_down": "Kecepatan Download (Mbps)",
+        "speed_up": "Kecepatan Upload (Mbps)",
+        "status": "Status",
+        "description": "Deskripsi",
+        "optional": "Opsional..."
+      },
+      "confirm": {
+        "delete": "Hapus paket ini? Pelanggan yang menggunakan paket ini akan kehilangan referensi paket."
+      }
+    },
+    "settings": {
+      "title": "Pengaturan",
+      "system_title": "Pengaturan Sistem",
+      "telegram": {
+        "title": "Pengaturan Telegram Bot (Backup Admin)",
+        "status": "Status Bot Telegram",
+        "admin_id": "Admin Telegram ID",
+        "bot_token": "Telegram Bot Token",
+        "sync_title": "Sinkronkan / Hapus Webhook Lama",
+        "sync": "Sinkronkan"
+      },
+      "whatsapp": {
+        "title": "Pengaturan WhatsApp"
+      },
+      "app_info": "Info Aplikasi",
+      "company_name": "Nama Aplikasi / Perusahaan",
+      "footer_info": "Info Footer",
+      "owner_name": "Nama Manajer / Owner",
+      "primary_phone": "Telepon Utama (CS)",
+      "company_email": "Email Perusahaan",
+      "office_address": "Alamat Kantor",
+      "office_lat": "Latitude Kantor",
+      "office_lng": "Longitude Kantor",
+      "operational_hours": "Jam Operasional",
+      "server_port": "Port Server",
+      "customer_otp_login": "Login OTP Pelanggan",
+      "otp_enabled": "Aktif (Kirim via WA)",
+      "otp_disabled": "Nonaktif (Langsung)",
+      "external_api": "API Eksternal"
+    },
+    "section": {
+      "main": "UTAMA",
+      "billing": "BILLING",
+      "service": "LAYANAN",
+      "user_management": "MANAJEMEN USER",
+      "system": "SISTEM"
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "mikrotik_monitoring": "Monitoring MikroTik",
+      "voucher_hotspot": "Voucher Hotspot",
+      "router_management": "Manajemen Router",
+      "olt_management": "Manajemen OLT",
+      "network_map": "Peta Jaringan",
+      "whatsapp_status": "Status WhatsApp",
+      "customers": "Pelanggan",
+      "internet_packages": "Paket Internet",
+      "invoices": "Tagihan",
+      "finance_report": "Laporan Keuangan",
+      "customer_tickets": "Keluhan Pelanggan",
+      "technicians": "Teknisi",
+      "cashiers": "Kasir",
+      "agents": "Agent",
+      "agent_reports": "Laporan Agent",
+      "update": "Update GitHub",
+      "settings": "Pengaturan"
+    },
+    "update": {
+      "title": "Update GitHub",
+      "status_title": "Status Versi",
+      "server_version": "Versi Server (version.txt)",
+      "github_version_prefix": "Versi GitHub (origin/",
+      "github_version_suffix": ")",
+      "has_update": "Ada update",
+      "latest": "Terbaru",
+      "check": "Cek Versi",
+      "run": "Update Sekarang",
+      "keep_files": "File yang tidak ditimpa saat update: settings.json dan folder database. Setelah update selesai, restart aplikasi agar versi baru aktif.",
+      "log_title": "Log Update",
+      "confirm": "Jalankan update dari GitHub sekarang? Pastikan koneksi internet aman dan aplikasi akan direstart setelah selesai."
+    }
+  },
+  "tech": {
+    "login_title": "Login Teknisi",
+    "portal_title": "Portal Teknisi",
+    "new_customer": "Tambah Pelanggan",
+    "logout_confirm": "Apakah Anda yakin ingin logout?",
+    "dashboard": {
+      "greeting": "Halo, Selamat Bekerja!",
+      "in_progress": "Sedang Dikerjakan",
+      "resolved_today": "Selesai Hari Ini",
+      "active_tasks": "Tugas Aktif Anda",
+      "empty_active": "Bagus! Tidak ada tugas aktif saat ini.",
+      "empty_active_hint": "Silakan cek tab \"Tiket Baru\" untuk mengambil tugas."
+    },
+    "ticket": {
+      "open": "Belum Ditangani",
+      "in_progress": "Sedang Dikerjakan",
+      "resolved": "Selesai",
+      "no_address": "Tidak ada alamat",
+      "mark_resolved": "Tandai Selesai",
+      "resolve_title": "Selesaikan Tugas",
+      "resolve_confirm_prefix": "Apakah Anda yakin tugas untuk keluhan",
+      "resolve_confirm_suffix": "sudah selesai dikerjakan?",
+      "cancel": "Batal",
+      "yes_resolved": "Ya, Selesai"
+    },
+    "pool": {
+      "title": "Tiket Baru",
+      "subtitle": "Daftar keluhan yang belum ditangani",
+      "empty": "Tidak ada keluhan baru saat ini.",
+      "empty_hint": "Semua pelanggan berjalan normal.",
+      "take_confirm": "Ambil tiket ini untuk Anda kerjakan sekarang?",
+      "take_action": "Ambil Tugas Ini"
+    },
+    "history_page": {
+      "title": "Riwayat Tugas",
+      "subtitle": "50 tugas terakhir yang sudah diselesaikan",
+      "empty": "Belum ada riwayat tugas yang diselesaikan."
+    },
+    "nav": {
+      "my_tasks": "Tugas Saya",
+      "new_tickets": "Tiket Baru",
+      "map": "Peta",
+      "monitor": "Monitor",
+      "history": "Riwayat"
+    }
+  },
+  "customer": {
+    "login_title": "Login Pelanggan",
+    "portal_title": "Portal Pelanggan",
+    "id_tag": "ID/Tag Pelanggan",
+    "id_tag_placeholder": "Masukkan ID/Tag Pelanggan",
+    "otp_sent_via_wa": "Kode OTP akan dikirim via WhatsApp",
+    "sign_in": "Masuk",
+    "not_subscribed": "Belum berlangganan?",
+    "register_new": "Daftar Pemasangan Baru",
+    "otp_title": "Verifikasi OTP",
+    "dashboard_title": "Dashboard Pelanggan",
+    "dashboard": {
+      "portal": "Portal Pelanggan",
+      "hello": "Halo",
+      "service": "Layanan",
+      "active": "AKTIF",
+      "suspended": "ISOLIR",
+      "device_status": "Status Perangkat",
+      "current_ssid": "SSID Saat Ini",
+      "software_version": "Versi Software",
+      "last_inform": "Last Inform",
+      "rx_power": "RX Power",
+      "pppoe_ip": "PPPoE IP",
+      "pppoe_username": "PPPoE Username",
+      "connected_users": "User Terhubung"
+    },
+    "billing": {
+      "title": "Status Tagihan & Riwayat",
+      "period": "Periode",
+      "service_package": "Layanan / Paket",
+      "amount": "Jumlah",
+      "status": "Status",
+      "paid": "LUNAS",
+      "paid_at": "Dibayar",
+      "paid_through": "Sudah lunas sampai",
+      "paid_year_prefix": "Sudah lunas tahun",
+      "none_paid": "Belum ada tagihan yang lunas",
+      "unpaid_summary_prefix": "Masih ada",
+      "unpaid_summary_suffix": "tagihan belum dibayar",
+      "pay_online": "BAYAR ONLINE",
+      "unpaid": "BELUM BAYAR",
+      "empty": "Tidak ada data tagihan.",
+      "internet_service": "Layanan Internet"
+    },
+    "ticket": {
+      "title": "Tiket Bantuan & Keluhan",
+      "report_1": "LAPORKAN",
+      "report_2": "MASALAH",
+      "time": "Waktu",
+      "issue": "Kendala",
+      "status": "Status",
+      "waiting": "Menunggu",
+      "in_progress": "Dikerjakan",
+      "resolved": "Selesai",
+      "empty": "Belum ada riwayat keluhan."
+    },
+    "wifi": {
+      "change_ssid": "Ganti Nama WiFi (SSID)",
+      "current_ssid": "SSID saat ini",
+      "new_ssid_placeholder": "Nama WiFi baru",
+      "change_ssid_btn": "Ganti SSID",
+      "change_password": "Ganti Password WiFi",
+      "new_password_placeholder": "Password baru",
+      "change_password_btn": "Ganti Password"
+    },
+    "reboot": {
+      "device": "Reboot Perangkat",
+      "confirm": "Yakin ingin reboot perangkat Anda?"
+    },
+    "devices": {
+      "title": "Perangkat Terhubung",
+      "hostname": "Hostname",
+      "ip": "IP",
+      "mac": "MAC",
+      "interface": "Interface",
+      "status": "Status",
+      "online": "Online",
+      "offline": "Offline",
+      "empty": "Tidak ada perangkat yang sedang terhubung."
+    },
+    "help": {
+      "contact_admin": "Jika mengalami kendala, silakan hubungi admin melalui WhatsApp."
+    },
+    "footer": {
+      "about": "Tentang Kami",
+      "tos": "Ketentuan Layanan",
+      "privacy": "Kebijakan Privasi",
+      "contact": "Kontak"
+    },
+    "payment": {
+      "choose_title": "Pilih Pembayaran",
+      "choose_desc": "Silakan pilih metode pembayaran untuk tagihan sebesar"
+    },
+    "nav": {
+      "home": "Beranda",
+      "billing": "Tagihan",
+      "help": "Bantuan",
+      "wifi": "WiFi"
+    },
+    "pages": {
+      "about": {
+        "meta_title": "Tentang Kami",
+        "hero_title_prefix": "Tentang",
+        "hero_subtitle": "Solusi internet cepat dan terjangkau untuk masyarakat.",
+        "p1": "<strong>{company}</strong> adalah penyedia layanan internet (ISP) yang berfokus pada penyediaan akses broadband berkualitas tinggi untuk perumahan dan bisnis kecil.",
+        "p2": "Kami percaya bahwa di era digital saat ini, akses internet yang stabil dan cepat bukan lagi kemewahan, melainkan kebutuhan dasar untuk mendukung pendidikan, ekonomi kreatif, dan komunikasi tanpa batas.",
+        "stats": {
+          "speed_title": "Kecepatan Tinggi",
+          "speed_desc": "Jaringan serat optik untuk pengalaman internet tanpa hambatan.",
+          "stable_title": "Stabil & Aman",
+          "stable_desc": "Infrastruktur yang dirancang untuk keandalan maksimal 24/7.",
+          "support_title": "Dukungan Lokal",
+          "support_desc": "Tim teknis yang siap membantu Anda kapan saja."
+        },
+        "vision_title": "Visi Kami",
+        "vision_body": "Menjadi mitra konektivitas digital terpercaya yang mampu menjangkau hingga pelosok, memberikan dampak positif bagi perkembangan ekonomi dan sosial masyarakat.",
+        "mission_title": "Misi Kami",
+        "mission_1": "Menyediakan layanan internet dengan harga yang kompetitif namun berkualitas premium.",
+        "mission_2": "Terus berinovasi dalam infrastruktur jaringan untuk mengikuti perkembangan teknologi.",
+        "mission_3": "Memberikan layanan pelanggan yang responsif dan solutif.",
+        "footer_tagline": "Menghubungkan Anda ke Masa Depan"
+      },
+      "tos": {
+        "meta_title": "Syarat & Ketentuan",
+        "title": "Syarat & Ketentuan",
+        "subtitle": "Harap baca dengan teliti sebelum menggunakan layanan kami.",
+        "p1": "Selamat datang di layanan internet <strong>{company}</strong>. Dengan menggunakan layanan kami dan melakukan pembayaran melalui sistem ini, Anda setuju untuk terikat oleh syarat dan ketentuan berikut:",
+        "s1_title": "Layanan",
+        "s1_body": "Kami menyediakan layanan akses internet (RTRWNet/ISP) kepada pelanggan sesuai dengan paket yang dipilih. Kualitas layanan dapat dipengaruhi oleh faktor teknis, lokasi geografis, dan kondisi cuaca yang ekstrem.",
+        "s2_title": "Pembayaran & Tagihan",
+        "s2_li1": "Tagihan internet akan diterbitkan secara otomatis oleh sistem setiap bulan sesuai dengan siklus langganan Anda.",
+        "s2_li2": "Pembayaran dapat dilakukan secara mandiri melalui Portal Pelanggan menggunakan metode QRIS, Virtual Account, atau Retail Outlet yang tersedia.",
+        "s2_li3": "Setiap pembayaran yang sudah berhasil diverifikasi oleh sistem bersifat final dan tidak dapat dibatalkan atau dikembalikan (Non-Refundable).",
+        "s3_title": "Kebijakan Isolir (Suspend)",
+        "s3_body": "Sistem kami akan melakukan pemutusan layanan sementara (Isolir) secara otomatis apabila tagihan belum dilunasi hingga melewati batas waktu (Jatuh Tempo) yang telah ditentukan. Layanan akan aktif kembali secara otomatis segera setelah pembayaran terverifikasi.",
+        "s4_title": "Pengembalian Dana (Refund)",
+        "s4_body": "Pengembalian dana hanya dapat dipertimbangkan jika terjadi kesalahan sistem pada payment gateway kami yang menyebabkan transaksi ganda untuk satu tagihan yang sama.",
+        "s5_title": "Batasan Tanggung Jawab",
+        "s5_body": "{company} tidak bertanggung jawab atas kerugian yang disebabkan oleh gangguan teknis dari penyedia hulu (Upstream), kerusakan perangkat akibat kelalaian pelanggan, atau kejadian luar biasa (Force Majeure).",
+        "footer_tagline": "Semua Hak Dilindungi"
+      },
+      "privacy": {
+        "meta_title": "Kebijakan Privasi",
+        "title": "Kebijakan Privasi",
+        "subtitle": "Bagaimana kami menjaga dan melindungi data pribadi Anda.",
+        "p1": "Di <strong>{company}</strong>, privasi pelanggan kami adalah prioritas utama. Dokumen Kebijakan Privasi ini menjelaskan jenis informasi pribadi yang kami kumpulkan dan bagaimana kami menggunakannya.",
+        "s1_title": "Informasi yang Kami Kumpulkan",
+        "s1_body": "Kami mengumpulkan informasi terbatas yang diperlukan untuk penyediaan layanan, termasuk:",
+        "s1_li1": "Nama lengkap dan alamat pemasangan.",
+        "s1_li2": "Nomor telepon/WhatsApp untuk keperluan notifikasi tagihan dan teknis.",
+        "s1_li3": "Data penggunaan layanan untuk pemantauan kualitas jaringan.",
+        "s1_li4": "Data transaksi pembayaran melalui payment gateway pihak ketiga.",
+        "s2_title": "Penggunaan Informasi",
+        "s2_body": "Informasi yang kami kumpulkan digunakan untuk:",
+        "s2_li1": "Memproses pendaftaran dan aktivasi layanan internet Anda.",
+        "s2_li2": "Mengirimkan informasi tagihan dan pengingat pembayaran otomatis.",
+        "s2_li3": "Memberikan dukungan teknis dan menanggapi keluhan Anda.",
+        "s2_li4": "Meningkatkan kualitas jaringan dan pengalaman pengguna.",
+        "s3_title": "Keamanan Data",
+        "s3_body": "Kami menerapkan standar keamanan teknis untuk melindungi data Anda dari akses yang tidak sah. Data sensitif seperti kata sandi WiFi dan detail login disimpan dengan enkripsi di server kami.",
+        "s4_title": "Pihak Ketiga",
+        "s4_body": "Kami tidak menjual atau menyewakan data pribadi Anda kepada pihak ketiga. Kami hanya berbagi data dengan mitra payment gateway (seperti Tripay/Xendit/Midtrans) untuk memproses transaksi pembayaran Anda secara aman.",
+        "s5_title": "Persetujuan",
+        "s5_body": "Dengan menggunakan layanan kami, Anda dengan ini menyetujui Kebijakan Privasi kami dan menyetujui ketentuan-ketentuannya.",
+        "footer_tagline": "Keamanan Data Anda adalah Komitmen Kami"
+      },
+      "contact": {
+        "meta_title": "Kontak Support",
+        "title": "Hubungi Kami",
+        "subtitle": "Kami siap membantu setiap kendala internet Anda.",
+        "p1": "Tim support kami tersedia untuk melayani pertanyaan teknis, bantuan pembayaran, atau informasi pemasangan baru.",
+        "whatsapp_title": "WhatsApp Support",
+        "whatsapp_fallback": "Hubungi WhatsApp Kami",
+        "fast_response": "Respon Cepat",
+        "email_title": "Email Support",
+        "hours_title": "Jam Operasional",
+        "address_title": "Alamat Kantor",
+        "footer_tagline": "Kepuasan Pelanggan adalah Kebanggaan Kami"
+      }
+    }
+  },
+  "agent": {
+    "portal_title": "Portal Agent",
+    "login_title": "Login Agent",
+    "dashboard_title": "Dashboard Agent",
+    "username": "Username",
+    "password": "Password",
+    "username_placeholder": "Masukkan username",
+    "password_placeholder": "Masukkan password",
+    "sign_in": "Masuk",
+    "logout": "Logout",
+    "nav": {
+      "home": "Beranda",
+      "billing": "Tagihan",
+      "voucher": "Voucher",
+      "history": "Riwayat"
+    },
+    "receipt_last": "Struk Terakhir",
+    "new": "Baru",
+    "summary": "Ringkasan",
+    "balance": "Saldo",
+    "billing_fee": "Fee Tagihan",
+    "account_status": "Status Akun",
+    "active": "Aktif",
+    "inactive": "Nonaktif",
+    "last_tx": "Transaksi Terakhir",
+    "time": "Waktu",
+    "customer": "Pelanggan",
+    "invoice": "Invoice",
+    "period": "Periode",
+    "amount": "Nominal",
+    "package": "Paket",
+    "validity": "Masa Aktif",
+    "user": "User",
+    "pass": "Pass",
+    "price": "Harga",
+    "profit": "Profit",
+    "cut_balance": "Potong Saldo",
+    "fee": "Fee",
+    "whatsapp": "WhatsApp",
+    "wa_sent": "Terkirim",
+    "wa_not_sent": "Tidak terkirim",
+    "print_thermal": "Print Thermal",
+    "copy_all": "Copy Semua",
+    "pay_invoice": "Bayar Tagihan",
+    "search": "Cari",
+    "search_placeholder": "No HP / PPPoE / Tag / ID",
+    "no_unpaid_prefix": "Tidak ada tagihan belum bayar untuk pencarian:",
+    "unpaid_badge": "BELUM BAYAR",
+    "note_optional": "Catatan (opsional)",
+    "process_pay_prefix": "Proses Bayar",
+    "sell_voucher": "Jual Voucher Hotspot",
+    "instant": "Instant",
+    "no_voucher_profiles": "Belum ada profile voucher untuk agent ini. Minta admin mengatur harga & profile.",
+    "buyer_phone_optional": "No WhatsApp pembeli (opsional)",
+    "choose_voucher": "Pilih paket voucher",
+    "create_voucher_prefix": "Buat Voucher - ",
+    "history_title": "Riwayat Singkat",
+    "no_transactions": "Belum ada transaksi.",
+    "tx_type": {
+      "topup": "TOPUP",
+      "invoice": "TAGIHAN",
+      "voucher": "VOUCHER",
+      "generic": "TRANSAKSI"
+    },
+    "receipt": {
+      "voucher_title": "STRUK VOUCHER HOTSPOT",
+      "payment_title": "STRUK PEMBAYARAN",
+      "transaction_no": "No. Transaksi",
+      "date": "Tanggal",
+      "router": "Router",
+      "code": "KODE VOUCHER",
+      "password": "PASSWORD",
+      "total_paid": "TOTAL BAYAR",
+      "thanks_voucher": "Terima kasih.\nSimpan struk ini sebagai bukti transaksi.",
+      "thanks_payment": "Terima kasih atas pembayaran Anda.\nSimpan struk ini sebagai bukti pembayaran yang sah."
+    }
+  }
+}

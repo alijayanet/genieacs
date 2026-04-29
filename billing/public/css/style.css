@@ -1,0 +1,41 @@
+body {
+  background: linear-gradient(135deg, #e0e7ff 0%, #f8fafc 100%);
+}
+.card {
+  border-radius: 1.2rem;
+  border: none;
+}
+.card .form-label {
+  font-weight: 500;
+}
+.btn-primary {
+  background: linear-gradient(90deg, #6366f1 0%, #2563eb 100%);
+  border: none;
+  font-weight: 600;
+}
+.btn-primary:hover {
+  background: linear-gradient(90deg, #2563eb 0%, #6366f1 100%);
+}
+img[alt="Logo"] {
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 8px;
+}
+
+/* Style untuk judul Portal Pelanggan */
+.login-header h4 {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Style untuk header perusahaan */
+.login-header p {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}

@@ -1,0 +1,1275 @@
+{
+  "common": {
+    "menu": "Menu",
+    "home": "Home",
+    "login": "Login",
+    "search": "Search",
+    "filter": "Filter",
+    "reset": "Reset",
+    "refresh": "Refresh",
+    "loading": "Loading...",
+    "loading_short": "Loading...",
+    "all_status": "All Status",
+    "view_all": "View All",
+    "close": "Close",
+    "processing": "Processing...",
+    "success": "Success",
+    "failed": "Failed",
+    "details": "Details",
+    "active": "Active",
+    "inactive": "Inactive",
+    "cancel": "Cancel",
+    "back_to": "Back to",
+    "portal": "Portal",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "add": "Add",
+    "actions": "Actions",
+    "copy_link": "Copy Link",
+    "logout": "Logout",
+    "language": "Language"
+  },
+  "admin": {
+    "panel": "Admin Panel",
+    "login": {
+      "subtitle": "Administrator Portal",
+      "username": "Username",
+      "password": "Password",
+      "sign_in": "Sign In",
+      "back_customer": "Back to Customer Portal"
+    },
+    "role": {
+      "admin": "Admin",
+      "cashier": "Cashier"
+    },
+    "dashboard": {
+      "live_update": "Live Update",
+      "portal_link": "Customer Portal Link",
+      "monitoring_onu": "ONU Monitoring",
+      "onu_status_title": "ONU Status",
+      "total_onu": "Total ONU",
+      "onu_registered": "Registered devices",
+      "online": "Online",
+      "active_now": "Active now",
+      "offline": "Offline",
+      "no_response": "No response",
+      "warning": "Warning",
+      "needs_attention": "Needs attention",
+      "billing_summary_month": "This Month Billing Summary",
+      "revenue_month": "Revenue This Month",
+      "collected": "Collected",
+      "active_customers": "Active Customers",
+      "from": "From",
+      "total_customers_suffix": "total customers",
+      "unpaid_invoices": "Unpaid Invoices",
+      "awaiting_payment": "Awaiting payment",
+      "total_receivable": "Total Receivable",
+      "not_collected": "Not collected",
+      "quick_actions": "Quick Actions",
+      "qa_add_customer": "Add Customer",
+      "qa_manage_packages": "Manage Packages",
+      "qa_create_invoice": "Create Invoices",
+      "qa_reports": "Reports",
+      "qa_monitor_onu": "Monitor ONU",
+      "qa_bulk": "Bulk Config",
+      "latest_offline": "Latest Offline ONUs",
+      "uptime": "Uptime",
+      "search_placeholder": "Search tag, SN, or PPPoE username...",
+      "realtime": "Realtime Monitoring",
+      "onu_device_list": "ONU Device List",
+      "loading_onu": "Loading ONU data...",
+      "loading_devices": "Loading devices...",
+      "table": {
+        "tag_customer": "Tag / Customer",
+        "device": "Device",
+        "network": "Network",
+        "status_info": "Status / Info",
+        "actions": "Actions"
+      },
+      "device_detail": "Device Details",
+      "edit_ssid": "Edit SSID",
+      "new_ssid": "New SSID",
+      "new_ssid_placeholder": "New WiFi name",
+      "edit_wifi_password": "Edit WiFi Password",
+      "new_password": "New Password",
+      "new_password_placeholder": "Minimum 8 characters",
+      "devices_suffix": "devices",
+      "update_prefix": "Update:",
+      "all_onu_online": "All ONUs are online!",
+      "never": "Never",
+      "seconds_ago": "seconds ago",
+      "minutes_ago": "minutes ago",
+      "hours_ago": "hours ago",
+      "days_ago": "days ago",
+      "reboot_confirm_prefix": "Reboot ONU:",
+      "reboot_sent": "Reboot sent",
+      "load_failed": "Failed to load data",
+      "no_devices_found": "No devices found",
+      "onu_device_fallback": "ONU Device",
+      "no_ip": "No IP",
+      "connected_suffix": "devices connected",
+      "edit_password": "Edit Password",
+      "reboot": "Reboot",
+      "ssid_required": "SSID is required",
+      "ssid_sent": "SSID change request has been sent to the device.",
+      "ssid_failed": "Failed to change SSID.",
+      "password_min": "Password must be at least 8 characters",
+      "password_sent": "Password change request has been sent to the device.",
+      "password_failed": "Failed to change password.",
+      "connection_error": "Connection error.",
+      "portal_link_copied": "Portal link copied!",
+      "connected_devices": "Connected Devices",
+      "no_connected_devices": "No connected devices",
+      "detail_load_failed": "Failed to load details",
+      "detail": {
+        "tag": "Tag",
+        "status": "Status",
+        "ssid": "SSID",
+        "serial": "Serial",
+        "model": "Model",
+        "software": "SW Version",
+        "pppoe_user": "PPPoE User",
+        "ip": "IP",
+        "rx_power": "RX Power",
+        "uptime": "Uptime",
+        "last_inform": "Last Inform",
+        "user_conn": "Connected"
+      }
+    },
+    "mikrotik": {
+      "default_router": "-- Default Router --",
+      "backup_rsc": "Backup RSC",
+      "search_placeholder": "Search...",
+      "stats": {
+        "pppoe_online": "PPPoE Online",
+        "hotspot_online": "Hotspot Online",
+        "total_secrets": "Total Secrets",
+        "total_hotspot": "Total Hotspot"
+      },
+      "tabs": {
+        "pppoe_secrets": "PPPoE Secrets",
+        "hotspot_users": "Hotspot Users",
+        "pppoe_profiles": "PPPoE Profiles",
+        "hotspot_profiles": "Hotspot Profiles"
+      },
+      "pppoe": {
+        "title": "PPPoE Secrets"
+      },
+      "hotspot": {
+        "title": "Hotspot Users"
+      },
+      "pppoe_profiles": {
+        "title": "PPPoE Profiles"
+      },
+      "hotspot_profiles": {
+        "title": "Hotspot User Profiles",
+        "price": "Price",
+        "duration": "Validity"
+      },
+      "actions": {
+        "add_secret": "Add Secret",
+        "edit_secret": "Edit Secret",
+        "add_user": "Add User",
+        "add_profile": "Add Profile",
+        "add_hotspot_user": "Add Hotspot User",
+        "edit_hotspot_user": "Edit Hotspot User",
+        "add_pppoe_profile": "Add PPPoE Profile",
+        "edit_pppoe_profile": "Edit PPPoE Profile",
+        "add_hotspot_profile": "Add Hotspot Profile",
+        "edit_hotspot_profile": "Edit Hotspot Profile"
+      },
+      "confirm": {
+        "delete_secret": "Delete this secret?",
+        "delete_hotspot_user": "Delete this hotspot user?",
+        "delete_profile": "Delete this profile?"
+      },
+      "empty": {
+        "secrets": "No secrets found",
+        "hotspot_users": "No hotspot users found"
+      },
+      "errors": {
+        "save_failed": "Failed to save",
+        "delete_failed": "Failed to delete",
+        "load_failed": "Failed to load data"
+      },
+      "status": {
+        "online": "Online",
+        "offline": "Offline",
+        "disabled": "Disabled"
+      }
+    },
+    "vouchers": {
+      "default_router": "-- Default Router --",
+      "stats": {
+        "batches": "Batches",
+        "vouchers": "Vouchers",
+        "used": "Used",
+        "unused": "Unused"
+      },
+      "create": {
+        "title": "Create Voucher Batch",
+        "profile": "Hotspot User Profile",
+        "qty": "Quantity",
+        "price": "Price (Rp)",
+        "mode": "Mode",
+        "mode_voucher": "Voucher (User=Pass)",
+        "mode_member": "Member (User & Pass Different)",
+        "charset": "Characters",
+        "charset_numbers": "Numbers Only",
+        "charset_letters": "Letters Only (Lowercase)",
+        "charset_mixed": "Letters & Numbers",
+        "length": "Length",
+        "prefix": "Prefix",
+        "create_btn": "Create",
+        "hint_default": "Validity is taken from profile metadata. Price can be filled manually (if empty it will use the profile value)."
+      },
+      "batches": {
+        "title": "Voucher Batches"
+      },
+      "table": {
+        "router": "Router",
+        "used": "Used",
+        "created": "Created"
+      },
+      "detail": {
+        "title": "Batch Details",
+        "code": "Code",
+        "password": "Password",
+        "used_at": "Used At",
+        "last_seen": "Last Seen"
+      },
+      "actions": {
+        "sync": "Sync",
+        "print": "Print",
+        "csv": "CSV"
+      },
+      "js": {
+        "price_prefix": "Price:",
+        "duration_prefix": "Validity:",
+        "mode_voucher_hint": "Voucher mode: username and password are the same. Validity is taken from profile metadata. Price can be filled manually.",
+        "mode_member_hint": "Member mode: username and password are generated separately. Validity is taken from profile metadata. Price can be filled manually.",
+        "choose_profile_first": "Select a hotspot profile first.",
+        "invalid_qty": "Invalid voucher quantity.",
+        "processing": "Processing...",
+        "create_failed": "Failed to create batch",
+        "batch_created_prefix": "Batch",
+        "batch_created_suffix": "created. The system is creating vouchers on MikroTik.",
+        "no_batches": "No voucher batches yet.",
+        "default_router": "Default",
+        "detail_failed": "Failed to load details",
+        "detail_title_prefix": "Batch Details",
+        "no_vouchers": "No vouchers.",
+        "sync_failed": "Failed to sync",
+        "sync_done_prefix": "Sync completed. New used:",
+        "sync_done_middle": "Missing:",
+        "delete_creating_warn": "This batch is being processed. Wait until it finishes, then try deleting again.",
+        "delete_confirm_prefix": "Delete Batch",
+        "delete_confirm_line1": "- This batch voucher data will be removed from the system.",
+        "delete_confirm_line2": "- This does NOT delete hotspot users already created on MikroTik.",
+        "delete_confirm_continue": "Continue?",
+        "delete_failed": "Failed to delete batch",
+        "delete_success_prefix": "Batch",
+        "delete_success_suffix": "deleted successfully.",
+        "deleted_vouchers_prefix": "Vouchers deleted:",
+        "used_prefix": "Used:"
+      }
+    },
+    "routers": {
+      "list_title": "MikroTik Routers",
+      "add": "Add Router",
+      "empty": "No routers added yet",
+      "table": {
+        "name": "Router Name",
+        "host": "Host / IP",
+        "port": "Port",
+        "username": "Username",
+        "status": "Status"
+      },
+      "form": {
+        "name": "Router Name",
+        "name_placeholder": "Example: Main Router",
+        "host": "Host / IP",
+        "api_port": "API Port",
+        "username": "MikroTik Username",
+        "password": "Password",
+        "password_keep": "Password (leave blank to keep)",
+        "status": "Status",
+        "description": "Description / Location",
+        "optional": "Optional..."
+      },
+      "actions": {
+        "test": "Test Connection",
+        "save": "Save Router",
+        "edit_title": "Edit Router",
+        "update": "Update Router"
+      },
+      "confirm": {
+        "delete": "Delete this router?",
+        "test": "Test connection to this router?"
+      },
+      "js": {
+        "system_error": "A system error occurred."
+      }
+    },
+    "tickets": {
+      "list_title": "Customer Tickets",
+      "empty": "No tickets",
+      "no_technician": "None",
+      "stats": {
+        "total": "Total Tickets"
+      },
+      "status": {
+        "open": "Open",
+        "in_progress": "In Progress",
+        "working_short": "Working",
+        "resolved": "Resolved"
+      },
+      "table": {
+        "time": "Time",
+        "customer": "Customer",
+        "issue": "Issue",
+        "technician": "Technician",
+        "status": "Status"
+      },
+      "actions": {
+        "update_status": "Update Status",
+        "save_changes": "Save Changes"
+      },
+      "confirm": {
+        "delete": "Delete this ticket?"
+      },
+      "modal": {
+        "title": "Update Ticket Status",
+        "message": "Message Details"
+      }
+    },
+    "whatsapp": {
+      "status_title": "WhatsApp Status",
+      "checking": "Checking status...",
+      "please_wait": "Please wait.",
+      "connected": "Connected",
+      "need_scan": "Scan Required",
+      "qr_instruction": "Please scan this QR Code with your WhatsApp app:",
+      "qr_auto_refresh": "QR Code will refresh automatically.",
+      "connected_title": "WhatsApp Connected",
+      "connected_as": "Connected as:",
+      "last_updated": "Last updated:",
+      "refresh_status": "Refresh Status",
+      "reset_session": "Reset Session",
+      "test_notification": "Send Test",
+      "confirm_test": "Send a WhatsApp test notification to admin now?",
+      "confirm_reset": "Are you sure you want to reset the WhatsApp session? You will need to scan the QR again after this.",
+      "desc_open": "WhatsApp bot is connected and ready to send notifications.",
+      "desc_qr": "Session not found or expired.",
+      "disconnected_prefix": "Disconnected",
+      "desc_off": "WhatsApp bot is offline or reconnecting.",
+      "device_fallback": "Device",
+      "wait_qr_lib": "Waiting for QR Code library...",
+      "qr_fail": "Failed to render QR Code. Please check the browser console."
+    },
+    "broadcast": {
+      "title": "WhatsApp Broadcast",
+      "start": "Start Broadcast",
+      "target": "Recipients",
+      "delay": "Delay Between Messages (Seconds)",
+      "message": "WhatsApp Message",
+      "send_mass": "Send Bulk Message",
+      "sending": "Sending:",
+      "failed": "Failed",
+      "confirm_send": "Send broadcast message now? Make sure the recipients and message are correct.",
+      "info": "Messages will be sent automatically using your WhatsApp Bot number with a safe delay between messages to reduce spam detection risk.",
+      "target_all": "All Customers (Active & Suspended)",
+      "target_active": "Active Customers Only",
+      "target_suspended": "Suspended Customers Only",
+      "target_unpaid": "Customers with Unpaid Invoices",
+      "warning_title": "IMPORTANT WARNING:",
+      "warning_body": "Using bulk broadcast may risk your WhatsApp account being blocked (banned) by Meta if flagged as spam. Make sure the message is relevant to customers. The developer is not responsible for any account blocking risks.",
+      "variables": "Variables:",
+      "portal_link": "Portal Link",
+      "formatting": "Use *Bold*, _Italic_, or ~Strikethrough~ according to WhatsApp formatting.",
+      "confirm_change_target": "Change recipients target? Your current message will be replaced with a new template.",
+      "sending_btn": "Sending...",
+      "done_prefix": "Done:",
+      "sent_suffix": "sent"
+    },
+    "billing": {
+      "title": "Invoices",
+      "manage_title": "Invoice Management",
+      "generate": "Generate Invoices",
+      "search_placeholder": "Search name / phone...",
+      "all_months": "All Months",
+      "all_status": "All Status",
+      "unpaid": "Unpaid",
+      "paid": "Paid",
+      "list": "Invoice List",
+      "empty": "No invoices. Generate monthly invoices first.",
+      "summary": {
+        "total": "Total Invoices",
+        "paid": "Paid",
+        "unpaid": "Unpaid",
+        "collected_pct": "% Collected"
+      },
+      "table": {
+        "customer": "Customer",
+        "period": "Period",
+        "package": "Package",
+        "amount": "Amount",
+        "status": "Status",
+        "paid_by": "Paid By",
+        "paid_time": "Paid Time",
+        "actions": "Actions"
+      },
+      "status": {
+        "paid": "Paid",
+        "unpaid": "Unpaid"
+      },
+      "actions": {
+        "mark_paid": "Mark Paid",
+        "unisolate": "Unsuspend",
+        "send_wa": "Send Invoice WA",
+        "print_invoice": "Print Receipt/Invoice",
+        "unpay": "Unmark Paid",
+        "isolate_manual": "Manual Suspend"
+      },
+      "confirm": {
+        "unisolate_without_payment": "Unsuspend this customer without payment?",
+        "unpay": "Cancel paid status?",
+        "isolate_manual": "Suspend this customer manually?",
+        "delete": "Delete this invoice?"
+      },
+      "generate_monthly": "Generate Monthly Invoices",
+      "generate_hint": "Invoices will be created for all active customers who don't have an invoice for the selected period.",
+      "month": "Month",
+      "year": "Year",
+      "choose_invoice": "Select invoices to mark as paid:",
+      "received_by": "Received By",
+      "received_by_placeholder": "Staff / technician name",
+      "notes_optional": "Notes (optional)",
+      "notes_placeholder": "Bank transfer, cash, etc...",
+      "confirm_paid": "Confirm Paid",
+      "loading_other_invoices": "Loading other invoices...",
+      "js": {
+        "customer_prefix": "Customer:",
+        "package_fallback": "Internet"
+      }
+    },
+    "reports": {
+      "total_revenue_year": "Total Revenue",
+      "this_month": "This Month",
+      "pending_receivable": "Outstanding Receivable",
+      "active_customers_total": "Active Customers",
+      "revenue_via_agent_year": "Revenue via Agent",
+      "agent_deposit_year": "Agent Deposits",
+      "cash_in_year": "Cash In (No Double Count)",
+      "this_month_prefix": "This month:",
+      "monthly_revenue": "Monthly Revenue",
+      "top_unpaid": "Top Outstanding",
+      "all_paid": "All customers are paid",
+      "invoices_suffix": "invoices",
+      "monthly_breakdown": "Monthly Breakdown",
+      "no_data_year_prefix": "No data for year",
+      "recent_payments": "Recent Payments",
+      "no_payments": "No payments yet",
+      "table": {
+        "month": "Month",
+        "total_invoices": "Total Invoices",
+        "paid": "Paid",
+        "unpaid": "Unpaid",
+        "revenue": "Revenue",
+        "pct": "Percentage",
+        "customer": "Customer",
+        "period": "Period",
+        "amount": "Amount",
+        "recorded_by": "Recorded By",
+        "time": "Time"
+      },
+      "chart": {
+        "revenue_label": "Revenue (Rp)"
+      }
+    },
+    "customers": {
+      "title": "Customers",
+      "manage_title": "Customer Management",
+      "list": "Customer List",
+      "add": "Add Customer",
+      "export_excel": "Export Excel",
+      "import_excel": "Import Excel",
+      "search_placeholder": "Search name, phone, tag...",
+      "empty": "No customers yet",
+      "stats": {
+        "total": "Total",
+        "active": "Active",
+        "suspended": "Suspended",
+        "inactive": "Inactive"
+      },
+      "filter": {
+        "all_status": "All Status",
+        "active": "Active",
+        "suspended": "Suspended",
+        "inactive": "Inactive"
+      },
+      "table": {
+        "name": "Name",
+        "phone_tag": "Phone / ONU Tag",
+        "package": "Package",
+        "address": "Address",
+        "status": "Status",
+        "unpaid": "Unpaid Invoices",
+        "actions": "Actions"
+      },
+      "auto_isolate": {
+        "label": "Auto Isolate",
+        "off": "OFF",
+        "date_prefix": "Day "
+      },
+      "unpaid_suffix": "invoices",
+      "paid_label": "Paid",
+      "confirm_delete": "Delete this customer?",
+      "actions": {
+        "generate_invoice": "Generate Invoice",
+        "pay_invoice": "Pay Invoice"
+      },
+      "generate_invoice_title": "Generate Invoice (Customer)",
+      "generate_invoice_hint": "The invoice is created only for the selected customer. If it already exists, it will not be created again.",
+      "generate_invoice_customer": "Customer",
+      "generate_invoice_btn": "Generate",
+      "pay_invoice_title": "Pay Invoice (Customer)",
+      "pay_invoice_hint": "For early payments: choose the period. If the invoice doesn't exist, the system will create it and immediately mark it as Paid.",
+      "pay_invoice_customer": "Customer",
+      "pay_invoice_notes_placeholder": "Example: Early payment",
+      "pay_invoice_btn": "Pay",
+      "paid_badge": "Paid",
+      "paid_months_label": "Already paid:",
+      "none_paid": "No paid months yet",
+      "total_selected_label": "Selected total:",
+      "months_suffix": "months"
+    },
+    "agents": {
+      "title": "Agents",
+      "manage_title": "Agent Management",
+      "list": "Agent List",
+      "add": "Add Agent",
+      "empty": "No agents yet.",
+      "confirm_delete": "Delete this agent?",
+      "table": {
+        "name": "Name",
+        "username": "Username",
+        "phone": "Phone",
+        "balance": "Balance",
+        "billing_fee": "Billing Fee",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "reports": {
+        "title": "Reports",
+        "open": "Open Agent Reports"
+      },
+      "modal": {
+        "add_title": "Add New Agent",
+        "edit_title": "Edit Agent"
+      },
+      "form": {
+        "name": "Name",
+        "username": "Username",
+        "password": "Password",
+        "phone": "Phone",
+        "billing_fee": "Billing Fee (Rp)",
+        "initial_balance": "Initial Balance (Rp)",
+        "status": "Status"
+      },
+      "topup": {
+        "title": "Top Up Agent Balance",
+        "agent": "Agent",
+        "amount": "Amount (Rp)",
+        "note": "Note",
+        "note_placeholder": "Example: shift starting top-up",
+        "process": "Process"
+      },
+      "prices": {
+        "title": "Agent Voucher Prices",
+        "agent": "Agent",
+        "add_update": "Add / Update Price",
+        "router": "Router",
+        "default_router": "(Default)",
+        "profile": "Hotspot Profile",
+        "choose_profile": "Choose profile",
+        "validity": "Validity",
+        "validity_placeholder": "Example: 1d",
+        "buy": "Buy Price (deduct balance) (Rp)",
+        "sell": "Sell Price (printed on receipt) (Rp)",
+        "status": "Status",
+        "save": "Save Price",
+        "active_list": "Active Prices",
+        "table": {
+          "router": "Router",
+          "profile": "Profile",
+          "validity": "Validity",
+          "buy": "Buy",
+          "sell": "Sell",
+          "status": "Status",
+          "actions": "Actions"
+        },
+        "empty_select_agent": "Select agent",
+        "empty_no_prices": "No prices yet",
+        "required_agent_profile": "Agent and profile are required",
+        "save_failed": "Failed to save",
+        "confirm_delete_price": "Delete this price?",
+        "delete_failed": "Failed to delete"
+      }
+    },
+    "agent_reports": {
+      "title": "Agent Reports",
+      "history": "Transaction History",
+      "empty": "No transactions yet.",
+      "transactions_suffix": "transactions",
+      "invoice_prefix": "INV #",
+      "filter": {
+        "all_agents": "All Agents"
+      },
+      "type": {
+        "topup": "TOPUP",
+        "invoice": "INVOICE",
+        "voucher": "VOUCHER",
+        "adjust": "ADJUST"
+      },
+      "table": {
+        "time": "Time",
+        "agent": "Agent",
+        "type": "Type",
+        "detail": "Detail",
+        "deduct": "Deduct Balance",
+        "sell": "Sell Price",
+        "fee": "Fee/Profit",
+        "balance_after": "Balance After"
+      }
+    },
+    "cashiers": {
+      "add": "Add Cashier",
+      "list": "Cashier Staff List",
+      "empty": "No cashiers yet.",
+      "confirm_delete": "Delete this cashier?",
+      "save_changes": "Save Changes",
+      "table": {
+        "name": "Name",
+        "username": "Username",
+        "password": "Password",
+        "phone": "Phone",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "modal": {
+        "add_title": "Add New Cashier",
+        "edit_title": "Edit Cashier"
+      },
+      "form": {
+        "full_name": "Full Name",
+        "login_username": "Login Username",
+        "password": "Password",
+        "phone": "Phone",
+        "phone_placeholder": "Example: 08123456789",
+        "account_status": "Account Status"
+      }
+    },
+    "technicians": {
+      "add": "Add Technician",
+      "list": "Field Technician List",
+      "empty": "No technicians yet.",
+      "confirm_delete": "Delete this technician?",
+      "save_changes": "Save Changes",
+      "table": {
+        "name": "Name",
+        "username": "Username",
+        "password": "Password",
+        "whatsapp": "WhatsApp",
+        "area": "Work Area",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "modal": {
+        "add_title": "Add New Technician",
+        "edit_title": "Edit Technician"
+      },
+      "form": {
+        "full_name": "Full Name",
+        "login_username": "Login Username",
+        "password": "Password",
+        "whatsapp": "WhatsApp Number",
+        "whatsapp_placeholder": "Example: 08123456789",
+        "area": "Work Area",
+        "area_placeholder": "Example: Subdistrict A, Block B",
+        "account_status": "Account Status"
+      }
+    },
+    "olts": {
+      "manage": "Manage OLT",
+      "add": "Add OLT",
+      "select_label": "Select OLT Device:",
+      "no_data": "No OLT data",
+      "refresh_data": "Refresh Data",
+      "loading": "Fetching OLT data...",
+      "onu_list_title": "Registered ONU Devices",
+      "search_placeholder": "Search ID / SN...",
+      "last_update": "Last Update",
+      "empty_select": "Select an OLT device above to monitor ONU data.",
+      "confirm_delete": "Delete this OLT?",
+      "confirm_reboot": "Are you sure you want to reboot this ONU?",
+      "reboot_sent": "Reboot command sent successfully.",
+      "failed_prefix": "Failed",
+      "error_prefix": "Error",
+      "status": {
+        "online": "Online",
+        "offline": "Offline"
+      },
+      "stats": {
+        "total_onu": "Total ONU",
+        "online": "Online",
+        "offline": "Offline",
+        "weak_signal": "Weak Signal"
+      },
+      "system": {
+        "temp": "Temp",
+        "cpu": "CPU",
+        "ram": "RAM",
+        "uptime": "Uptime",
+        "traffic_in": "Traffic In",
+        "traffic_out": "Traffic Out"
+      },
+      "table": {
+        "no": "No",
+        "id": "ID",
+        "serial": "Serial Number",
+        "status": "Status",
+        "tx": "TxPower",
+        "rx": "RxPower",
+        "oid": "OID Index"
+      },
+      "manage_modal": {
+        "title": "OLT Device Management",
+        "table": {
+          "name": "OLT Name",
+          "host": "Host / IP",
+          "brand": "Brand",
+          "status": "Status",
+          "actions": "Actions"
+        }
+      },
+      "add_modal": {
+        "title": "Add New OLT",
+        "save": "Save Device"
+      },
+      "edit_modal": {
+        "title": "Edit OLT",
+        "update": "Update Device"
+      },
+      "form": {
+        "name": "OLT Name",
+        "name_placeholder": "Example: Main OLT",
+        "host": "IP Address / Host",
+        "snmp_port": "SNMP Port",
+        "brand": "Brand / Type",
+        "snmp_community": "SNMP Community",
+        "web_user_optional": "Login User (Optional)",
+        "web_password_optional": "Login Pass (Optional)",
+        "web_user": "Login User",
+        "web_password": "Login Pass",
+        "description": "Description / Location",
+        "monitoring_status": "Monitoring Status"
+      },
+      "actions": {
+        "try_again": "Try Again",
+        "rename_prompt": "Enter a new name for ONU:",
+        "rename": "Rename",
+        "reboot": "Reboot ONU"
+      },
+      "errors": {
+        "server_connect_failed": "Failed to reach server"
+      },
+      "empty_no_onu": "No ONU data found."
+    },
+    "map": {
+      "add_odp": "Add ODP",
+      "stats": {
+        "total_odp": "Total ODP",
+        "active_customers": "Active Customers",
+        "suspended_customers": "Suspended / Inactive"
+      },
+      "legend": {
+        "odp": "ODP (Box)",
+        "active": "Active",
+        "suspended": "Suspended"
+      },
+      "add_modal": {
+        "title": "Add New ODP",
+        "save": "Save ODP"
+      },
+      "edit_modal": {
+        "title": "Edit ODP",
+        "update": "Update ODP"
+      },
+      "form": {
+        "name": "ODP Name",
+        "name_placeholder": "Example: ODP-A-01",
+        "pick_location": "Pick Location on Map",
+        "adjust_location": "Adjust Location on Map",
+        "lat": "Latitude",
+        "lng": "Longitude",
+        "tips": "*Tip: Drag the marker or click the map to set a precise position",
+        "description": "Description"
+      },
+      "layers": {
+        "osm": "OpenStreetMap",
+        "hybrid": "Satellite (Hybrid)"
+      },
+      "popup": {
+        "description": "Description",
+        "location": "Location",
+        "status": "Status",
+        "package": "Package",
+        "address": "Address",
+        "view_details": "View Details"
+      },
+      "status": {
+        "active": "Active",
+        "suspended": "Suspended"
+      }
+    },
+    "print_invoice": {
+      "title": "Print Invoice Receipt",
+      "address_fallback": "Internet Service Center",
+      "contact_label": "Phone/WA",
+      "receipt_no": "Receipt No.",
+      "date": "Date",
+      "cashier": "Cashier",
+      "system": "System",
+      "notes": "Notes",
+      "dear": "To",
+      "id_tag": "ID/Tag",
+      "payment_title": "Internet Invoice Payment",
+      "period": "Period",
+      "package": "Package",
+      "package_fallback": "Internet Service",
+      "total_paid": "TOTAL PAID",
+      "paid": "PAID",
+      "manager": "Manager",
+      "manager_fallback": "Main Admin",
+      "footer": {
+        "thanks": "Thank you for your payment.",
+        "keep_receipt": "Keep this receipt as valid proof of payment.",
+        "printed_from": "Printed from Billing System"
+      }
+    },
+    "print_vouchers": {
+      "title": "Print Voucher Batch",
+      "days": "days",
+      "hint_user_pass": "Enter User (U) and Pass (P).",
+      "contact_label": "Phone/WA"
+    },
+    "packages": {
+      "title": "Internet Packages",
+      "list": "Package List",
+      "add": "Add Package",
+      "edit": "Edit Package",
+      "update": "Update",
+      "empty": "No packages yet. Add your first package!",
+      "customers_suffix": "customers",
+      "table": {
+        "name": "Package Name",
+        "price_month": "Price / Month",
+        "speed": "Speed",
+        "description": "Description",
+        "customers": "Customers",
+        "status": "Status"
+      },
+      "form": {
+        "name_profile": "Package Name (MikroTik Profile)",
+        "pick_from_mikrotik": "-- Select from MikroTik --",
+        "type_manual": "Or type manually...",
+        "price_month": "Price / Month (Rp)",
+        "speed_down": "Download Speed (Mbps)",
+        "speed_up": "Upload Speed (Mbps)",
+        "status": "Status",
+        "description": "Description",
+        "optional": "Optional..."
+      },
+      "confirm": {
+        "delete": "Delete this package? Customers using this package will lose the package reference."
+      }
+    },
+    "settings": {
+      "title": "Settings",
+      "system_title": "System Settings",
+      "telegram": {
+        "title": "Telegram Bot Settings (Admin Backup)",
+        "status": "Telegram Bot Status",
+        "admin_id": "Telegram Admin ID",
+        "bot_token": "Telegram Bot Token",
+        "sync_title": "Sync / Remove Old Webhook",
+        "sync": "Sync"
+      },
+      "whatsapp": {
+        "title": "WhatsApp Settings"
+      },
+      "app_info": "Application Info",
+      "company_name": "App / Company Name",
+      "footer_info": "Footer Info",
+      "owner_name": "Manager / Owner Name",
+      "primary_phone": "Primary Phone (CS)",
+      "company_email": "Company Email",
+      "office_address": "Office Address",
+      "office_lat": "Office Latitude",
+      "office_lng": "Office Longitude",
+      "operational_hours": "Operating Hours",
+      "server_port": "Server Port",
+      "customer_otp_login": "Customer OTP Login",
+      "otp_enabled": "Enabled (Send via WA)",
+      "otp_disabled": "Disabled (Direct)",
+      "external_api": "External APIs"
+    },
+    "section": {
+      "main": "MAIN",
+      "billing": "BILLING",
+      "service": "SERVICE",
+      "user_management": "USER MANAGEMENT",
+      "system": "SYSTEM"
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "mikrotik_monitoring": "MikroTik Monitoring",
+      "voucher_hotspot": "Hotspot Voucher",
+      "router_management": "Router Management",
+      "olt_management": "OLT Management",
+      "network_map": "Network Map",
+      "whatsapp_status": "WhatsApp Status",
+      "customers": "Customers",
+      "internet_packages": "Internet Packages",
+      "invoices": "Invoices",
+      "finance_report": "Financial Reports",
+      "customer_tickets": "Customer Tickets",
+      "technicians": "Technicians",
+      "cashiers": "Cashiers",
+      "agents": "Agents",
+      "agent_reports": "Agent Reports",
+      "update": "GitHub Update",
+      "settings": "Settings"
+    },
+    "update": {
+      "title": "GitHub Update",
+      "status_title": "Version Status",
+      "server_version": "Server Version (version.txt)",
+      "github_version_prefix": "GitHub Version (origin/",
+      "github_version_suffix": ")",
+      "has_update": "Update available",
+      "latest": "Up to date",
+      "check": "Check Version",
+      "run": "Update Now",
+      "keep_files": "Files not overwritten during update: settings.json and database folder. After update completes, restart the app to activate the new version.",
+      "log_title": "Update Log",
+      "confirm": "Run update from GitHub now? Make sure the internet connection is stable and the app will be restarted after completion."
+    }
+  },
+  "tech": {
+    "login_title": "Technician Login",
+    "portal_title": "Technician Portal",
+    "new_customer": "Add Customer",
+    "logout_confirm": "Are you sure you want to log out?",
+    "dashboard": {
+      "greeting": "Hello, have a great day!",
+      "in_progress": "In Progress",
+      "resolved_today": "Resolved Today",
+      "active_tasks": "Your Active Tasks",
+      "empty_active": "Great! No active tasks right now.",
+      "empty_active_hint": "Please check the \"New Tickets\" tab to take a task."
+    },
+    "ticket": {
+      "open": "Not Assigned",
+      "in_progress": "In Progress",
+      "resolved": "Resolved",
+      "no_address": "No address",
+      "mark_resolved": "Mark as Resolved",
+      "resolve_title": "Resolve Task",
+      "resolve_confirm_prefix": "Are you sure the task for complaint",
+      "resolve_confirm_suffix": "has been completed?",
+      "cancel": "Cancel",
+      "yes_resolved": "Yes, Resolve"
+    },
+    "pool": {
+      "title": "New Tickets",
+      "subtitle": "Unassigned complaints list",
+      "empty": "No new complaints at the moment.",
+      "empty_hint": "All customers are running normally.",
+      "take_confirm": "Take this ticket and work on it now?",
+      "take_action": "Take This Task"
+    },
+    "history_page": {
+      "title": "Task History",
+      "subtitle": "Last 50 resolved tasks",
+      "empty": "No resolved task history yet."
+    },
+    "nav": {
+      "my_tasks": "My Tasks",
+      "new_tickets": "New Tickets",
+      "map": "Map",
+      "monitor": "Monitor",
+      "history": "History"
+    }
+  },
+  "customer": {
+    "login_title": "Customer Login",
+    "portal_title": "Customer Portal",
+    "id_tag": "Customer ID/Tag",
+    "id_tag_placeholder": "Enter your customer ID/tag",
+    "otp_sent_via_wa": "OTP code will be sent via WhatsApp",
+    "sign_in": "Sign In",
+    "not_subscribed": "Not subscribed yet?",
+    "register_new": "New Installation Request",
+    "otp_title": "OTP Verification",
+    "dashboard_title": "Customer Dashboard",
+    "dashboard": {
+      "portal": "Customer Portal",
+      "hello": "Hello",
+      "service": "Service",
+      "active": "ACTIVE",
+      "suspended": "SUSPENDED",
+      "device_status": "Device Status",
+      "current_ssid": "Current SSID",
+      "software_version": "Software Version",
+      "last_inform": "Last Inform",
+      "rx_power": "RX Power",
+      "pppoe_ip": "PPPoE IP",
+      "pppoe_username": "PPPoE Username",
+      "connected_users": "Connected Users"
+    },
+    "billing": {
+      "title": "Billing Status & History",
+      "period": "Period",
+      "service_package": "Service / Package",
+      "amount": "Amount",
+      "status": "Status",
+      "paid": "PAID",
+      "paid_at": "Paid",
+      "paid_through": "Paid through",
+      "paid_year_prefix": "Paid in",
+      "none_paid": "No paid invoices yet",
+      "unpaid_summary_prefix": "There are",
+      "unpaid_summary_suffix": "unpaid invoices",
+      "pay_online": "PAY ONLINE",
+      "unpaid": "UNPAID",
+      "empty": "No billing data.",
+      "internet_service": "Internet Service"
+    },
+    "ticket": {
+      "title": "Support Tickets",
+      "report_1": "REPORT",
+      "report_2": "ISSUE",
+      "time": "Time",
+      "issue": "Issue",
+      "status": "Status",
+      "waiting": "Waiting",
+      "in_progress": "In Progress",
+      "resolved": "Resolved",
+      "empty": "No ticket history yet."
+    },
+    "wifi": {
+      "change_ssid": "Change WiFi Name (SSID)",
+      "current_ssid": "Current SSID",
+      "new_ssid_placeholder": "New WiFi name",
+      "change_ssid_btn": "Change SSID",
+      "change_password": "Change WiFi Password",
+      "new_password_placeholder": "New password",
+      "change_password_btn": "Change Password"
+    },
+    "reboot": {
+      "device": "Reboot Device",
+      "confirm": "Are you sure you want to reboot your device?"
+    },
+    "devices": {
+      "title": "Connected Devices",
+      "hostname": "Hostname",
+      "ip": "IP",
+      "mac": "MAC",
+      "interface": "Interface",
+      "status": "Status",
+      "online": "Online",
+      "offline": "Offline",
+      "empty": "No devices are currently connected."
+    },
+    "help": {
+      "contact_admin": "If you have issues, please contact admin via WhatsApp."
+    },
+    "footer": {
+      "about": "About",
+      "tos": "Terms of Service",
+      "privacy": "Privacy Policy",
+      "contact": "Contact"
+    },
+    "payment": {
+      "choose_title": "Choose Payment",
+      "choose_desc": "Please choose a payment method for the bill amount"
+    },
+    "nav": {
+      "home": "Home",
+      "billing": "Billing",
+      "help": "Help",
+      "wifi": "WiFi"
+    },
+    "pages": {
+      "about": {
+        "meta_title": "About Us",
+        "hero_title_prefix": "About",
+        "hero_subtitle": "Fast and affordable internet for everyone.",
+        "p1": "<strong>{company}</strong> is an internet service provider (ISP) focused on delivering high-quality broadband access for homes and small businesses.",
+        "p2": "We believe that in today's digital era, stable and fast internet access is no longer a luxury, but a basic need to support education, the creative economy, and unlimited communication.",
+        "stats": {
+          "speed_title": "High Speed",
+          "speed_desc": "Fiber-optic network for a smooth internet experience.",
+          "stable_title": "Stable & Secure",
+          "stable_desc": "Infrastructure designed for maximum reliability 24/7.",
+          "support_title": "Local Support",
+          "support_desc": "A technical team ready to help you anytime."
+        },
+        "vision_title": "Our Vision",
+        "vision_body": "To become a trusted digital connectivity partner that reaches remote areas and creates a positive impact on social and economic development.",
+        "mission_title": "Our Mission",
+        "mission_1": "Provide competitively priced internet service with premium quality.",
+        "mission_2": "Continuously innovate network infrastructure to keep up with technology.",
+        "mission_3": "Deliver responsive and solution-oriented customer service.",
+        "footer_tagline": "Connecting You to the Future"
+      },
+      "tos": {
+        "meta_title": "Terms & Conditions",
+        "title": "Terms & Conditions",
+        "subtitle": "Please read carefully before using our service.",
+        "p1": "Welcome to <strong>{company}</strong> internet service. By using our service and making payments through this system, you agree to be bound by the following terms and conditions:",
+        "s1_title": "Service",
+        "s1_body": "We provide internet access service (RTRWNet/ISP) according to the selected package. Service quality may be affected by technical factors, geographic location, and extreme weather conditions.",
+        "s2_title": "Payments & Billing",
+        "s2_li1": "Internet bills are generated automatically by the system every month based on your subscription cycle.",
+        "s2_li2": "Payments can be made through the Customer Portal using available methods such as QRIS, Virtual Account, or Retail Outlet.",
+        "s2_li3": "Any payment that has been successfully verified by the system is final and cannot be cancelled or refunded (Non-Refundable).",
+        "s3_title": "Service Suspension Policy",
+        "s3_body": "Our system may automatically suspend service if the bill remains unpaid past the due date. Service will be restored automatically after payment is verified.",
+        "s4_title": "Refund Policy",
+        "s4_body": "Refunds may only be considered if a payment gateway system issue causes duplicate transactions for the same invoice.",
+        "s5_title": "Limitation of Liability",
+        "s5_body": "{company} is not responsible for losses caused by upstream technical issues, customer negligence resulting in device damage, or force majeure events.",
+        "footer_tagline": "All Rights Reserved"
+      },
+      "privacy": {
+        "meta_title": "Privacy Policy",
+        "title": "Privacy Policy",
+        "subtitle": "How we protect and safeguard your personal data.",
+        "p1": "At <strong>{company}</strong>, customer privacy is our top priority. This Privacy Policy describes what personal information we collect and how we use it.",
+        "s1_title": "Information We Collect",
+        "s1_body": "We collect limited information necessary to provide the service, including:",
+        "s1_li1": "Full name and installation address.",
+        "s1_li2": "Phone/WhatsApp number for billing and technical notifications.",
+        "s1_li3": "Service usage data for network quality monitoring.",
+        "s1_li4": "Payment transaction data via third-party payment gateways.",
+        "s2_title": "How We Use Information",
+        "s2_body": "The information we collect is used to:",
+        "s2_li1": "Process registration and activation of your internet service.",
+        "s2_li2": "Send billing information and automatic payment reminders.",
+        "s2_li3": "Provide technical support and respond to your complaints.",
+        "s2_li4": "Improve network quality and user experience.",
+        "s3_title": "Data Security",
+        "s3_body": "We apply technical security standards to protect your data from unauthorized access. Sensitive data such as WiFi passwords and login details are stored with encryption on our servers.",
+        "s4_title": "Third Parties",
+        "s4_body": "We do not sell or rent your personal data to third parties. We only share data with payment gateway partners (such as Tripay/Xendit/Midtrans) to process your transactions securely.",
+        "s5_title": "Consent",
+        "s5_body": "By using our service, you hereby consent to our Privacy Policy and agree to its terms.",
+        "footer_tagline": "Your Data Security is Our Commitment"
+      },
+      "contact": {
+        "meta_title": "Support Contact",
+        "title": "Contact Us",
+        "subtitle": "We are ready to help with your internet issues.",
+        "p1": "Our support team is available to assist with technical questions, payment help, or new installation information.",
+        "whatsapp_title": "WhatsApp Support",
+        "whatsapp_fallback": "Contact us on WhatsApp",
+        "fast_response": "Fast Response",
+        "email_title": "Email Support",
+        "hours_title": "Operating Hours",
+        "address_title": "Office Address",
+        "footer_tagline": "Customer Satisfaction is Our Pride"
+      }
+    }
+  },
+  "agent": {
+    "portal_title": "Agent Portal",
+    "login_title": "Agent Login",
+    "dashboard_title": "Agent Dashboard",
+    "username": "Username",
+    "password": "Password",
+    "username_placeholder": "Enter username",
+    "password_placeholder": "Enter password",
+    "sign_in": "Sign In",
+    "logout": "Logout",
+    "nav": {
+      "home": "Home",
+      "billing": "Billing",
+      "voucher": "Voucher",
+      "history": "History"
+    },
+    "receipt_last": "Last Receipt",
+    "new": "New",
+    "summary": "Summary",
+    "balance": "Balance",
+    "billing_fee": "Invoice Fee",
+    "account_status": "Account Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "last_tx": "Last Transaction",
+    "time": "Time",
+    "customer": "Customer",
+    "invoice": "Invoice",
+    "period": "Period",
+    "amount": "Amount",
+    "package": "Package",
+    "validity": "Validity",
+    "user": "User",
+    "pass": "Pass",
+    "price": "Price",
+    "profit": "Profit",
+    "cut_balance": "Balance Deduction",
+    "fee": "Fee",
+    "whatsapp": "WhatsApp",
+    "wa_sent": "Sent",
+    "wa_not_sent": "Not sent",
+    "print_thermal": "Thermal Print",
+    "copy_all": "Copy All",
+    "pay_invoice": "Pay Invoice",
+    "search": "Search",
+    "search_placeholder": "Phone / PPPoE / Tag / ID",
+    "no_unpaid_prefix": "No unpaid invoices found for:",
+    "unpaid_badge": "UNPAID",
+    "note_optional": "Note (optional)",
+    "process_pay_prefix": "Process Payment",
+    "sell_voucher": "Sell Hotspot Voucher",
+    "instant": "Instant",
+    "no_voucher_profiles": "No voucher profiles configured for this agent. Ask admin to set prices & profiles.",
+    "buyer_phone_optional": "Buyer WhatsApp (optional)",
+    "choose_voucher": "Select a voucher package",
+    "create_voucher_prefix": "Create Voucher - ",
+    "history_title": "Recent History",
+    "no_transactions": "No transactions yet.",
+    "tx_type": {
+      "topup": "TOPUP",
+      "invoice": "INVOICE",
+      "voucher": "VOUCHER",
+      "generic": "TRANSACTION"
+    },
+    "receipt": {
+      "voucher_title": "HOTSPOT VOUCHER RECEIPT",
+      "payment_title": "PAYMENT RECEIPT",
+      "transaction_no": "Transaction No.",
+      "date": "Date",
+      "router": "Router",
+      "code": "VOUCHER CODE",
+      "password": "PASSWORD",
+      "total_paid": "TOTAL PAID",
+      "thanks_voucher": "Thank you.\nKeep this receipt as proof of transaction.",
+      "thanks_payment": "Thank you for your payment.\nKeep this receipt as valid proof of payment."
+    }
+  }
+}
