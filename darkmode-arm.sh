@@ -2,27 +2,10 @@ GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-telegram_bot_token=$(echo "MTk4MTIwMDAwMDpBQUVsZDJvT0sxcmt2U09sSHV5eDdIR2Q4a1lzVnp6ZFpHaw==" | base64 -d)
-telegram_chat_id=$(echo "NTY3ODU4NjI4" | base64 -d)
-
 local_ip=$(hostname -I | awk '{print $1}')
 server_hostname=$(hostname)
 server_kernel=$(uname -r)
 server_uptime=$(uptime -p 2>/dev/null || uptime)
-
-send_telegram_notification() {
-    local message="$1"
-    local url="https://api.telegram.org/bot${telegram_bot_token}/sendMessage"
-    
-    message=$(printf '%s' "$message" | sed 's/\\/\\\\/g; s/"/\\"/g')
-    
-
-    curl -s -X POST "$url" \
-        -d "chat_id=${telegram_chat_id}" \
-        -d "text=${message}" \
-        -d "parse_mode=HTML" \
-        -d "disable_web_page_preview=true"
-}
 
 setup_mongodb_docker() {
     if ! command -v docker >/dev/null 2>&1; then
@@ -103,6 +86,57 @@ ensure_mongodb_running() {
     systemctl status mongod --no-pager -l || true
     journalctl -u mongod --no-pager -n 120 || true
     return 1
+}
+
+install_billing_app() {
+    if [ ! -d "billing" ]; then
+        echo -e "${RED}Folder 'billing' tidak ditemukan. Skip install billing.${NC}"
+        return 1
+    fi
+
+    billing_dir="$(pwd)/billing"
+    sudo apt-get update -y
+    sudo apt-get install -y build-essential python3 make g++
+
+    sudo useradd --system --no-create-home --user-group billing >/dev/null 2>&1 || true
+    sudo chown -R billing:billing "$billing_dir"
+
+    (cd "$billing_dir" && sudo -u billing npm install --production --silent)
+
+    billing_port="$(awk -F: '/"server_port"/{gsub(/[^0-9]/,"",$2); if($2!=""){print $2; exit}}' "${billing_dir}/settings.json" 2>/dev/null || true)"
+    if [ -z "$billing_port" ]; then
+        billing_port="4555"
+    fi
+
+    if [ -f /etc/systemd/system/billing.service ]; then
+        sudo systemctl daemon-reload
+        sudo systemctl restart billing
+    else
+        cat << EOF | sudo tee /etc/systemd/system/billing.service > /dev/null
+[Unit]
+Description=Billing App
+After=network.target
+
+[Service]
+Type=simple
+User=billing
+WorkingDirectory=${billing_dir}
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node ${billing_dir}/app-customer.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+        sudo systemctl daemon-reload
+        sudo systemctl enable --now billing
+    fi
+
+    base_url="http://${local_ip}:${billing_port}"
+    echo -e "${GREEN}================== Billing berhasil dijalankan ==================${NC}"
+    echo -e "${GREEN}Akses Admin    : ${base_url}/admin/login${NC}"
+    echo -e "${GREEN}Akses Teknisi  : ${base_url}/tech/login${NC}"
+    echo -e "${GREEN}Akses Pelanggan: ${base_url}/customer/login${NC}"
 }
 
 echo -e "${GREEN}============================================================================${NC}"
@@ -296,29 +330,9 @@ EOF
     echo -e "${GREEN}================== Sukses genieACS CWMP, FS, NBI, UI ==================${NC}"
     
     
-    telegram_message="✅ GenieACS Installation Completed Successfully!\n\n"
-    telegram_message+="🖥️ Server: ${server_hostname}\n"
-    telegram_message+="🌐 IP Address: ${local_ip}\n"
-    telegram_message+="🔧 Kernel: ${server_kernel}\n"
-    telegram_message+="⏱️ Uptime: ${server_uptime}\n\n"
-    telegram_message+="🚀 GenieACS is now running on port 3000\n"
-    telegram_message+="🔗 Access URL: http://${local_ip}:3000"
-    
-    send_telegram_notification "$telegram_message"
 else
     echo -e "${GREEN}============================================================================${NC}"
     echo -e "${GREEN}=================== GenieACS sudah terinstall sebelumnya. ==================${NC}"
-    
-    
-    telegram_message="ℹ️ GenieACS Already Installed\n\n"
-    telegram_message+="🖥️ Server: ${server_hostname}\n"
-    telegram_message+="🌐 IP Address: ${local_ip}\n"
-    telegram_message+="🔧 Kernel: ${server_kernel}\n"
-    telegram_message+="⏱️ Uptime: ${server_uptime}\n\n"
-    telegram_message+="📍 GenieACS is already running on port 3000\n"
-    telegram_message+="🔗 Access URL: http://${local_ip}:3000"
-    
-    send_telegram_notification "$telegram_message"
 fi
 
 #Sukses
@@ -376,13 +390,8 @@ echo -e "${GREEN}=================== Informasi: Whatsapp 081947215703 ==========
 echo -e "${GREEN}============================================================================${NC}"
 
 
-telegram_message="✅ GenieACS Virtual Parameters Installation Completed Successfully!\n\n"
-telegram_message+="🖥️ Server: ${server_hostname}\n"
-telegram_message+="🌐 IP Address: ${local_ip}\n"
-telegram_message+="🔧 Kernel: ${server_kernel}\n"
-telegram_message+="⏱️ Uptime: ${server_uptime}\n\n"
-telegram_message+="🚀 GenieACS is now running on port 3000\n"
-telegram_message+="🔗 Access URL: http://${local_ip}:3000\n\n"
-telegram_message+="📋 Virtual Parameters have been installed successfully"
-
-send_telegram_notification "$telegram_message"
+echo -e "${GREEN}Sekarang install aplikasi Billing (folder billing). Apakah anda ingin melanjutkan? (y/n)${NC}"
+read confirmation
+if [ "$confirmation" = "y" ]; then
+    install_billing_app || true
+fi
