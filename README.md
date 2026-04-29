@@ -25,7 +25,7 @@ bash darkmode.sh
 ```
 INSTALL GENIEACS DARKMODE ARMBIAN (STB)
 ```
-bash darkmode.sh
+bash darkmode-arm.sh
 ```
 INSTALL GENIEACS THEMA ORIGINAL v@1.2.13
 ```
