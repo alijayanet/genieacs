@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="<%= lang || 'id' %>">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= t('customer.login_title', 'Login Pelanggan') %> | <%= settings.company_header || 'Portal ISP' %></title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  <style>
+    body {
+      background: radial-gradient(1200px 600px at 10% 0%, rgba(99, 102, 241, 0.22) 0%, rgba(15, 23, 42, 0) 60%),
+        radial-gradient(900px 450px at 100% 0%, rgba(59, 130, 246, 0.18) 0%, rgba(15, 23, 42, 0) 55%),
+        #0f172a;
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: rgba(30, 41, 59, 0.92);
+      backdrop-filter: blur(10px);
+      border: 1px solid #334155;
+      border-radius: 20px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .login-header {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.28) 0%, rgba(59, 130, 246, 0.2) 100%);
+      color: #f8fafc;
+      padding: 30px 20px;
+      text-align: center;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    .logo-container {
+      width: 80px;
+      height: 80px;
+      background: rgba(15, 23, 42, 0.45);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 15px;
+    }
+
+    .logo-container img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+    }
+
+    .form-container {
+      padding: 30px 25px;
+    }
+
+    .form-floating {
+      margin-bottom: 20px;
+    }
+
+    .form-control {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid #334155;
+      color: #e2e8f0;
+      border-radius: 12px;
+      padding: 15px 20px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .form-control::placeholder {
+      color: rgba(148, 163, 184, 0.85);
+    }
+
+    .form-control:focus {
+      background: rgba(15, 23, 42, 0.75);
+      border-color: rgba(99, 102, 241, 0.85);
+      box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+      color: #e2e8f0;
+    }
+
+    .btn-login {
+      background: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%);
+      border: none;
+      border-radius: 12px;
+      padding: 15px;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px rgba(99, 102, 241, 0.25);
+    }
+
+    .footer-text {
+      color: rgba(148, 163, 184, 0.9);
+      font-size: 12px;
+      margin-top: 20px;
+    }
+
+    .form-floating>label {
+      color: rgba(148, 163, 184, 0.95);
+    }
+
+    .form-floating>.form-control:focus~label,
+    .form-floating>.form-control:not(:placeholder-shown)~label {
+      color: rgba(148, 163, 184, 0.95);
+    }
+
+    .alert {
+      border: 1px solid rgba(148, 163, 184, 0.15);
+    }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btn-ghost {
+      border-radius: 12px;
+      padding: 14px 12px;
+      font-size: 15px;
+      font-weight: 700;
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      background: rgba(15, 23, 42, 0.35);
+      color: #e2e8f0;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-ghost:hover {
+      transform: translateY(-1px);
+      border-color: rgba(99, 102, 241, 0.65);
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25);
+      color: #e2e8f0;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .info-box {
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      background: rgba(15, 23, 42, 0.28);
+      border-radius: 14px;
+      padding: 12px 14px;
+    }
+
+    .info-title {
+      font-weight: 800;
+      font-size: 13px;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-text {
+      color: rgba(148, 163, 184, 0.95);
+      font-size: 12px;
+      line-height: 1.4;
+      margin: 0;
+    }
+
+    @media (max-width: 576px) {
+      .login-container {
+        padding: 10px;
+      }
+
+      .login-card {
+        border-radius: 15px;
+      }
+
+      .form-container {
+        padding: 25px 20px;
+      }
+
+      .quick-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="logo-container">
+          <img src="/img/logo.png" alt="Logo">
+        </div>
+        <h4 class="mb-1 fw-bold"><%= t('customer.portal_title', 'Portal Pelanggan') %></h4>
+        <p class="mb-0 opacity-75">
+          <%= settings.company_header %>
+        </p>
+      </div>
+      <div class="form-container">
+        <form method="POST" action="/customer/login">
+          <div class="form-floating">
+            <input type="text" class="form-control" id="phone" name="phone" placeholder="<%= t('customer.id_tag_placeholder', 'Masukkan ID/Tag Pelanggan') %>"
+              required autofocus>
+            <label for="phone">
+              <i class="bi bi-person-badge me-2"></i><%= t('customer.id_tag', 'ID/Tag Pelanggan') %>
+            </label>
+          </div>
+          <div class="text-center mb-3 small" style="color: rgba(148, 163, 184, 0.95);">
+            <i class="bi bi-info-circle me-1"></i>
+            Masukkan ID pelanggan / Tag ONU / Username PPPoE / Nomor HP yang terdaftar
+          </div>
+          <% if (settings.login_otp_enabled) { %>
+            <div class="text-center mb-3 small" style="color: rgba(148, 163, 184, 0.95);">
+              <i class="bi bi-whatsapp text-success me-1"></i> <%= t('customer.otp_sent_via_wa', 'Kode OTP akan dikirim via WhatsApp') %>
+            </div>
+          <% } %>
+          <button type="submit" class="btn btn-primary btn-login w-100">
+            <i class="bi bi-box-arrow-in-right me-2"></i><%= t('customer.sign_in', 'Masuk') %>
+          </button>
+          <div class="quick-actions">
+            <a href="/customer/check-billing" class="btn-ghost">
+              <i class="bi bi-receipt"></i>Cek Tagihan
+            </a>
+            <a href="/customer/voucher" class="btn-ghost">
+              <i class="bi bi-ticket-perforated"></i>Voucher Online
+            </a>
+          </div>
+        </form>
+        <% if (error) { %>
+          <div class="alert alert-danger mt-3 text-center">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <%= error==='Nomor HP tidak valid atau belum terdaftar.' ? 'ID/Tag tidak valid atau belum terdaftar.' :
+              error %>
+          </div>
+        <% } %>
+
+        <div class="info-grid">
+          <div class="info-box">
+            <div class="info-title"><i class="bi bi-lightning-charge"></i> Akses Cepat</div>
+            <p class="info-text">Cek tagihan dan beli voucher bisa dilakukan tanpa login.</p>
+          </div>
+          <div class="info-box">
+            <div class="info-title"><i class="bi bi-clock"></i> Jam Operasional</div>
+            <p class="info-text"><%= settings.operational_hours || 'Setiap Hari' %></p>
+          </div>
+          <% if (settings.company_phone) { %>
+            <div class="info-box">
+              <div class="info-title"><i class="bi bi-headset"></i> Bantuan</div>
+              <p class="info-text">Admin: <a href="https://wa.me/<%= String(settings.company_phone).replace(/\\D/g,'') %>" target="_blank" rel="noopener" style="color:#a5b4fc;text-decoration:none;font-weight:700"><%= settings.company_phone %></a></p>
+            </div>
+          <% } %>
+        </div>
+
+        <div class="text-center footer-text mt-4">
+          <p class="mb-2"><%= t('customer.not_subscribed', 'Belum berlangganan?') %> <a href="/customer/register"
+              style="color: #6366f1; text-decoration: none; font-weight: 700;"><%= t('customer.register_new', 'Daftar Pemasangan Baru') %></a></p>
+          &copy; <%= new Date().getFullYear() %> <%= settings.company_header %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js', { scope: '/customer/' }).catch(() => {});
+      });
+    }
+  </script>
+</body>
+
+</html>

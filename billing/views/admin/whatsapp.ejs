@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="<%= lang || 'id' %>">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title><%= t('admin.whatsapp.status_title', 'Status WhatsApp') %> | <%= company %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/admin.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.min.js"></script>
+  <style>
+    .wa-status-card { text-align: center; padding: 40px 20px; }
+    .status-indicator { width: 120px; height: 120px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 48px; }
+    .status-open { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 4px solid #10b981; }
+    .status-qr { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 4px solid #f59e0b; }
+    .status-close { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 4px solid #ef4444; }
+    #qr-container { background: white; padding: 20px; display: inline-block; border-radius: 12px; margin-top: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .wa-info { margin-top: 20px; color: var(--muted); }
+    .wa-tabs { display: flex; gap: 10px; margin-bottom: 14px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+    .wa-tab { padding: 8px 14px; border-radius: 8px; cursor: pointer; color: var(--muted); transition: all 0.2s; font-weight: 700; text-decoration: none; }
+    .wa-tab:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+    .wa-tab.active { background: var(--primary); color: white; }
+  </style>
+</head>
+<body data-connected-label="<%= t('admin.whatsapp.connected', 'Terhubung') %>" data-need-scan-label="<%= t('admin.whatsapp.need_scan', 'Perlu Pemindaian') %>">
+<%- include('partials/sidebar', { activePage: 'whatsapp', company }) %>
+<div class="mw">
+  <div class="topbar">
+    <div class="tb-title"><button class="hb-menu" onclick="toggleSidebar()"><i class="bi bi-list"></i></button><i class="bi bi-whatsapp"></i> <%= t('admin.whatsapp.status_title', 'Status WhatsApp') %></div>
+    <div class="tb-right">
+      <span class="adm-badge"><i class="bi bi-person-fill"></i> <%= (typeof session !== 'undefined' && session.isCashier) ? t('admin.role.cashier', 'Kasir') : t('admin.role.admin', 'Admin') %></span>
+      <a href="/admin/logout" class="btn btn-g btn-sm"><i class="bi bi-box-arrow-left"></i></a>
+    </div>
+  </div>
+  <div class="page">
+    <% const waTab = 'status'; %>
+    <% if (msg) { %>
+    <div class="alert alert-<%= msg.type==='success'?'s':'d' %>">
+      <i class="bi bi-<%= msg.type==='success'?'check-circle':'exclamation-circle' %>"></i> <%= msg.text %>
+    </div>
+    <% } %>
+
+    <div class="wa-tabs">
+      <a href="/admin/whatsapp" class="wa-tab <%= waTab==='status' ? 'active' : '' %>"><i class="bi bi-phone"></i> Status</a>
+      <a href="/admin/whatsapp/broadcast" class="wa-tab <%= waTab==='broadcast' ? 'active' : '' %>"><i class="bi bi-megaphone"></i> Broadcast & Pengingat</a>
+    </div>
+
+    <div class="card">
+      <div class="wa-status-card">
+        <div id="status-icon" class="status-indicator status-close">
+          <i class="bi bi-whatsapp"></i>
+        </div>
+        <h2 id="status-text"><%= t('admin.whatsapp.checking', 'Mengecek status...') %></h2>
+        <p id="status-desc" class="text-muted"><%= t('admin.whatsapp.please_wait', 'Harap tunggu sebentar.') %></p>
+        
+        <div id="qr-section" style="display:none">
+          <p class="mb-3"><%= t('admin.whatsapp.qr_instruction', 'Silakan pindai QR Code ini dengan aplikasi WhatsApp Anda:') %></p>
+          <div id="qr-container"></div>
+          <p class="mt-3 text-sm text-muted"><%= t('admin.whatsapp.qr_auto_refresh', 'QR Code akan diperbarui secara otomatis.') %></p>
+        </div>
+
+        <div id="info-section" style="display:none" class="wa-info">
+          <div class="alert alert-s">
+            <i class="bi bi-check-circle-fill"></i> <%= t('admin.whatsapp.connected_title', 'WhatsApp Terhubung') %>
+          </div>
+          <p><%= t('admin.whatsapp.connected_as', 'Terhubung sebagai:') %> <strong id="wa-user">-</strong></p>
+          <p><%= t('admin.whatsapp.last_updated', 'Terakhir diperbarui:') %> <span id="wa-time">-</span></p>
+        </div>
+
+        <div class="mt-5" style="display:flex; justify-content:center; gap:10px">
+          <button class="btn btn-g" onclick="checkStatus()"><i class="bi bi-arrow-clockwise"></i> <%= t('admin.whatsapp.refresh_status', 'Refresh Status') %></button>
+          <form method="POST" action="/admin/whatsapp/test-notification" onsubmit="return confirm('<%= t('admin.whatsapp.confirm_test', 'Kirim test notifikasi WhatsApp ke admin sekarang?') %>');">
+            <button class="btn btn-p"><i class="bi bi-send-check"></i> <%= t('admin.whatsapp.test_notification', 'Kirim Test Notif') %></button>
+          </form>
+          <form method="POST" action="/admin/whatsapp/reset" onsubmit="return confirm('<%= t('admin.whatsapp.confirm_reset', 'Apakah Anda yakin ingin menghapus sesi WhatsApp? Anda harus scan QR ulang setelah ini.') %>')">
+            <button class="btn btn-d"><i class="bi bi-trash"></i> <%= t('admin.whatsapp.reset_session', 'Hapus Sesi / Reset') %></button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script>
+  const I18N = {
+    descOpen: "<%= t('admin.whatsapp.desc_open', 'Bot WhatsApp aktif dan siap mengirim notifikasi.') %>",
+    descQr: "<%= t('admin.whatsapp.desc_qr', 'Sesi tidak ditemukan atau kedaluwarsa.') %>",
+    descOffPrefix: "<%= t('admin.whatsapp.disconnected_prefix', 'Terputus') %>",
+    descOff: "<%= t('admin.whatsapp.desc_off', 'Bot WhatsApp sedang offline atau sedang mencoba menghubungkan ulang.') %>",
+    deviceFallback: "<%= t('admin.whatsapp.device_fallback', 'Device') %>",
+    waitQrLib: "<%= t('admin.whatsapp.wait_qr_lib', 'Menunggu library QR Code...') %>",
+    qrFail: "<%= t('admin.whatsapp.qr_fail', 'Gagal memproses QR Code. Silakan cek konsol browser.') %>"
+  };
+
+  async function checkStatus() {
+    try {
+      const res = await fetch('/admin/api/whatsapp/status');
+      if (!res.ok) {
+        console.error('API Status Error:', res.statusText);
+        return;
+      }
+      const status = await res.json();
+      console.log('[WA Status]', status);
+      
+      const icon = document.getElementById('status-icon');
+      const text = document.getElementById('status-text');
+      const desc = document.getElementById('status-desc');
+      const qrSection = document.getElementById('qr-section');
+      const infoSection = document.getElementById('info-section');
+      const qrContainer = document.getElementById('qr-container');
+
+      icon.className = 'status-indicator';
+      qrSection.style.display = 'none';
+      infoSection.style.display = 'none';
+
+      const connectedLabel = document.body.dataset.connectedLabel || 'Terhubung';
+      const needScanLabel = document.body.dataset.needScanLabel || 'Perlu Pemindaian';
+
+      if (status.connection === 'open') {
+        icon.classList.add('status-open');
+        text.innerText = connectedLabel;
+        desc.innerText = I18N.descOpen;
+        infoSection.style.display = 'block';
+        document.getElementById('wa-user').innerText = status.user?.id || status.user?.name || I18N.deviceFallback;
+        document.getElementById('wa-time').innerText = new Date(status.lastUpdate).toLocaleTimeString();
+      } else if (status.connection === 'qr' && status.qr) {
+        console.log('Generating QR Code Canvas...');
+        icon.classList.add('status-qr');
+        text.innerText = needScanLabel;
+        desc.innerText = I18N.descQr;
+        qrSection.style.display = 'block';
+        
+        qrContainer.innerHTML = '';
+        if (typeof QRCode === 'undefined') {
+          console.error('QRCode library still not loaded!');
+          qrContainer.innerText = I18N.waitQrLib;
+          return;
+        }
+        QRCode.toCanvas(status.qr, { width: 256, margin: 2 }, function (error, canvas) {
+          if (error) {
+            console.error('QR Generate Error:', error);
+            qrContainer.innerText = I18N.qrFail;
+          } else {
+            console.log('QR Code Canvas generated successfully.');
+            qrContainer.appendChild(canvas);
+          }
+        });
+      } else {
+        icon.classList.add('status-close');
+        text.innerText = I18N.descOffPrefix + ' (' + (status.connection || 'off') + ')';
+        desc.innerText = I18N.descOff;
+      }
+    } catch (e) {
+      console.error('Failed to check WA status', e);
+    }
+  }
+
+  // Check every 5 seconds
+  checkStatus();
+  setInterval(checkStatus, 5000);
+</script>
+</body>
+</html>

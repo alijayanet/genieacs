@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="<%= lang || 'id' %>">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title><%= t('admin.agents.title', 'Agent') %> | <%= company %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+<%- include('partials/sidebar', { activePage: 'agents', company }) %>
+
+<div class="mw">
+  <div class="topbar">
+    <div class="tb-title">
+      <button class="hb-menu" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+      <i class="bi bi-person-badge"></i>
+      <span><%= t('admin.agents.manage_title', 'Manajemen Agent') %></span>
+    </div>
+    <div class="tb-right">
+      <span class="adm-badge"><i class="bi bi-person-fill"></i> <%= (typeof session !== 'undefined' && session.isCashier) ? t('admin.role.cashier', 'Kasir') : t('admin.role.admin', 'Admin') %></span>
+      <button class="btn btn-p btn-sm" onclick="openModal('addAgentModal')"><i class="bi bi-plus-lg"></i> <%= t('admin.agents.add', 'Tambah Agent') %></button>
+    </div>
+  </div>
+
+  <div class="page">
+    <% if (msg) { %>
+      <div class="alert alert-<%= msg.type==='error'?'d':'s' %>"><%= msg.text %></div>
+    <% } %>
+
+    <div class="card">
+      <div class="card-hd">
+        <h6><i class="bi bi-list-ul"></i> <%= t('admin.agents.list', 'Daftar Agent') %></h6>
+      </div>
+      <div class="tbl-wrap">
+        <table class="dtbl">
+          <thead>
+            <tr>
+              <th><%= t('admin.agents.table.name', 'Nama') %></th>
+              <th><%= t('admin.agents.table.username', 'Username') %></th>
+              <th><%= t('admin.agents.table.phone', 'No. HP') %></th>
+              <th class="num"><%= t('admin.agents.table.balance', 'Saldo') %></th>
+              <th class="num"><%= t('admin.agents.table.billing_fee', 'Fee Tagihan') %></th>
+              <th><%= t('admin.agents.table.status', 'Status') %></th>
+              <th><%= t('admin.agents.table.actions', 'Aksi') %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!agents || agents.length === 0) { %>
+              <tr><td colspan="7" class="text-center text-muted" style="padding:20px"><%= t('admin.agents.empty', 'Belum ada agent.') %></td></tr>
+            <% } else { %>
+              <% agents.forEach(a => { %>
+                <tr>
+                  <td class="fw6"><%= a.name %></td>
+                  <td><code><%= a.username %></code></td>
+                  <td><%= a.phone || '-' %></td>
+                  <td class="num fw6">Rp <%= Number(a.balance || 0).toLocaleString('id-ID') %></td>
+                  <td class="num">Rp <%= Number(a.billing_fee || 0).toLocaleString('id-ID') %></td>
+                  <td>
+                    <span class="badge <%= a.is_active ? 'bs' : 'bd' %>"><%= a.is_active ? t('common.active', 'Aktif') : t('common.inactive', 'Nonaktif') %></span>
+                  </td>
+                  <td>
+                    <div class="d-flex gap-2" style="flex-wrap:wrap">
+                      <button class="btn btn-g btn-sm" onclick='editAgent(<%- JSON.stringify(a) %>)'><i class="bi bi-pencil"></i></button>
+                      <button class="btn btn-p btn-sm" onclick='openTopup(<%- JSON.stringify(a) %>)'><i class="bi bi-cash-stack"></i></button>
+                      <button class="btn btn-g btn-sm" onclick='openPrices(<%- JSON.stringify(a) %>)'><i class="bi bi-ticket-perforated"></i></button>
+                      <form action="/admin/agents/<%= a.id %>/delete" method="POST" onsubmit="return confirm(I18N.confirmDeleteAgent)">
+                        <button type="submit" class="btn btn-d btn-sm"><i class="bi bi-trash"></i></button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-hd">
+        <h6><i class="bi bi-journal-text"></i> <%= t('admin.agents.reports.title', 'Laporan') %></h6>
+      </div>
+      <div class="card-bd">
+        <a href="/admin/agents/reports" class="btn btn-g"><i class="bi bi-arrow-right"></i> <%= t('admin.agents.reports.open', 'Buka Laporan Agent') %></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mo" id="addAgentModal">
+  <div class="mb">
+    <form action="/admin/agents" method="POST">
+      <div class="mh"><span class="mt"><%= t('admin.agents.modal.add_title', 'Tambah Agent Baru') %></span><button type="button" class="mc" onclick="closeModal('addAgentModal')">&times;</button></div>
+      <div class="mbody">
+        <div class="fg"><label class="fl"><%= t('admin.agents.form.name', 'Nama') %></label><input type="text" name="name" class="fc" required></div>
+        <div class="fg"><label class="fl"><%= t('admin.agents.form.username', 'Username') %></label><input type="text" name="username" class="fc" required></div>
+        <div class="fg"><label class="fl"><%= t('admin.agents.form.password', 'Password') %></label><input type="text" name="password" class="fc" required></div>
+        <div class="fg"><label class="fl"><%= t('admin.agents.form.phone', 'No. HP') %></label><input type="text" name="phone" class="fc" placeholder="08123456789"></div>
+        <div class="fg"><label class="fl"><%= t('admin.agents.form.billing_fee', 'Fee Tagihan (Rp)') %></label><input type="number" name="billing_fee" class="fc" value="0" min="0"></div>
+        <div class="fg"><label class="fl"><%= t('admin.agents.form.initial_balance', 'Saldo Awal (Rp)') %></label><input type="number" name="balance" class="fc" value="0" min="0"></div>
+      </div>
+      <div class="mf">
+        <button type="button" class="btn btn-g" onclick="closeModal('addAgentModal')"><%= t('common.cancel', 'Batal') %></button>
+        <button type="submit" class="btn btn-p"><%= t('common.save', 'Simpan') %></button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="mo" id="editAgentModal">
+  <div class="mb">
+    <form id="editAgentForm" method="POST">
+      <div class="mh"><span class="mt"><%= t('admin.agents.modal.edit_title', 'Edit Agent') %></span><button type="button" class="mc" onclick="closeModal('editAgentModal')">&times;</button></div>
+      <div class="mbody">
+        <div class="fg"><label class="fl"><%= t('admin.agents.form.name', 'Nama') %></label><input type="text" name="name" id="ea-name" class="fc" required></div>
+        <div class="fg"><label class="fl"><%= t('admin.agents.form.username', 'Username') %></label><input type="text" name="username" id="ea-username" class="fc" required></div>
+        <div class="fg"><label class="fl"><%= t('admin.agents.form.password', 'Password') %></label><input type="text" name="password" id="ea-password" class="fc" required></div>
+        <div class="fg"><label class="fl"><%= t('admin.agents.form.phone', 'No. HP') %></label><input type="text" name="phone" id="ea-phone" class="fc"></div>
+        <div class="fg"><label class="fl"><%= t('admin.agents.form.billing_fee', 'Fee Tagihan (Rp)') %></label><input type="number" name="billing_fee" id="ea-fee" class="fc" min="0"></div>
+        <div class="fg">
+          <label class="fl"><%= t('admin.agents.form.status', 'Status') %></label>
+          <select name="is_active" id="ea-active" class="fs">
+            <option value="1"><%= t('common.active', 'Aktif') %></option>
+            <option value="0"><%= t('common.inactive', 'Nonaktif') %></option>
+          </select>
+        </div>
+      </div>
+      <div class="mf">
+        <button type="button" class="btn btn-g" onclick="closeModal('editAgentModal')"><%= t('common.cancel', 'Batal') %></button>
+        <button type="submit" class="btn btn-p"><%= t('common.save', 'Simpan') %></button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="mo" id="topupModal">
+  <div class="mb">
+    <form id="topupForm" method="POST">
+      <div class="mh"><span class="mt"><%= t('admin.agents.topup.title', 'Topup Saldo Agent') %></span><button type="button" class="mc" onclick="closeModal('topupModal')">&times;</button></div>
+      <div class="mbody">
+        <div class="fg"><label class="fl"><%= t('admin.agents.topup.agent', 'Agent') %></label><input type="text" id="tu-agent" class="fc" readonly></div>
+        <div class="fg"><label class="fl"><%= t('admin.agents.topup.amount', 'Nominal (Rp)') %></label><input type="number" name="amount" class="fc" min="1" required></div>
+        <div class="fg"><label class="fl"><%= t('admin.agents.topup.note', 'Catatan') %></label><input type="text" name="note" class="fc" placeholder="<%= t('admin.agents.topup.note_placeholder', 'Contoh: topup awal shift') %>"></div>
+      </div>
+      <div class="mf">
+        <button type="button" class="btn btn-g" onclick="closeModal('topupModal')"><%= t('common.cancel', 'Batal') %></button>
+        <button type="submit" class="btn btn-p"><%= t('admin.agents.topup.process', 'Proses') %></button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="mo" id="pricesModal">
+  <div class="mb" style="max-width:860px">
+    <div class="mh"><span class="mt"><%= t('admin.agents.prices.title', 'Harga Voucher Agent') %></span><button type="button" class="mc" onclick="closeModal('pricesModal')">&times;</button></div>
+    <div class="mbody">
+      <div class="fg">
+        <label class="fl"><%= t('admin.agents.prices.agent', 'Agent') %></label>
+        <input type="text" id="pr-agent" class="fc" readonly>
+        <input type="hidden" id="pr-agent-id">
+      </div>
+
+      <div class="card" style="margin: 10px 0">
+        <div class="card-hd"><h6><i class="bi bi-plus-circle"></i> <%= t('admin.agents.prices.add_update', 'Tambah / Update Harga') %></h6></div>
+        <div class="card-bd" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="fg">
+            <label class="fl"><%= t('admin.agents.prices.router', 'Router') %></label>
+            <select id="pr-router" class="fs" onchange="loadHotspotProfiles()">
+              <option value=""><%= t('admin.agents.prices.default_router', '(Default)') %></option>
+              <% (routers || []).forEach(r => { %>
+                <option value="<%= r.id %>"><%= r.name %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl"><%= t('admin.agents.prices.profile', 'Profile Hotspot') %></label>
+            <select id="pr-profile" class="fs" onchange="autoFillValidity()">
+              <option value=""><%= t('admin.agents.prices.choose_profile', 'Pilih profile') %></option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl"><%= t('admin.agents.prices.validity', 'Validitas') %></label>
+            <input type="text" id="pr-validity" class="fc" placeholder="<%= t('admin.agents.prices.validity_placeholder', 'Contoh: 1d') %>" />
+          </div>
+          <div class="fg">
+            <label class="fl"><%= t('admin.agents.prices.buy', 'Harga Beli (potong saldo) (Rp)') %></label>
+            <input type="number" id="pr-buy" class="fc" min="0" value="0" />
+          </div>
+          <div class="fg">
+            <label class="fl"><%= t('admin.agents.prices.sell', 'Harga Jual (tampil struk) (Rp)') %></label>
+            <input type="number" id="pr-sell" class="fc" min="0" value="0" />
+          </div>
+          <div class="fg">
+            <label class="fl"><%= t('admin.agents.prices.status', 'Status') %></label>
+            <select id="pr-active" class="fs">
+              <option value="1"><%= t('common.active', 'Aktif') %></option>
+              <option value="0"><%= t('common.inactive', 'Nonaktif') %></option>
+            </select>
+          </div>
+          <div class="fg" style="grid-column:1/-1;display:flex;justify-content:flex-end;gap:10px;align-items:center">
+            <button type="button" class="btn btn-g" onclick="loadAgentPrices()"><i class="bi bi-arrow-clockwise"></i> <%= t('common.refresh', 'Refresh') %></button>
+            <button type="button" class="btn btn-p" onclick="saveAgentPrice()"><i class="bi bi-save"></i> <%= t('admin.agents.prices.save', 'Simpan Harga') %></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd"><h6><i class="bi bi-list-ul"></i> <%= t('admin.agents.prices.active_list', 'Harga Aktif') %></h6></div>
+        <div class="tbl-wrap">
+          <table class="dtbl" id="pricesTable">
+            <thead>
+              <tr>
+                <th><%= t('admin.agents.prices.table.router', 'Router') %></th>
+                <th><%= t('admin.agents.prices.table.profile', 'Profile') %></th>
+                <th><%= t('admin.agents.prices.table.validity', 'Validitas') %></th>
+                <th class="num"><%= t('admin.agents.prices.table.buy', 'Beli') %></th>
+                <th class="num"><%= t('admin.agents.prices.table.sell', 'Jual') %></th>
+                <th><%= t('admin.agents.prices.table.status', 'Status') %></th>
+                <th><%= t('admin.agents.prices.table.actions', 'Aksi') %></th>
+              </tr>
+            </thead>
+            <tbody id="pricesTbody">
+              <tr><td colspan="7" class="text-center text-muted" style="padding:18px"><%= t('admin.agents.prices.empty_select_agent', 'Pilih agent') %></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="mf">
+      <button type="button" class="btn btn-g" onclick="closeModal('pricesModal')"><%= t('common.close', 'Tutup') %></button>
+    </div>
+  </div>
+</div>
+
+<script>
+const I18N = {
+  confirmDeleteAgent: "<%= t('admin.agents.confirm_delete', 'Hapus agent ini?') %>",
+  chooseProfile: "<%= t('admin.agents.prices.choose_profile', 'Pilih profile') %>",
+  emptyNoPrices: "<%= t('admin.agents.prices.empty_no_prices', 'Belum ada harga') %>",
+  emptySelectAgent: "<%= t('admin.agents.prices.empty_select_agent', 'Pilih agent') %>",
+  defaultRouter: "<%= t('admin.agents.prices.default_router', '(Default)') %>",
+  active: "<%= t('common.active', 'Aktif') %>",
+  inactive: "<%= t('common.inactive', 'Nonaktif') %>",
+  requiredAgentProfile: "<%= t('admin.agents.prices.required_agent_profile', 'Agent dan profile wajib diisi') %>",
+  saveFailed: "<%= t('admin.agents.prices.save_failed', 'Gagal menyimpan') %>",
+  confirmDeletePrice: "<%= t('admin.agents.prices.confirm_delete_price', 'Hapus harga ini?') %>",
+  deleteFailed: "<%= t('admin.agents.prices.delete_failed', 'Gagal hapus') %>"
+};
+
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+function editAgent(a) {
+  document.getElementById('editAgentForm').action = '/admin/agents/' + a.id + '/update';
+  document.getElementById('ea-name').value = a.name || '';
+  document.getElementById('ea-username').value = a.username || '';
+  document.getElementById('ea-password').value = a.password || '';
+  document.getElementById('ea-phone').value = a.phone || '';
+  document.getElementById('ea-fee').value = Number(a.billing_fee || 0);
+  document.getElementById('ea-active').value = String(a.is_active ? 1 : 0);
+  openModal('editAgentModal');
+}
+
+function openTopup(a) {
+  document.getElementById('topupForm').action = '/admin/agents/' + a.id + '/topup';
+  document.getElementById('tu-agent').value = a.name + ' (@' + a.username + ')';
+  openModal('topupModal');
+}
+
+let hotspotProfilesCache = [];
+function parseMikhmonOnLogin(script) {
+  if (!script) return null;
+  const m = String(script).match(/\",rem,.*?,(.*?),(.*?),.*?\"/);
+  if (!m) return null;
+  const validity = String(m[1] || '').trim();
+  const priceStr = String(m[2] || '').trim();
+  const price = Number(String(priceStr).replace(/[^\d]/g, '')) || 0;
+  return { validity, price };
+}
+
+async function loadHotspotProfiles() {
+  const routerId = document.getElementById('pr-router').value;
+  const url = '/admin/api/mikrotik/hotspot-user-profiles' + (routerId ? ('?routerId=' + encodeURIComponent(routerId)) : '');
+  const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+  const data = await res.json();
+  hotspotProfilesCache = Array.isArray(data) ? data : [];
+  const sel = document.getElementById('pr-profile');
+  sel.innerHTML = '<option value=\"\">' + I18N.chooseProfile + '</option>';
+  hotspotProfilesCache.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.name;
+    const meta = parseMikhmonOnLogin(p.onLogin || p['on-login'] || '');
+    opt.textContent = meta && meta.validity ? (p.name + ' (' + meta.validity + ')') : p.name;
+    sel.appendChild(opt);
+  });
+  autoFillValidity();
+}
+
+function autoFillValidity() {
+  const profileName = document.getElementById('pr-profile').value;
+  const prof = hotspotProfilesCache.find(p => p && p.name === profileName);
+  const meta = parseMikhmonOnLogin(prof?.onLogin || prof?.['on-login'] || '');
+  if (meta && meta.validity) document.getElementById('pr-validity').value = meta.validity;
+}
+
+function openPrices(a) {
+  document.getElementById('pr-agent').value = a.name + ' (@' + a.username + ')';
+  document.getElementById('pr-agent-id').value = a.id;
+  hotspotProfilesCache = [];
+  document.getElementById('pr-profile').innerHTML = '<option value=\"\">' + I18N.chooseProfile + '</option>';
+  document.getElementById('pr-validity').value = '';
+  document.getElementById('pr-buy').value = 0;
+  document.getElementById('pr-sell').value = 0;
+  document.getElementById('pr-active').value = '1';
+  openModal('pricesModal');
+  loadHotspotProfiles().then(loadAgentPrices);
+}
+
+async function loadAgentPrices() {
+  const agentId = document.getElementById('pr-agent-id').value;
+  if (!agentId) return;
+  const res = await fetch('/admin/api/agents/' + agentId + '/prices', { headers: { 'Accept': 'application/json' } });
+  const data = await res.json();
+  const tbody = document.getElementById('pricesTbody');
+  const rows = Array.isArray(data) ? data : [];
+  if (rows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan=\"7\" class=\"text-center text-muted\" style=\"padding:18px\">' + I18N.emptyNoPrices + '</td></tr>';
+    return;
+  }
+  tbody.innerHTML = '';
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${r.router_name || I18N.defaultRouter}</td>
+      <td class="fw6">${r.profile_name || ''}</td>
+      <td>${r.validity || '-'}</td>
+      <td class="num">Rp ${(Number(r.buy_price||0)).toLocaleString('id-ID')}</td>
+      <td class="num">Rp ${(Number(r.sell_price||0)).toLocaleString('id-ID')}</td>
+      <td><span class="badge ${r.is_active ? 'bs' : 'bd'}">${r.is_active ? I18N.active : I18N.inactive}</span></td>
+      <td>
+        <div class="d-flex gap-2">
+          <button class="btn btn-g btn-sm" type="button" onclick='fillPrice(${JSON.stringify(r).replace(/'/g,"&#39;")})'><i class="bi bi-pencil"></i></button>
+          <button class="btn btn-d btn-sm" type="button" onclick="deletePrice(${r.id})"><i class="bi bi-trash"></i></button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function fillPrice(r) {
+  document.getElementById('pr-router').value = r.router_id || '';
+  loadHotspotProfiles().then(() => {
+    document.getElementById('pr-profile').value = r.profile_name || '';
+    document.getElementById('pr-validity').value = r.validity || '';
+    document.getElementById('pr-buy').value = Number(r.buy_price || 0);
+    document.getElementById('pr-sell').value = Number(r.sell_price || 0);
+    document.getElementById('pr-active').value = String(r.is_active ? 1 : 0);
+  });
+}
+
+async function saveAgentPrice() {
+  const agentId = document.getElementById('pr-agent-id').value;
+  const routerId = document.getElementById('pr-router').value;
+  const profileName = document.getElementById('pr-profile').value;
+  const validity = document.getElementById('pr-validity').value;
+  const buy = document.getElementById('pr-buy').value;
+  const sell = document.getElementById('pr-sell').value;
+  const isActive = document.getElementById('pr-active').value;
+  if (!agentId || !profileName) return alert(I18N.requiredAgentProfile);
+
+  const payload = {
+    router_id: routerId || null,
+    profile_name: profileName,
+    validity,
+    buy_price: Number(buy || 0),
+    sell_price: Number(sell || 0),
+    is_active: isActive
+  };
+  const res = await fetch('/admin/api/agents/' + agentId + '/prices', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+  if (!res.ok) return alert(data.error || I18N.saveFailed);
+  await loadAgentPrices();
+}
+
+async function deletePrice(priceId) {
+  const agentId = document.getElementById('pr-agent-id').value;
+  if (!agentId) return;
+  if (!confirm(I18N.confirmDeletePrice)) return;
+  const res = await fetch('/admin/api/agents/' + agentId + '/prices/' + priceId + '/delete', { method: 'POST' });
+  const data = await res.json();
+  if (!res.ok) return alert(data.error || I18N.deleteFailed);
+  await loadAgentPrices();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!-- views/tech/partials/header.ejs -->
+<!DOCTYPE html>
+<html lang="<%= lang || 'id' %>">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>
+    <%= title %> - <%= company %>
+  </title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding-top: 60px;
+      padding-bottom: 80px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Top Navigation */
+    .top-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: rgba(30, 41, 59, 0.9);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #334155;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 1000;
+    }
+
+    .top-nav-title {
+      font-weight: 700;
+      font-size: 18px;
+      margin: 0;
+    }
+
+    .top-nav-btn {
+      background: transparent;
+      border: none;
+      color: #f8fafc;
+      font-size: 20px;
+      padding: 5px;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 65px;
+      background: rgba(30, 41, 59, 0.95);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid #334155;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 1000;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 11px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .nav-item i {
+      font-size: 22px;
+      margin-bottom: 2px;
+    }
+
+    .nav-item.active {
+      color: #3b82f6;
+    }
+
+    /* Cards & Utilities */
+    .t-card {
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 15px;
+      margin-bottom: 15px;
+      border: 1px solid #334155;
+    }
+
+    .badge-status {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge-open {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .badge-in_progress {
+      background: rgba(245, 158, 11, 0.2);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .badge-resolved {
+      background: rgba(16, 185, 129, 0.2);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-action {
+      width: 100%;
+      border-radius: 12px;
+      padding: 10px;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+
+    /* Stats Grid */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat-box {
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 15px;
+      border: 1px solid #334155;
+      text-align: center;
+    }
+
+    .stat-box .val {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 5px 0 0 0;
+    }
+
+    .stat-box .lbl {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="top-nav">
+    <h1 class="top-nav-title">
+      <%= title %>
+    </h1>
+    <div style="display:flex;gap:10px;align-items:center">
+      <a href="/lang/id" class="top-nav-btn" title="Bahasa Indonesia" style="font-size:12px;font-weight:700">ID</a>
+      <a href="/lang/en" class="top-nav-btn" title="English" style="font-size:12px;font-weight:700">EN</a>
+      <a href="/tech/customers/new" class="top-nav-btn" title="<%= t('tech.new_customer', 'Tambah Pelanggan') %>"><i class="bi bi-person-plus-fill"></i></a>
+      <a href="/tech/logout" class="top-nav-btn" onclick="return confirm('<%= t('tech.logout_confirm', 'Apakah Anda yakin ingin logout?') %>')"><i class="bi bi-box-arrow-right"></i></a>
+    </div>
+  </div>
+
+  <div class="container py-3">
+    <% if (typeof msg !=='undefined' && msg) { %>
+      <div class="alert alert-<%= msg.type==='error'?'danger':'success' %> alert-dismissible fade show rounded-4"
+        role="alert" style="font-size: 13px;">
+        <i class="bi bi-<%= msg.type==='error'?'exclamation-circle':'check-circle' %>-fill me-2"></i>
+        <%= msg.text %>
+          <button type="button" class="btn-close btn-close-white" style="font-size: 10px;"
+            data-bs-dismiss="alert"></button>
+      </div>
+      <% } %>

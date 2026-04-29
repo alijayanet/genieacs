@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="<%= lang || 'id' %>">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title><%= t('admin.customers.title', 'Pelanggan') %> | <%= company %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <link rel="stylesheet" href="/css/admin.css">
+  <style>
+    #picker-map { height: 400px; width: 100%; border-radius: 8px; margin-bottom: 15px; }
+    .picker-icon { color: #3b82f6; font-size: 32px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); display: block; width: 32px; height: 32px; text-align: center; line-height: 32px; text-shadow: -1.5px -1.5px 0 #fff, 1.5px -1.5px 0 #fff, -1.5px 1.5px 0 #fff, 1.5px 1.5px 0 #fff; }
+  </style>
+</head>
+<body>
+<%- include('partials/sidebar', { activePage: 'customers', company }) %>
+<div class="mw">
+  <div class="topbar">
+    <div class="tb-title"><button class="hb-menu" onclick="toggleSidebar()"><i class="bi bi-list"></i></button><i class="bi bi-people"></i> <%= t('admin.customers.manage_title', 'Manajemen Pelanggan') %></div>
+    <div class="tb-right">
+      <span class="adm-badge"><i class="bi bi-person-fill"></i> <%= (typeof session !== 'undefined' && session.isCashier) ? t('admin.role.cashier', 'Kasir') : t('admin.role.admin', 'Admin') %></span>
+      <a href="/admin/logout" class="btn btn-g btn-sm"><i class="bi bi-box-arrow-left"></i></a>
+    </div>
+  </div>
+  <div class="page">
+
+    <% if (msg) { %>
+    <div class="alert alert-<%= msg.type === 'success' ? 's' : 'd' %>">
+      <i class="bi bi-<%= msg.type === 'success' ? 'check-circle' : 'exclamation-circle' %>"></i> <%= msg.text %>
+    </div>
+    <% } %>
+
+    <!-- Stats -->
+    <div class="stat-grid" style="grid-template-columns:repeat(4,1fr)">
+      <div class="sc p"><i class="bi bi-people sc-icon"></i><div class="sc-label"><%= t('admin.customers.stats.total', 'Total') %></div><div class="sc-val"><%= stats.total %></div></div>
+      <div class="sc s"><i class="bi bi-check-circle sc-icon"></i><div class="sc-label"><%= t('admin.customers.stats.active', 'Aktif') %></div><div class="sc-val"><%= stats.active %></div></div>
+      <div class="sc w"><i class="bi bi-pause-circle sc-icon"></i><div class="sc-label"><%= t('admin.customers.stats.suspended', 'Disuspend') %></div><div class="sc-val"><%= stats.suspended %></div></div>
+      <div class="sc d"><i class="bi bi-x-circle sc-icon"></i><div class="sc-label"><%= t('admin.customers.stats.inactive', 'Nonaktif') %></div><div class="sc-val"><%= stats.inactive %></div></div>
+    </div>
+
+    <!-- Search & Add -->
+    <div class="card">
+      <div class="card-hd">
+        <h6><i class="bi bi-people"></i> <%= t('admin.customers.list', 'Daftar Pelanggan') %> (<%= customers.length %>)</h6>
+        <div style="display:flex;gap:8px">
+          <a href="/admin/customers/export" class="btn btn-g btn-sm"><i class="bi bi-file-earmark-excel"></i> <%= t('admin.customers.export_excel', 'Export Excel') %></a>
+          <button class="btn btn-g btn-sm" onclick="openModal('importModal')"><i class="bi bi-file-earmark-arrow-up"></i> <%= t('admin.customers.import_excel', 'Import Excel') %></button>
+          <button class="btn btn-p btn-sm" onclick="openModal('addModal')"><i class="bi bi-plus-lg"></i> <%= t('admin.customers.add', 'Tambah Pelanggan') %></button>
+        </div>
+      </div>
+      <div class="card-bd" style="padding-bottom:0">
+        <form method="GET" action="/admin/customers" class="srow">
+          <div class="sinput" style="max-width:340px">
+            <i class="bi bi-search"></i>
+            <input class="fc" name="search" placeholder="<%= t('admin.customers.search_placeholder', 'Cari nama, telepon, tag...') %>" value="<%= search %>">
+          </div>
+          <select class="fs" name="status" style="width:140px" onchange="this.form.submit()">
+            <option value=""><%= t('admin.customers.filter.all_status', 'Semua Status') %></option>
+            <option value="active" <%= filterStatus==='active' ? 'selected':'' %>><%= t('admin.customers.filter.active', 'Aktif') %></option>
+            <option value="suspended" <%= filterStatus==='suspended' ? 'selected':'' %>><%= t('admin.customers.filter.suspended', 'Suspend') %></option>
+            <option value="inactive" <%= filterStatus==='inactive' ? 'selected':'' %>><%= t('admin.customers.filter.inactive', 'Nonaktif') %></option>
+          </select>
+          <button class="btn btn-g btn-sm" type="submit"><i class="bi bi-search"></i> <%= t('common.search', 'Cari') %></button>
+          <% if (search || filterStatus) { %><a href="/admin/customers" class="btn btn-g btn-sm"><i class="bi bi-x"></i> <%= t('common.reset', 'Reset') %></a><% } %>
+        </form>
+      </div>
+      <div class="tbl-wrap">
+        <table class="dtbl">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th><%= t('admin.customers.table.name', 'Nama') %></th>
+              <th><%= t('admin.customers.table.phone_tag', 'Telepon / Tag ONU') %></th>
+              <th><%= t('admin.customers.table.package', 'Paket') %></th>
+              <th><%= t('admin.customers.table.address', 'Alamat') %></th>
+              <th><%= t('admin.customers.table.status', 'Status') %></th>
+              <th><%= t('admin.customers.table.unpaid', 'Tagihan Belum Bayar') %></th>
+              <th><%= t('admin.customers.table.actions', 'Aksi') %></th>
+            </tr>
+          </thead>
+          <tbody>
+          <% if (customers.length === 0) { %>
+            <tr><td colspan="8" class="text-center text-muted" style="padding:32px"><%= t('admin.customers.empty', 'Belum ada pelanggan') %></td></tr>
+          <% } %>
+          <% customers.forEach((c, i) => { %>
+            <tr>
+              <td class="text-muted"><%= i+1 %></td>
+              <td class="fw6"><%= c.name %></td>
+              <td>
+                <div><%= c.phone || '-' %></div>
+                <% if (c.genieacs_tag) { %><div style="font-size:11px;color:var(--primary)"><i class="bi bi-wifi"></i> <%= c.genieacs_tag %></div><% } %>
+              </td>
+              <td>
+                <% if (c.package_name) { %>
+                  <div><%= c.package_name %></div>
+                  <div style="font-size:11px;color:var(--muted)"><%= (c.speed_down/1000).toFixed(0) %>/<%= (c.speed_up/1000).toFixed(0) %> Mbps &bull; Rp <%= c.package_price ? c.package_price.toLocaleString('id-ID') : '-' %></div>
+                <% } else { %><span class="text-muted">-</span><% } %>
+              </td>
+              <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><%= c.address || '-' %></td>
+              <td>
+                <% if (c.status==='active') { %><span class="badge bs"><i class="bi bi-circle-fill" style="font-size:7px"></i><%= t('admin.customers.filter.active', 'Aktif') %></span>
+                <% } else if (c.status==='suspended') { %><span class="badge bw"><%= t('admin.customers.filter.suspended', 'Suspend') %></span>
+                <% } else { %><span class="badge bm"><%= t('admin.customers.filter.inactive', 'Nonaktif') %></span><% } %>
+                <div style="font-size:10px;margin-top:4px">
+                  <i class="bi bi-clock-history"></i> <%= t('admin.customers.auto_isolate.label', 'Auto Isolir') %>:
+                  <span class="<%= c.auto_isolate === 0 ? 'text-danger' : 'text-success' %>">
+                    <%= c.auto_isolate === 0 ? t('admin.customers.auto_isolate.off', 'OFF') : t('admin.customers.auto_isolate.date_prefix', 'Tgl ') + (c.isolate_day || 10) %>
+                  </span>
+                </div>
+              </td>
+              <td class="text-center">
+                <% if (c.unpaid_count > 0) { %>
+                  <span class="badge bd"><%= c.unpaid_count %> <%= t('admin.customers.unpaid_suffix', 'tagihan') %></span>
+                <% } else { %><span class="text-muted" style="font-size:12px"><%= t('admin.customers.paid_label', 'Lunas') %></span><% } %>
+              </td>
+              <td>
+                <button class="btn btn-s btn-icon btn-sm" title="<%= t('admin.customers.actions.generate_invoice', 'Generate Tagihan') %>" data-idx="<%= i %>" onclick="openGenInvoice(+this.dataset.idx)"><i class="bi bi-lightning-charge"></i></button>
+                <button class="btn btn-p btn-icon btn-sm" title="<%= t('admin.customers.actions.pay_invoice', 'Bayar Tagihan') %>" data-idx="<%= i %>" onclick="openPayInvoice(+this.dataset.idx)"><i class="bi bi-cash-coin"></i></button>
+                <button class="btn btn-g btn-icon btn-sm" title="<%= t('common.edit', 'Edit') %>" data-idx="<%= i %>" onclick="editCust(+this.dataset.idx)"><i class="bi bi-pencil"></i></button>
+                <form method="POST" action="/admin/customers/<%= c.id %>/delete" style="display:inline" data-confirm-msg=<%- JSON.stringify(t('admin.customers.confirm_delete', 'Hapus pelanggan ini?')) %> onsubmit="return confirm(this.dataset.confirmMsg)">
+                  <button class="btn btn-d btn-icon btn-sm" title="<%= t('common.delete', 'Hapus') %>"><i class="bi bi-trash"></i></button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Tambah -->
+<div class="mo" id="addModal">
+  <div class="mb">
+    <div class="mh"><span class="mt"><i class="bi bi-person-plus"></i> Tambah Pelanggan</span><button class="mc" onclick="closeModal('addModal')">&times;</button></div>
+    <form method="POST" action="/admin/customers">
+      <div class="mbody">
+        <div class="form-row">
+          <div class="fg"><label class="fl">Nama Lengkap *</label><input class="fc" name="name" required placeholder="John Doe"></div>
+          <div class="fg"><label class="fl">No. Telepon / WA</label><input class="fc" name="phone" placeholder="08xxx"></div>
+        </div>
+        <div class="fg"><label class="fl">Email (Untuk Notifikasi Payment)</label><input class="fc" name="email" type="email" placeholder="customer@example.com"></div>
+        <div class="fg"><label class="fl">Alamat</label><textarea class="fc" name="address" placeholder="Jl. Example..."></textarea></div>
+        <div class="form-row">
+          <div class="fg">
+            <label class="fl">Paket Internet</label>
+            <select class="fs" name="package_id">
+              <option value="">-- Pilih Paket --</option>
+              <% packages.forEach(p => { %>
+              <option value="<%= p.id %>"><%= p.name %> — Rp <%= p.price.toLocaleString('id-ID') %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="fg"><label class="fl">Tag ONU (GenieACS)</label><input class="fc" name="genieacs_tag" placeholder="Sama dengan ID pelanggan"></div>
+        </div>
+        <div class="form-row">
+          <div class="fg">
+            <label class="fl">Router MikroTik</label>
+            <select class="fs" name="router_id" id="add_router_select" onchange="loadPppoeAdd(this.value)">
+              <option value="">-- Default (Pengaturan) --</option>
+              <% if (typeof routers !== 'undefined') { %>
+                <% routers.forEach(r => { %>
+                  <option value="<%= r.id %>"><%= r.name %> (<%= r.host %>)</option>
+                <% }) %>
+              <% } %>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl">PPPoE Username</label>
+            <input class="fc" name="pppoe_username" id="add_pppoe" list="add_pppoe_list" placeholder="Pilih / cari dari MikroTik">
+            <datalist id="add_pppoe_list"></datalist>
+            <div class="hint" id="add_pppoe_hint"></div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="fg" style="max-width:200px">
+            <label class="fl">Profile Isolir</label>
+            <select class="fs" name="isolir_profile" id="add_isolir_select">
+              <option value="isolir">isolir</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="fg">
+            <label class="fl">Status</label>
+            <select class="fs" name="status">
+              <option value="active">Aktif</option>
+              <option value="suspended">Suspend</option>
+              <option value="inactive">Nonaktif</option>
+            </select>
+          </div>
+          <div class="fg"><label class="fl">Tanggal Pasang</label><input class="fc" type="date" name="install_date"></div>
+        </div>
+        <div class="form-row">
+          <div class="fg">
+            <label class="fl">Isolir Otomatis</label>
+            <select class="fs" name="auto_isolate">
+              <option value="1">Aktif</option>
+              <option value="0">Tidak Aktif</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl">Tanggal Isolir (1-31)</label>
+            <input class="fc" type="number" name="isolate_day" value="10" min="1" max="31">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="fg">
+            <label class="fl">Perangkat OLT</label>
+            <select class="fs" name="olt_id">
+              <option value="">-- Tanpa OLT --</option>
+              <% if (typeof olts !== 'undefined') { %>
+                <% olts.forEach(o => { %>
+                  <option value="<%= o.id %>"><%= o.name %> (<%= o.brand %>)</option>
+                <% }) %>
+              <% } %>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl">ODP</label>
+            <select class="fs" name="odp_id">
+              <option value="">-- Tanpa ODP --</option>
+              <% if (typeof odps !== 'undefined') { %>
+                <% odps.forEach(o => { %>
+                  <option value="<%= o.id %>"><%= o.name %></option>
+                <% }) %>
+              <% } %>
+            </select>
+          </div>
+        </div>
+        <div class="fg"><label class="fl">Port PON / ODP</label><input class="fc" name="pon_port" placeholder="Contoh: PON 1/1, ODP-01"></div>
+        <div class="form-row">
+          <div class="fg">
+            <label class="fl">Latitude</label>
+            <input class="fc" name="lat" id="add_lat" placeholder="-6.xxx">
+          </div>
+          <div class="fg">
+            <label class="fl">Longitude</label>
+            <div style="display:flex;gap:4px">
+              <input class="fc" name="lng" id="add_lng" placeholder="106.xxx">
+              <button type="button" class="btn btn-g btn-sm" onclick="openPicker('add')" title="Pilih di Peta"><i class="bi bi-geo-alt"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="fg"><label class="fl">Catatan</label><textarea class="fc" name="notes" placeholder="Opsional..."></textarea></div>
+      </div>
+      <div class="mf">
+        <button type="button" class="btn btn-g" onclick="closeModal('addModal')">Batal</button>
+        <button type="submit" class="btn btn-p"><i class="bi bi-check-lg"></i> Simpan Pelanggan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Import -->
+<div class="mo" id="importModal">
+  <div class="mb" style="max-width:400px">
+    <div class="mh"><span class="mt"><i class="bi bi-file-earmark-arrow-up"></i> Import Pelanggan</span><button class="mc" onclick="closeModal('importModal')">&times;</button></div>
+    <form method="POST" action="/admin/customers/import" enctype="multipart/form-data">
+      <div class="mbody">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:16px">
+          Unggah file Excel (.xlsx). Pastikan format kolom sesuai dengan hasil Export.
+          <br><br>
+          <a href="/admin/customers/export" style="color:var(--primary);text-decoration:none"><i class="bi bi-download"></i> Unduh format excel</a>
+        </p>
+        <div class="fg">
+          <label class="fl">Pilih File Excel</label>
+          <input type="file" name="file" class="fc" accept=".xlsx" required>
+        </div>
+      </div>
+      <div class="mf">
+        <button type="button" class="btn btn-g" onclick="closeModal('importModal')">Batal</button>
+        <button type="submit" class="btn btn-p"><i class="bi bi-upload"></i> Mulai Impor</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Edit -->
+<div class="mo" id="editModal">
+  <div class="mb">
+    <div class="mh"><span class="mt"><i class="bi bi-pencil"></i> Edit Pelanggan</span><button class="mc" onclick="closeModal('editModal')">&times;</button></div>
+    <form method="POST" id="editForm">
+      <div class="mbody">
+        <div class="form-row">
+          <div class="fg"><label class="fl">Nama Lengkap *</label><input class="fc" name="name" id="e_name" required></div>
+          <div class="fg"><label class="fl">No. Telepon / WA</label><input class="fc" name="phone" id="e_phone"></div>
+        </div>
+        <div class="fg"><label class="fl">Email (Untuk Notifikasi Payment)</label><input class="fc" name="email" id="e_email" type="email"></div>
+        <div class="fg"><label class="fl">Alamat</label><textarea class="fc" name="address" id="e_address"></textarea></div>
+        <div class="form-row">
+          <div class="fg">
+            <label class="fl">Paket Internet</label>
+            <select class="fs" name="package_id" id="e_package">
+              <option value="">-- Pilih Paket --</option>
+              <% packages.forEach(p => { %>
+              <option value="<%= p.id %>"><%= p.name %> — Rp <%= p.price.toLocaleString('id-ID') %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="fg"><label class="fl">Tag ONU (GenieACS)</label><input class="fc" name="genieacs_tag" id="e_tag"></div>
+        </div>
+        <div class="form-row">
+          <div class="fg">
+            <label class="fl">Router MikroTik</label>
+            <select class="fs" name="router_id" id="e_router_id" onchange="loadPppoeEdit(this.value)">
+              <option value="">-- Default (Pengaturan) --</option>
+              <% if (typeof routers !== 'undefined') { %>
+                <% routers.forEach(r => { %>
+                  <option value="<%= r.id %>"><%= r.name %> (<%= r.host %>)</option>
+                <% }) %>
+              <% } %>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl">PPPoE Username</label>
+            <input class="fc" name="pppoe_username" id="e_pppoe" list="e_pppoe_list" placeholder="Pilih / cari dari MikroTik">
+            <datalist id="e_pppoe_list"></datalist>
+            <div class="hint" id="e_pppoe_hint"></div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="fg" style="max-width:200px">
+            <label class="fl">Profile Isolir</label>
+            <select class="fs" name="isolir_profile" id="e_isolir_profile">
+              <option value="isolir">isolir</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="fg">
+            <label class="fl">Status</label>
+            <select class="fs" name="status" id="e_status">
+              <option value="active">Aktif</option>
+              <option value="suspended">Suspend</option>
+              <option value="inactive">Nonaktif</option>
+            </select>
+          </div>
+          <div class="fg"><label class="fl">Tanggal Pasang</label><input class="fc" type="date" name="install_date" id="e_install"></div>
+        </div>
+        <div class="form-row">
+          <div class="fg">
+            <label class="fl">Isolir Otomatis</label>
+            <select class="fs" name="auto_isolate" id="e_auto_isolate">
+              <option value="1">Aktif</option>
+              <option value="0">Tidak Aktif</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl">Tanggal Isolir (1-31)</label>
+            <input class="fc" type="number" name="isolate_day" id="e_isolate_day" min="1" max="31">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="fg">
+            <label class="fl">Perangkat OLT</label>
+            <select class="fs" name="olt_id" id="e_olt_id">
+              <option value="">-- Tanpa OLT --</option>
+              <% if (typeof olts !== 'undefined') { %>
+                <% olts.forEach(o => { %>
+                  <option value="<%= o.id %>"><%= o.name %> (<%= o.brand %>)</option>
+                <% }) %>
+              <% } %>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl">ODP</label>
+            <select class="fs" name="odp_id" id="e_odp_id">
+              <option value="">-- Tanpa ODP --</option>
+              <% if (typeof odps !== 'undefined') { %>
+                <% odps.forEach(o => { %>
+                  <option value="<%= o.id %>"><%= o.name %></option>
+                <% }) %>
+              <% } %>
+            </select>
+          </div>
+        </div>
+        <div class="fg"><label class="fl">Port PON / ODP</label><input class="fc" name="pon_port" id="e_pon_port"></div>
+        <div class="form-row">
+          <div class="fg">
+            <label class="fl">Latitude</label>
+            <input class="fc" name="lat" id="e_lat" placeholder="-6.xxx">
+          </div>
+          <div class="fg">
+            <label class="fl">Longitude</label>
+            <div style="display:flex;gap:4px">
+              <input class="fc" name="lng" id="e_lng" placeholder="106.xxx">
+              <button type="button" class="btn btn-g btn-sm" onclick="openPicker('edit')" title="Pilih di Peta"><i class="bi bi-geo-alt"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="fg"><label class="fl">Catatan</label><textarea class="fc" name="notes" id="e_notes"></textarea></div>
+      </div>
+      <div class="mf">
+        <button type="button" class="btn btn-g" onclick="closeModal('editModal')">Batal</button>
+        <button type="submit" class="btn btn-p"><i class="bi bi-check-lg"></i> Update</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Generate Tagihan (Per Pelanggan) -->
+<div class="mo" id="genInvoiceModal">
+  <div class="mb" style="max-width:520px">
+    <div class="mh"><span class="mt"><i class="bi bi-lightning-charge"></i> <%= t('admin.customers.generate_invoice_title', 'Generate Tagihan (Pelanggan)') %></span><button class="mc" onclick="closeModal('genInvoiceModal')">&times;</button></div>
+    <form method="POST" id="genInvoiceForm">
+      <div class="mbody">
+        <div class="alert alert-i"><i class="bi bi-info-circle"></i> <%= t('admin.customers.generate_invoice_hint', 'Tagihan hanya dibuat untuk pelanggan yang dipilih. Jika sudah ada, tidak akan dibuat ulang.') %></div>
+        <div class="fg">
+          <label class="fl"><%= t('admin.customers.generate_invoice_customer', 'Pelanggan') %></label>
+          <input class="fc" id="genInvoiceCustomer" readonly>
+        </div>
+        <div class="form-row">
+          <div class="fg">
+            <label class="fl"><%= t('admin.billing.month', 'Bulan') %></label>
+            <select class="fs" name="month" required>
+              <% const genMns = (lang === 'en')
+                ? ['January','February','March','April','May','June','July','August','September','October','November','December']
+                : ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+                 for(let m=1;m<=12;m++){%>
+              <option value="<%= m %>" <%= m===new Date().getMonth()+1?'selected':'' %>><%= genMns[m-1] %></option>
+              <% } %>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl"><%= t('admin.billing.year', 'Tahun') %></label>
+            <select class="fs" name="year" required>
+              <% for(let y=new Date().getFullYear()+1; y>=2023; y--){ %>
+              <option value="<%= y %>" <%= y===new Date().getFullYear() ? 'selected' : '' %>><%= y %></option>
+              <% } %>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="mf">
+        <button type="button" class="btn btn-g" onclick="closeModal('genInvoiceModal')"><%= t('common.cancel', 'Batal') %></button>
+        <button type="submit" class="btn btn-p"><i class="bi bi-lightning-charge"></i> <%= t('admin.customers.generate_invoice_btn', 'Generate') %></button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Bayar Tagihan (Per Pelanggan) -->
+<div class="mo" id="payInvoiceModal">
+  <div class="mb" style="max-width:560px">
+    <div class="mh"><span class="mt"><i class="bi bi-cash-coin"></i> <%= t('admin.customers.pay_invoice_title', 'Bayar Tagihan (Pelanggan)') %></span><button class="mc" onclick="closeModal('payInvoiceModal')">&times;</button></div>
+    <form method="POST" id="payInvoiceForm">
+      <div class="mbody">
+        <div class="alert alert-i"><i class="bi bi-info-circle"></i> <%= t('admin.customers.pay_invoice_hint', 'Untuk pembayaran di muka: pilih periode. Jika tagihan belum ada, sistem akan membuat tagihan lalu langsung menandai Lunas.') %></div>
+        <div id="payInvoicePaidSummary" style="margin:-2px 0 12px 0;color:rgba(148,163,184,1);font-size:12px"></div>
+        <div id="payInvoiceTotal" style="margin:-2px 0 14px 0;padding:10px 12px;border:1px solid rgba(148,163,184,.25);border-radius:12px;background:rgba(15,23,42,0.28);font-weight:700"></div>
+        <div class="fg">
+          <label class="fl"><%= t('admin.customers.pay_invoice_customer', 'Pelanggan') %></label>
+          <input class="fc" id="payInvoiceCustomer" readonly>
+        </div>
+        <div class="form-row">
+          <div class="fg">
+            <label class="fl"><%= t('admin.billing.month', 'Bulan') %></label>
+            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">
+              <% const payMns = (lang === 'en')
+                ? ['January','February','March','April','May','June','July','August','September','October','November','December']
+                : ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+                 for(let m=1;m<=12;m++){%>
+              <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid rgba(148,163,184,.25);border-radius:12px;cursor:pointer">
+                <input type="checkbox" class="pay-month" name="months" value="<%= m %>" <%= m===new Date().getMonth()+1?'checked':'' %> style="width:16px;height:16px">
+                <span style="font-size:13px"><%= payMns[m-1] %></span>
+                <span class="pay-month-badge" style="margin-left:auto;font-size:11px;padding:3px 8px;border-radius:999px;background:rgba(34,197,94,.12);color:rgba(34,197,94,1);display:none"><%= t('admin.customers.paid_badge', 'Lunas') %></span>
+              </label>
+              <% } %>
+            </div>
+          </div>
+          <div class="fg">
+            <label class="fl"><%= t('admin.billing.year', 'Tahun') %></label>
+            <select class="fs" name="year" id="payInvoiceYear" required>
+              <% for(let y=new Date().getFullYear()+1; y>=2023; y--){ %>
+              <option value="<%= y %>" <%= y===new Date().getFullYear() ? 'selected' : '' %>><%= y %></option>
+              <% } %>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="fg">
+            <label class="fl"><%= t('admin.billing.received_by', 'Diterima Oleh') %></label>
+            <input class="fc" name="paid_by_name" value="Admin" placeholder="<%= t('admin.billing.received_by_placeholder', 'Nama petugas / teknisi') %>">
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl"><%= t('admin.billing.notes_optional', 'Catatan (opsional)') %></label>
+          <textarea class="fc" name="notes" placeholder="<%= t('admin.customers.pay_invoice_notes_placeholder', 'Contoh: Bayar di muka') %>"></textarea>
+        </div>
+      </div>
+      <div class="mf">
+        <button type="button" class="btn btn-g" onclick="closeModal('payInvoiceModal')"><%= t('common.cancel', 'Batal') %></button>
+        <button type="submit" class="btn btn-p"><i class="bi bi-check-lg"></i> <%= t('admin.customers.pay_invoice_btn', 'Bayar') %></button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Map Picker -->
+<div class="mo" id="mapPickerModal">
+  <div class="mb" style="max-width:800px">
+    <div class="mh"><span class="mt"><i class="bi bi-geo-alt"></i> Pilih Lokasi Pelanggan</span><button class="mc" onclick="closeModal('mapPickerModal')">&times;</button></div>
+    <div class="mbody">
+      <div id="picker-map"></div>
+      <div class="alert alert-i" style="margin-bottom:0">
+        <i class="bi bi-info-circle"></i> Geser penanda (marker) atau klik pada peta untuk menentukan lokasi yang akurat.
+      </div>
+    </div>
+    <div class="mf">
+      <button type="button" class="btn btn-p" onclick="closeModal('mapPickerModal')">Selesai</button>
+    </div>
+  </div>
+</div>
+
+<script id="customers-data" type="application/json"><%- JSON.stringify(customers) %></script>
+<script id="settings-data" type="application/json"><%- JSON.stringify(settings) %></script>
+<script id="pay-months-data" type="application/json"><%- JSON.stringify((lang === 'en')
+  ? ['January','February','March','April','May','June','July','August','September','October','November','December']
+  : ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']) %></script>
+<script id="pay-i18n-data" type="application/json"><%- JSON.stringify({
+  paidMonthsLabel: t('admin.customers.paid_months_label', 'Sudah lunas:'),
+  nonePaid: t('admin.customers.none_paid', 'Belum ada yang lunas'),
+  totalSelectedLabel: t('admin.customers.total_selected_label', 'Total dipilih:'),
+  monthsSuffix: t('admin.customers.months_suffix', 'bulan')
+}) %></script>
+<script>
+const customersData = JSON.parse(document.getElementById('customers-data').textContent);
+const appSettings = JSON.parse(document.getElementById('settings-data').textContent);
+let pickerMap, pickerMarker, activePickerType;
+let payCustomerId = null;
+let payBillingMeta = null;
+
+const PAY_MNS = JSON.parse(document.getElementById('pay-months-data').textContent);
+const PAY_I18N = JSON.parse(document.getElementById('pay-i18n-data').textContent);
+
+const officeCoords = {
+  lat: parseFloat(appSettings.office_lat) || -6.200000,
+  lng: parseFloat(appSettings.office_lng) || 106.816666
+};
+
+function openModal(id){document.getElementById(id).classList.add('show')}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+
+function openPicker(type) {
+  activePickerType = type;
+  openModal('mapPickerModal');
+  
+  let currentLat = document.getElementById(type === 'add' ? 'add_lat' : 'e_lat').value;
+  let currentLng = document.getElementById(type === 'add' ? 'add_lng' : 'e_lng').value;
+  
+  let startLat = parseFloat(currentLat) || officeCoords.lat;
+  let startLng = parseFloat(currentLng) || officeCoords.lng;
+
+  setTimeout(() => {
+    if (!pickerMap) {
+      pickerMap = L.map('picker-map').setView([startLat, startLng], 16);
+      L.tileLayer('https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+      }).addTo(pickerMap);
+      
+      const customIcon = L.divIcon({
+        html: '<i class="bi bi-geo-alt-fill picker-icon"></i>',
+        className: 'custom-div-icon',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32]
+      });
+
+      pickerMarker = L.marker([startLat, startLng], { 
+        draggable: true,
+        icon: customIcon
+      }).addTo(pickerMap);
+      
+      pickerMarker.on('dragend', function() {
+        const pos = pickerMarker.getLatLng();
+        updateInputs(pos.lat, pos.lng);
+      });
+
+      pickerMap.on('click', function(e) {
+        pickerMarker.setLatLng(e.latlng);
+        updateInputs(e.latlng.lat, e.latlng.lng);
+      });
+    } else {
+      pickerMap.setView([startLat, startLng], 16);
+      pickerMarker.setLatLng([startLat, startLng]);
+      pickerMap.invalidateSize();
+    }
+  }, 300);
+}
+
+function updateInputs(lat, lng) {
+  const prefix = activePickerType === 'add' ? 'add_' : 'e_';
+  document.getElementById(prefix + 'lat').value = lat.toFixed(8);
+  document.getElementById(prefix + 'lng').value = lng.toFixed(8);
+}
+
+document.querySelectorAll('.mo').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show')}));
+function editCust(idx) {
+  const c = customersData[idx];
+  if (!c) return;
+  document.getElementById('editForm').action='/admin/customers/'+c.id+'/update';
+  document.getElementById('e_name').value=c.name||'';
+  document.getElementById('e_phone').value=c.phone||'';
+  document.getElementById('e_email').value=c.email||'';
+  document.getElementById('e_address').value=c.address||'';
+  document.getElementById('e_package').value=c.package_id||'';
+  document.getElementById('e_router_id').value=c.router_id||'';
+  document.getElementById('e_tag').value=c.genieacs_tag||'';
+  document.getElementById('e_pppoe').value=c.pppoe_username||'';
+  document.getElementById('e_olt_id').value=c.olt_id||'';
+  document.getElementById('e_odp_id').value=c.odp_id||'';
+  document.getElementById('e_pon_port').value=c.pon_port||'';
+  document.getElementById('e_lat').value=c.lat||'';
+  document.getElementById('e_lng').value=c.lng||'';
+  document.getElementById('e_isolir_profile').value=c.isolir_profile||'isolir';
+  document.getElementById('e_status').value=c.status||'active';
+  document.getElementById('e_install').value=c.install_date||'';
+  document.getElementById('e_notes').value=c.notes||'';
+  document.getElementById('e_auto_isolate').value=(c.auto_isolate !== undefined ? c.auto_isolate : 1);
+  document.getElementById('e_isolate_day').value=(c.isolate_day || 10);
+  openModal('editModal');
+  loadPppoeEdit(c.router_id || '', c.id || '');
+}
+
+function openGenInvoice(idx) {
+  const c = customersData[idx];
+  if (!c) return;
+  document.getElementById('genInvoiceForm').action = '/admin/customers/' + c.id + '/billing/generate';
+  document.getElementById('genInvoiceCustomer').value = (c.name || '-') + (c.phone ? (' (' + c.phone + ')') : '');
+  openModal('genInvoiceModal');
+}
+
+function openPayInvoice(idx) {
+  const c = customersData[idx];
+  if (!c) return;
+  document.getElementById('payInvoiceForm').action = '/admin/customers/' + c.id + '/billing/pay';
+  document.getElementById('payInvoiceCustomer').value = (c.name || '-') + (c.phone ? (' (' + c.phone + ')') : '');
+  payCustomerId = c.id;
+  payBillingMeta = { packagePrice: 0, invoices: {} };
+  const currentMonth = new Date().getMonth() + 1;
+  Array.from(document.querySelectorAll('#payInvoiceModal .pay-month')).forEach(cb => { cb.checked = parseInt(cb.value) === currentMonth; });
+  openModal('payInvoiceModal');
+  loadBillingYear();
+}
+
+function toRupiah(n) {
+  const v = Number(n) || 0;
+  return 'Rp ' + v.toLocaleString('id-ID');
+}
+
+function monthsRangesText(months) {
+  const list = (Array.isArray(months) ? months : []).map(m => parseInt(m)).filter(m => m >= 1 && m <= 12).sort((a, b) => a - b);
+  if (list.length === 0) return '';
+  const ranges = [];
+  let s = list[0];
+  let p = list[0];
+  for (let i = 1; i < list.length; i++) {
+    const m = list[i];
+    if (m === p + 1) { p = m; continue; }
+    ranges.push([s, p]);
+    s = m; p = m;
+  }
+  ranges.push([s, p]);
+  return ranges.map(([a, b]) => (a === b ? PAY_MNS[a - 1] : (PAY_MNS[a - 1] + '–' + PAY_MNS[b - 1]))).join(', ');
+}
+
+function updatePayTotal() {
+  const totalEl = document.getElementById('payInvoiceTotal');
+  const btn = document.querySelector('#payInvoiceForm button[type="submit"]');
+  const checks = Array.from(document.querySelectorAll('#payInvoiceModal .pay-month'));
+  const selected = checks.filter(cb => cb.checked && !cb.disabled).map(cb => parseInt(cb.value));
+  const meta = payBillingMeta || { packagePrice: 0, invoices: {} };
+  let total = 0;
+  for (const m of selected) {
+    const inv = meta.invoices && meta.invoices[m];
+    const amount = inv && typeof inv.amount !== 'undefined' ? Number(inv.amount) : Number(meta.packagePrice || 0);
+    total += Number.isFinite(amount) ? amount : 0;
+  }
+  const txt = `${PAY_I18N.totalSelectedLabel} ${toRupiah(total)} (${selected.length} ${PAY_I18N.monthsSuffix})`;
+  if (totalEl) totalEl.textContent = txt;
+  if (btn) btn.disabled = selected.length === 0;
+}
+
+async function loadBillingYear() {
+  if (!payCustomerId) return;
+  const yearEl = document.getElementById('payInvoiceYear');
+  const year = yearEl ? yearEl.value : new Date().getFullYear();
+  const paidSummaryEl = document.getElementById('payInvoicePaidSummary');
+  const checks = Array.from(document.querySelectorAll('#payInvoiceModal .pay-month'));
+  checks.forEach(cb => {
+    cb.disabled = false;
+    const label = cb.closest('label');
+    if (label) label.style.opacity = '';
+    const badge = label ? label.querySelector('.pay-month-badge') : null;
+    if (badge) badge.style.display = 'none';
+  });
+  try {
+    const r = await fetch('/admin/api/customers/' + payCustomerId + '/billing-year?year=' + encodeURIComponent(year));
+    const data = await r.json();
+    const invoices = (data && Array.isArray(data.invoices)) ? data.invoices : [];
+    const invMap = {};
+    for (const it of invoices) {
+      const m = parseInt(it.month);
+      if (m >= 1 && m <= 12) invMap[m] = { status: it.status, amount: it.amount };
+    }
+    payBillingMeta = { packagePrice: Number(data && data.packagePrice) || (payBillingMeta ? payBillingMeta.packagePrice : 0), invoices: invMap };
+    const paidMonths = Object.keys(invMap).map(n => parseInt(n)).filter(m => invMap[m] && invMap[m].status === 'paid').sort((a, b) => a - b);
+    const ranges = monthsRangesText(paidMonths);
+    if (paidSummaryEl) {
+      paidSummaryEl.textContent = paidMonths.length ? (PAY_I18N.paidMonthsLabel + ' ' + ranges) : PAY_I18N.nonePaid;
+    }
+    checks.forEach(cb => {
+      const m = parseInt(cb.value);
+      const inv = invMap[m];
+      if (inv && inv.status === 'paid') {
+        cb.checked = true;
+        cb.disabled = true;
+        const label = cb.closest('label');
+        if (label) label.style.opacity = '0.7';
+        const badge = label ? label.querySelector('.pay-month-badge') : null;
+        if (badge) badge.style.display = 'inline-block';
+      }
+    });
+  } catch (e) {}
+  updatePayTotal();
+}
+
+document.getElementById('payInvoiceYear')?.addEventListener('change', () => loadBillingYear());
+document.getElementById('payInvoiceModal')?.addEventListener('change', (e) => {
+  if (e.target && e.target.classList && e.target.classList.contains('pay-month')) updatePayTotal();
+});
+
+function buildPppoeList(datalistEl, users) {
+  if (!datalistEl) return;
+  datalistEl.innerHTML = '';
+  for (const u of users) {
+    if (!u || !u.name) continue;
+    datalistEl.insertAdjacentHTML('beforeend', `<option value="${String(u.name).replace(/"/g, '&quot;')}"></option>`);
+  }
+}
+
+async function loadPppoeAdd(routerId = '') {
+  try {
+    const url = routerId
+      ? `/admin/api/mikrotik/users?routerId=${encodeURIComponent(routerId)}&onlyUnused=1`
+      : '/admin/api/mikrotik/users?onlyUnused=1';
+    const res = await fetch(url);
+    if (!res.ok) return;
+    const users = await res.json();
+    buildPppoeList(document.getElementById('add_pppoe_list'), Array.isArray(users) ? users : []);
+    const hint = document.getElementById('add_pppoe_hint');
+    if (hint) hint.innerText = Array.isArray(users) && users.length ? `Tersedia ${users.length} user PPPoE (yang belum dipakai).` : 'Tidak ada user PPPoE yang tersedia.';
+  } catch (e) {
+    console.error('Failed to load MikroTik users', e);
+  }
+}
+
+async function loadPppoeEdit(routerId = '', excludeCustomerId = '') {
+  try {
+    const qs = new URLSearchParams();
+    if (routerId) qs.set('routerId', String(routerId));
+    qs.set('onlyUnused', '1');
+    if (excludeCustomerId) qs.set('excludeCustomerId', String(excludeCustomerId));
+    const url = `/admin/api/mikrotik/users?${qs.toString()}`;
+    const res = await fetch(url);
+    if (!res.ok) return;
+    const users = await res.json();
+    buildPppoeList(document.getElementById('e_pppoe_list'), Array.isArray(users) ? users : []);
+    const hint = document.getElementById('e_pppoe_hint');
+    if (hint) hint.innerText = Array.isArray(users) && users.length ? `Tersedia ${users.length} user PPPoE (yang belum dipakai).` : 'Tidak ada user PPPoE yang tersedia.';
+  } catch (e) {
+    console.error('Failed to load MikroTik users', e);
+  }
+}
+
+async function loadMikrotikProfiles(routerId = '') {
+  try {
+    const url = routerId ? `/admin/api/mikrotik/profiles/${routerId}` : '/admin/api/mikrotik/profiles';
+    const res = await fetch(url);
+    if (!res.ok) return;
+    const profiles = await res.json();
+    const selAdd = document.getElementById('add_isolir_select');
+    const selEdit = document.getElementById('e_isolir_profile');
+    
+    const defaultOpt = '<option value="isolir">isolir</option>';
+    selAdd.innerHTML = defaultOpt;
+    selEdit.innerHTML = defaultOpt;
+
+    profiles.forEach(p => {
+      if(p.name === 'isolir') return;
+      const opt = `<option value="${p.name}">${p.name}</option>`;
+      selAdd.innerHTML += opt;
+      selEdit.innerHTML += opt;
+    });
+  } catch (e) {
+    console.error('Failed to load MikroTik profiles', e);
+  }
+}
+loadPppoeAdd();
+loadPppoeEdit();
+loadMikrotikProfiles();
+
+setTimeout(()=>document.querySelectorAll('.alert').forEach(a=>a.style.display='none'),4000);
+</script>
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="<%= lang || 'id' %>">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title><%= t('common.login', 'Login') %> Admin | <%= company %>
+  </title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/admin.css">
+  <style>
+    body {
+      background: radial-gradient(circle at top right, #1e1b4b, #0d1117);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-box {
+      width: 100%;
+      max-width: 400px;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    .login-card {
+      background: rgba(22, 27, 34, 0.8);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 40px 32px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .login-head {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .login-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--primary), #818cf8);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin: 0 auto 20px;
+      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .login-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .login-sub {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .alert-d {
+      background: rgba(248, 81, 73, 0.1);
+      color: #ff7b72;
+      border: 1px solid rgba(248, 81, 73, 0.2);
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .back-btn {
+      display: block;
+      text-align: center;
+      margin-top: 24px;
+      font-size: 12px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .back-btn:hover {
+      color: var(--primary);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="login-box">
+    <div class="login-card">
+      <div class="login-head">
+        <div class="login-icon">
+          <i class="bi bi-shield-lock-fill"></i>
+        </div>
+        <h1 class="login-title">
+          <%= company %>
+        </h1>
+        <p class="login-sub"><%= t('admin.login.subtitle', 'Administrator Portal') %></p>
+      </div>
+
+      <% if (typeof error !=='undefined' && error) { %>
+        <div class="alert-d">
+          <i class="bi bi-exclamation-circle"></i>
+          <%= error %>
+        </div>
+        <% } %>
+
+          <form method="POST" action="/admin/login">
+            <div class="fg">
+              <label class="fl"><%= t('admin.login.username', 'Username') %></label>
+              <div style="position:relative">
+                <i class="bi bi-person" style="position:absolute;left:13px;top:10px;color:var(--muted)"></i>
+                <input class="fc" name="username" placeholder="admin" required style="padding-left:40px">
+              </div>
+            </div>
+
+            <div class="fg" style="margin-bottom:24px">
+              <label class="fl"><%= t('admin.login.password', 'Password') %></label>
+              <div style="position:relative">
+                <i class="bi bi-key" style="position:absolute;left:13px;top:10px;color:var(--muted)"></i>
+                <input class="fc" type="password" name="password" placeholder="••••••••" required
+                  style="padding-left:40px">
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-p w-100" style="padding:12px;justify-content:center">
+              <i class="bi bi-box-arrow-in-right"></i> <%= t('admin.login.sign_in', 'Masuk Sekarang') %>
+            </button>
+          </form>
+
+          <a href="/customer/login" class="back-btn">
+            <i class="bi bi-arrow-left"></i> <%= t('admin.login.back_customer', 'Kembali ke Portal Pelanggan') %>
+          </a>
+    </div>
+  </div>
+
+  <style>
+    .w-100 {
+      width: 100%;
+    }
+  </style>
+
+</body>
+
+</html>

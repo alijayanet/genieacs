@@ -1,0 +1,228 @@
+<%- include('partials/header') %>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h5 class="mb-0 fw-bold">Monitoring ONU</h5>
+    <div class="text-secondary" style="font-size: 12px;">Kelola perangkat pelanggan di lapangan</div>
+  </div>
+  <button class="btn btn-sm btn-outline-primary rounded-circle" onclick="loadDevices()">
+    <i class="bi bi-arrow-clockwise"></i>
+  </button>
+</div>
+
+<!-- Search Bar -->
+<div class="mb-3">
+  <div class="input-group">
+    <span class="input-group-text bg-dark border-secondary text-secondary"><i class="bi bi-search"></i></span>
+    <input type="text" id="search-input" class="form-control bg-dark border-secondary text-white shadow-none" placeholder="Cari Pelanggan / SN / Tag..." oninput="filterDevices()">
+  </div>
+</div>
+
+<div id="device-list">
+  <div class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="text-secondary mt-2 small">Memuat data perangkat...</p>
+  </div>
+</div>
+
+<!-- Modal Edit SSID/Password -->
+<div class="modal fade" id="actionModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered mx-3">
+    <div class="modal-content bg-dark border-secondary text-white">
+      <div class="modal-header border-secondary">
+        <h6 class="modal-title" id="modalTitle">Ubah Pengaturan</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="modal-device-tag">
+        <input type="hidden" id="modal-action-type">
+        
+        <div id="ssid-input-group" class="d-none">
+          <label class="form-label small text-secondary">Nama WiFi (SSID) Baru</label>
+          <input type="text" id="new-ssid" class="form-control bg-dark border-secondary text-white" placeholder="Masukkan SSID baru">
+        </div>
+        
+        <div id="pass-input-group" class="d-none">
+          <label class="form-label small text-secondary">Password WiFi Baru</label>
+          <input type="text" id="new-password" class="form-control bg-dark border-secondary text-white" placeholder="Minimal 8 karakter">
+        </div>
+        
+        <div id="reboot-confirm" class="d-none text-center py-2">
+          <i class="bi bi-exclamation-triangle-fill text-warning fs-1"></i>
+          <p class="mt-2 mb-0">Apakah Anda yakin ingin melakukan reboot pada perangkat ini?</p>
+        </div>
+      </div>
+      <div class="modal-footer border-secondary">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+        <button type="button" id="btn-submit-action" class="btn btn-primary btn-sm">Simpan Perubahan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let allDevices = [];
+const actionModal = new bootstrap.Modal(document.getElementById('actionModal'));
+
+async function loadDevices() {
+  const container = document.getElementById('device-list');
+  try {
+    const res = await fetch('/tech/api/devices');
+    const data = await res.json();
+    allDevices = data.devices || [];
+    renderDevices(allDevices);
+  } catch (e) {
+    container.innerHTML = `<div class="alert alert-danger small">Gagal memuat data: ${e.message}</div>`;
+  }
+}
+
+function renderDevices(devices) {
+  const container = document.getElementById('device-list');
+  if (devices.length === 0) {
+    container.innerHTML = `<div class="text-center py-5 text-secondary small">Tidak ada perangkat ditemukan</div>`;
+    return;
+  }
+
+  container.innerHTML = devices.map(d => {
+    const isOn = d.status === 'online';
+    return `
+      <div class="t-card mb-3 p-3" style="border-left: 4px solid ${isOn ? '#10b981' : '#ef4444'}">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <div class="fw-bold" style="font-size: 15px;">${d.tags.join(', ') || 'Tanpa Tag'}</div>
+            <div class="text-secondary small">${d.model || 'ONU'} | SN: ${d.serialNumber}</div>
+          </div>
+          <span class="badge-status badge-${isOn ? 'resolved' : 'open'}">
+            ${isOn ? 'Online' : 'Offline'}
+          </span>
+        </div>
+        
+        <div class="row g-2 mb-3 mt-1" style="font-size: 12px;">
+          <div class="col-6">
+            <div class="text-secondary"><i class="bi bi-person-badge me-1"></i> PPPoE User</div>
+            <div class="fw-semibold text-truncate">${d.pppoeUsername && d.pppoeUsername !== 'N/A' ? d.pppoeUsername : '-'}</div>
+          </div>
+          <div class="col-6">
+            <div class="text-secondary"><i class="bi bi-activity me-1"></i> Redaman (RX)</div>
+            <div class="fw-semibold ${d.rxPower && String(d.rxPower).includes('-') ? (parseFloat(d.rxPower) < -27 ? 'text-danger' : 'text-success') : ''}">${d.rxPower || '-'}</div>
+          </div>
+          <div class="col-6">
+            <div class="text-secondary"><i class="bi bi-wifi me-1"></i> SSID</div>
+            <div class="fw-semibold text-truncate">${d.ssid || '-'}</div>
+          </div>
+          <div class="col-6">
+            <div class="text-secondary"><i class="bi bi-globe me-1"></i> IP Address</div>
+            <div class="fw-semibold small">${d.pppoeIP || '-'}</div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-primary flex-fill" onclick="openActionModal('${d.tags[0]}', 'ssid', '${d.ssid}')">
+            <i class="bi bi-wifi"></i> SSID
+          </button>
+          <button class="btn btn-sm btn-outline-primary flex-fill" onclick="openActionModal('${d.tags[0]}', 'pass')">
+            <i class="bi bi-key"></i> Pass
+          </button>
+          <button class="btn btn-sm btn-outline-danger" onclick="openActionModal('${d.tags[0]}', 'reboot')">
+            <i class="bi bi-power"></i>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function filterDevices() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const filtered = allDevices.filter(d => 
+    d.tags.some(t => t.toLowerCase().includes(q)) || 
+    d.serialNumber.toLowerCase().includes(q) ||
+    (d.customer_name && d.customer_name.toLowerCase().includes(q))
+  );
+  renderDevices(filtered);
+}
+
+function openActionModal(tag, type, currentSsid = '') {
+  document.getElementById('modal-device-tag').value = tag;
+  document.getElementById('modal-action-type').value = type;
+  
+  document.getElementById('ssid-input-group').classList.add('d-none');
+  document.getElementById('pass-input-group').classList.add('d-none');
+  document.getElementById('reboot-confirm').classList.add('d-none');
+  
+  const submitBtn = document.getElementById('btn-submit-action');
+  submitBtn.className = 'btn btn-primary btn-sm';
+  
+  if (type === 'ssid') {
+    document.getElementById('modalTitle').innerText = 'Ubah SSID';
+    document.getElementById('ssid-input-group').classList.remove('d-none');
+    document.getElementById('new-ssid').value = currentSsid;
+    submitBtn.innerText = 'Simpan SSID';
+  } else if (type === 'pass') {
+    document.getElementById('modalTitle').innerText = 'Ubah Password WiFi';
+    document.getElementById('pass-input-group').classList.remove('d-none');
+    document.getElementById('new-password').value = '';
+    submitBtn.innerText = 'Simpan Password';
+  } else if (type === 'reboot') {
+    document.getElementById('modalTitle').innerText = 'Reboot Perangkat';
+    document.getElementById('reboot-confirm').classList.remove('d-none');
+    submitBtn.innerText = 'Ya, Reboot Now';
+    submitBtn.className = 'btn btn-danger btn-sm';
+  }
+  
+  actionModal.show();
+}
+
+document.getElementById('btn-submit-action').addEventListener('click', async function() {
+  const tag = document.getElementById('modal-device-tag').value;
+  const type = document.getElementById('modal-action-type').value;
+  const btn = this;
+  
+  let url = '';
+  let body = {};
+  
+  if (type === 'ssid') {
+    const ssid = document.getElementById('new-ssid').value.trim();
+    if (!ssid) return alert('SSID tidak boleh kosong');
+    url = `/tech/api/device/${tag}/ssid`;
+    body = { ssid };
+  } else if (type === 'pass') {
+    const password = document.getElementById('new-password').value.trim();
+    if (password.length < 8) return alert('Password minimal 8 karakter');
+    url = `/tech/api/device/${tag}/password`;
+    body = { password };
+  } else if (type === 'reboot') {
+    url = `/tech/api/device/${tag}/reboot`;
+    body = {};
+  }
+  
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Proses...';
+  
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const result = await res.json();
+    
+    if (result.success || result.ok) {
+      alert('Perintah berhasil dikirim!');
+      actionModal.hide();
+      setTimeout(loadDevices, 2000);
+    } else {
+      alert('Gagal: ' + (result.error || result.message || 'Terjadi kesalahan'));
+    }
+  } catch (e) {
+    alert('Error: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerText = 'Simpan Perubahan';
+  }
+});
+
+loadDevices();
+</script>
+
+<%- include('partials/bottom_nav') %>

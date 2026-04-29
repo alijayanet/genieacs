@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="<%= lang || 'id' %>">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title><%= t('admin.nav.technicians', 'Teknisi') %> | <%= company %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+<%- include('partials/sidebar', { activePage: 'technicians', company }) %>
+
+<div class="mw">
+  <div class="topbar">
+    <div class="tb-title">
+      <button class="hb-menu" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+      <i class="bi bi-person-gear"></i>
+      <span><%= t('admin.nav.technicians', 'Teknisi') %></span>
+    </div>
+    <div class="tb-right">
+      <span class="adm-badge">
+        <i class="bi bi-person-fill"></i> 
+        <%= (typeof session !== 'undefined' && session.isCashier) ? t('admin.role.cashier', 'Kasir') : t('admin.role.admin', 'Admin') %>
+      </span>
+      <button class="btn btn-p btn-sm" onclick="openModal('addTechModal')"><i class="bi bi-plus-lg"></i> <%= t('admin.technicians.add', 'Tambah Teknisi') %></button>
+    </div>
+  </div>
+
+  <div class="page">
+    <% if (msg) { %>
+      <div class="alert alert-<%= msg.type==='error'?'d':'s' %>"><%= msg.text %></div>
+    <% } %>
+
+    <div class="card">
+      <div class="card-hd">
+        <h6><i class="bi bi-list-ul"></i> <%= t('admin.technicians.list', 'Daftar Teknisi Lapangan') %></h6>
+      </div>
+      <div class="tbl-wrap">
+        <table class="dtbl">
+          <thead>
+            <tr>
+              <th><%= t('admin.technicians.table.name', 'Nama') %></th>
+              <th><%= t('admin.technicians.table.username', 'Username') %></th>
+              <th><%= t('admin.technicians.table.password', 'Password') %></th>
+              <th><%= t('admin.technicians.table.whatsapp', 'WhatsApp') %></th>
+              <th><%= t('admin.technicians.table.area', 'Area Tugas') %></th>
+              <th><%= t('admin.technicians.table.status', 'Status') %></th>
+              <th><%= t('admin.technicians.table.actions', 'Aksi') %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (technicians.length === 0) { %>
+              <tr><td colspan="7" class="text-center text-muted" style="padding:20px"><%= t('admin.technicians.empty', 'Belum ada data teknisi.') %></td></tr>
+            <% } else { %>
+              <% technicians.forEach(t => { %>
+                <tr>
+                  <td><strong><%= t.name %></strong></td>
+                  <td><code><%= t.username %></code></td>
+                  <td><span class="text-muted"><%= t.password %></span></td>
+                  <td><%= t.phone || '-' %></td>
+                  <td><%= t.area || '-' %></td>
+                  <td>
+                    <span class="badge <%= t.is_active ? 'bs' : 'bd' %>">
+                      <%= t.is_active ? t('common.active', 'Aktif') : t('common.inactive', 'Nonaktif') %>
+                    </span>
+                  </td>
+                  <td>
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-g btn-icon btn-sm" onclick='editTech(<%- JSON.stringify(t) %>)'><i class="bi bi-pencil"></i></button>
+                      <form action="/admin/technicians/<%= t.id %>/delete" method="POST" onsubmit="return confirm(I18N.confirmDeleteTechnician)">
+                        <button type="submit" class="btn btn-d btn-icon btn-sm"><i class="bi bi-trash"></i></button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Tambah -->
+<div class="mo" id="addTechModal">
+  <div class="mb">
+    <form action="/admin/technicians" method="POST">
+      <div class="mh"><span class="mt"><%= t('admin.technicians.modal.add_title', 'Tambah Teknisi Baru') %></span><button type="button" class="mc" onclick="closeModal('addTechModal')">&times;</button></div>
+      <div class="mbody">
+        <div class="fg"><label class="fl"><%= t('admin.technicians.form.full_name', 'Nama Lengkap') %></label><input type="text" name="name" class="fc" required></div>
+        <div class="fg"><label class="fl"><%= t('admin.technicians.form.login_username', 'Username Login') %></label><input type="text" name="username" class="fc" required></div>
+        <div class="fg"><label class="fl"><%= t('admin.technicians.form.password', 'Password') %></label><input type="text" name="password" class="fc" required></div>
+        <div class="fg"><label class="fl"><%= t('admin.technicians.form.whatsapp', 'No. WhatsApp') %></label><input type="text" name="phone" class="fc" placeholder="<%= t('admin.technicians.form.whatsapp_placeholder', 'Contoh: 08123456789') %>"></div>
+        <div class="fg"><label class="fl"><%= t('admin.technicians.form.area', 'Area Tugas') %></label><input type="text" name="area" class="fc" placeholder="<%= t('admin.technicians.form.area_placeholder', 'Contoh: Kelurahan A, Blok B') %>"></div>
+      </div>
+      <div class="mf">
+        <button type="button" class="btn btn-g" onclick="closeModal('addTechModal')"><%= t('common.cancel', 'Batal') %></button>
+        <button type="submit" class="btn btn-p"><%= t('common.save', 'Simpan') %></button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Edit -->
+<div class="mo" id="editTechModal">
+  <div class="mb">
+    <form id="editForm" method="POST">
+      <div class="mh"><span class="mt"><%= t('admin.technicians.modal.edit_title', 'Edit Data Teknisi') %></span><button type="button" class="mc" onclick="closeModal('editTechModal')">&times;</button></div>
+      <div class="mbody">
+        <div class="fg"><label class="fl"><%= t('admin.technicians.form.full_name', 'Nama Lengkap') %></label><input type="text" name="name" id="e-name" class="fc" required></div>
+        <div class="fg"><label class="fl"><%= t('admin.technicians.form.login_username', 'Username Login') %></label><input type="text" name="username" id="e-username" class="fc" required></div>
+        <div class="fg"><label class="fl"><%= t('admin.technicians.form.password', 'Password') %></label><input type="text" name="password" id="e-password" class="fc" required></div>
+        <div class="fg"><label class="fl"><%= t('admin.technicians.form.whatsapp', 'No. WhatsApp') %></label><input type="text" name="phone" id="e-phone" class="fc"></div>
+        <div class="fg"><label class="fl"><%= t('admin.technicians.form.area', 'Area Tugas') %></label><input type="text" name="area" id="e-area" class="fc"></div>
+        <div class="fg">
+          <label class="fl"><%= t('admin.technicians.form.account_status', 'Status Akun') %></label>
+          <select name="is_active" id="e-status" class="fs">
+            <option value="1"><%= t('common.active', 'Aktif') %></option>
+            <option value="0"><%= t('common.inactive', 'Nonaktif') %></option>
+          </select>
+        </div>
+      </div>
+      <div class="mf">
+        <button type="button" class="btn btn-g" onclick="closeModal('editTechModal')"><%= t('common.cancel', 'Batal') %></button>
+        <button type="submit" class="btn btn-p"><%= t('admin.technicians.save_changes', 'Simpan Perubahan') %></button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const I18N = {
+  confirmDeleteTechnician: "<%= t('admin.technicians.confirm_delete', 'Hapus teknisi ini?') %>"
+};
+
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+function editTech(t) {
+  document.getElementById('editForm').action = '/admin/technicians/' + t.id + '/update';
+  document.getElementById('e-name').value = t.name;
+  document.getElementById('e-username').value = t.username;
+  document.getElementById('e-password').value = t.password;
+  document.getElementById('e-phone').value = t.phone || '';
+  document.getElementById('e-area').value = t.area || '';
+  document.getElementById('e-status').value = t.is_active;
+  openModal('editTechModal');
+}
+</script>
+</body>
+</html>

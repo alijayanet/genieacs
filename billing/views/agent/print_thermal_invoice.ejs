@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="<%= lang || 'id' %>">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= t('agent.print_thermal', 'Print Thermal') %> #<%= invoice?.id || tx.id %></title>
+  <style>
+    @page { margin: 0; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 12px;
+      line-height: 1.25;
+      color: #000;
+      margin: 0 auto;
+      padding: 6px 10px;
+      max-width: 58mm;
+    }
+    .text-center { text-align: center; }
+    .bold { font-weight: bold; }
+    .divider { border-bottom: 1px dashed #000; margin: 8px 0; }
+    .row { display: flex; justify-content: space-between; gap: 10px; }
+    .small { font-size: 10px; }
+    .title { font-size: 14px; letter-spacing: 0.5px; }
+    .mt { margin-top: 8px; }
+    .mb { margin-bottom: 6px; }
+    .top-actions{
+      position: fixed;
+      top: 8px;
+      right: 8px;
+      display: flex;
+      gap: 8px;
+      z-index: 10;
+    }
+    .top-actions button{
+      font: inherit;
+      font-size: 11px;
+      padding: 6px 8px;
+      border: 1px solid #111;
+      background: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    @media print {
+      body { width: 100%; max-width: 100%; margin: 0; padding: 5mm 5mm 0 5mm; }
+      .top-actions{ display:none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="top-actions">
+    <button type="button" onclick="window.print()"><%= t('agent.print_thermal', 'Print Thermal') %></button>
+    <button type="button" onclick="try{window.close()}catch(e){}">Close</button>
+  </div>
+
+  <div class="text-center">
+    <div class="title bold"><%= company %></div>
+    <% if (settings && settings.company_address) { %>
+      <div class="small"><%= settings.company_address %></div>
+    <% } %>
+    <% const wa = (settings && settings.whatsapp_admin_numbers && settings.whatsapp_admin_numbers.length) ? settings.whatsapp_admin_numbers[0] : (settings && settings.company_phone ? settings.company_phone : ''); %>
+    <% if (wa) { %>
+      <div class="small">Telp/WA: <%= String(wa).startsWith('0') ? wa : ('+' + wa) %></div>
+    <% } %>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="text-center bold mb"><%= t('agent.receipt.payment_title', 'STRUK PEMBAYARAN') %></div>
+
+  <% const mns=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des']; %>
+  <div class="small">
+    <div class="row"><div><%= t('agent.receipt.transaction_no', 'No. Transaksi') %></div><div class="bold">#<%= tx.id %></div></div>
+    <div class="row"><div><%= t('agent.receipt.date', 'Tanggal') %></div><div class="bold"><%= tx.created_at ? new Date(tx.created_at).toLocaleString('id-ID') : new Date().toLocaleString('id-ID') %></div></div>
+    <div class="row"><div><%= t('admin.nav.agents', 'Agent') %></div><div class="bold"><%= tx.agent_name || '' %><%= tx.agent_username ? (' (@' + tx.agent_username + ')') : '' %></div></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="small">
+    <div class="row"><div><%= t('agent.customer', 'Pelanggan') %></div><div class="bold"><%= customer?.name || '-' %></div></div>
+    <% if (customer && (customer.phone || customer.genieacs_tag)) { %>
+      <div class="row"><div>ID/HP</div><div class="bold"><%= customer.phone || customer.genieacs_tag %></div></div>
+    <% } %>
+    <div class="row"><div><%= t('agent.invoice', 'Invoice') %></div><div class="bold">#<%= invoice?.id || tx.invoice_id %></div></div>
+    <% if (invoice && invoice.period_month && invoice.period_year) { %>
+      <div class="row"><div><%= t('agent.period', 'Periode') %></div><div class="bold"><%= mns[invoice.period_month-1] %> <%= invoice.period_year %></div></div>
+    <% } %>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="row bold">
+    <div><%= t('agent.receipt.total_paid', 'TOTAL BAYAR') %></div>
+    <div>Rp <%= Number(invoice?.amount || tx.amount_invoice || 0).toLocaleString('id-ID') %></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="text-center small mt">
+    <%= String(t('agent.receipt.thanks_payment', 'Terima kasih atas pembayaran Anda.\nSimpan struk ini sebagai bukti pembayaran yang sah.')).replace(/\n/g,'<br>') %>
+  </div>
+
+  <script>
+    window.onload = function () {
+      setTimeout(function () { window.print(); }, 350);
+    };
+  </script>
+</body>
+</html>

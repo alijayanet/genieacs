@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="<%= lang || 'id' %>">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title><%= t('admin.settings.title', 'Pengaturan') %> | <%= company %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+<%- include('partials/sidebar', { activePage: 'settings', company }) %>
+<div class="mw">
+  <div class="topbar">
+    <div class="tb-title"><button class="hb-menu" onclick="toggleSidebar()"><i class="bi bi-list"></i></button><i class="bi bi-gear"></i> <%= t('admin.settings.system_title', 'Pengaturan Sistem') %></div>
+    <div class="tb-right">
+      <span class="adm-badge"><i class="bi bi-person-fill"></i> <%= (typeof session !== 'undefined' && session.isCashier) ? t('admin.role.cashier', 'Kasir') : t('admin.role.admin', 'Admin') %></span>
+      <a href="/admin/logout" class="btn btn-g btn-sm"><i class="bi bi-box-arrow-left"></i> <%= t('common.logout', 'Logout') %></a>
+    </div>
+  </div>
+  <div class="page">
+
+    <% if (msg) { %>
+    <div class="alert alert-<%= msg.type==='success'?'s':'d' %>">
+      <i class="bi bi-<%= msg.type==='success'?'check-circle':'exclamation-circle' %>"></i> <%= msg.text %>
+    </div>
+    <% } %>
+
+    <form method="POST" action="/admin/settings">
+
+        <div class="card mb16">
+          <div class="card-hd"><h6><i class="bi bi-telegram"></i> <%= t('admin.settings.telegram.title', 'Pengaturan Telegram Bot (Backup Admin)') %></h6></div>
+          <div class="card-bd">
+            <div class="form-row">
+              <div class="fg">
+                <label class="fl"><%= t('admin.settings.telegram.status', 'Status Bot Telegram') %></label>
+                <select class="fs" name="telegram_enabled">
+                  <option value="true" <%= settings.telegram_enabled ? 'selected' : '' %>><%= t('common.active', 'Aktif') %></option>
+                  <option value="false" <%= !settings.telegram_enabled ? 'selected' : '' %>><%= t('common.inactive', 'Nonaktif') %></option>
+                </select>
+              </div>
+              <div class="fg">
+                <label class="fl"><%= t('admin.settings.telegram.admin_id', 'Admin Telegram ID') %></label>
+                <input class="fc" name="telegram_admin_id" value="<%= settings.telegram_admin_id || '' %>" placeholder="Contoh: 12345678">
+              </div>
+            </div>
+            <div class="fg">
+              <label class="fl"><%= t('admin.settings.telegram.bot_token', 'Telegram Bot Token') %></label>
+              <div style="display:flex;gap:8px">
+                <input class="fc" name="telegram_bot_token" value="<%= settings.telegram_bot_token || '' %>" placeholder="Dapatkan dari @BotFather">
+                <button type="button" class="btn btn-g" onclick="syncTelegram()" title="<%= t('admin.settings.telegram.sync_title', 'Sinkronkan / Hapus Webhook Lama') %>"><i class="bi bi-arrow-repeat"></i> <%= t('admin.settings.telegram.sync', 'Sinkronkan') %></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb16">
+          <div class="card-hd"><h6><i class="bi bi-whatsapp"></i> <%= t('admin.settings.whatsapp.title', 'Pengaturan WhatsApp') %></h6></div>
+          <div class="card-bd" style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+        
+        <!-- General Info -->
+        <div>
+          <h6 style="font-size:13px;color:var(--muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px"><i class="bi bi-info-circle"></i> <%= t('admin.settings.app_info', 'Info Aplikasi') %></h6>
+          <div class="fg">
+            <label class="fl"><%= t('admin.settings.company_name', 'Nama Aplikasi / Perusahaan') %></label>
+            <input class="fc" name="company_header" value="<%= settings.company_header || '' %>">
+          </div>
+          <div class="fg">
+            <label class="fl"><%= t('admin.settings.footer_info', 'Info Footer') %></label>
+            <input class="fc" name="footer_info" value="<%= settings.footer_info || '' %>">
+          </div>
+          <div class="form-row">
+            <div class="fg">
+              <label class="fl"><%= t('admin.settings.owner_name', 'Nama Manajer / Owner') %></label>
+              <input class="fc" name="company_manager" value="<%= settings.company_manager || '' %>" placeholder="Admin Pusat">
+            </div>
+            <div class="fg">
+              <label class="fl"><%= t('admin.settings.primary_phone', 'Telepon Utama (CS)') %></label>
+              <input class="fc" name="company_phone" value="<%= settings.company_phone || '' %>" placeholder="081234567890">
+            </div>
+          </div>
+          <div class="fg">
+            <label class="fl"><%= t('admin.settings.company_email', 'Email Perusahaan') %></label>
+            <input class="fc" name="company_email" value="<%= settings.company_email || '' %>" placeholder="support@isp.com">
+          </div>
+          <div class="fg">
+            <label class="fl"><%= t('admin.settings.office_address', 'Alamat Kantor') %></label>
+            <input class="fc" name="company_address" value="<%= settings.company_address || '' %>" placeholder="Jl. Utama No. 123">
+          </div>
+          <div class="form-row">
+            <div class="fg">
+              <label class="fl"><%= t('admin.settings.office_lat', 'Latitude Kantor') %></label>
+              <input class="fc" name="office_lat" value="<%= settings.office_lat || '' %>" placeholder="-6.xxx">
+            </div>
+            <div class="fg">
+              <label class="fl"><%= t('admin.settings.office_lng', 'Longitude Kantor') %></label>
+              <input class="fc" name="office_lng" value="<%= settings.office_lng || '' %>" placeholder="106.xxx">
+            </div>
+          </div>
+          <div class="fg">
+            <label class="fl"><%= t('admin.settings.operational_hours', 'Jam Operasional') %></label>
+            <input class="fc" name="operational_hours" value="<%= settings.operational_hours || '' %>" placeholder="Setiap Hari: 08.00 - 22.00 WIB">
+          </div>
+          <div class="form-row">
+            <div class="fg">
+              <label class="fl"><%= t('admin.settings.server_port', 'Port Server') %></label>
+              <input class="fc" type="number" name="server_port" value="<%= settings.server_port || 3001 %>">
+            </div>
+            <div class="fg">
+              <label class="fl"><%= t('admin.settings.customer_otp_login', 'Login OTP Pelanggan') %></label>
+              <select class="fs" name="login_otp_enabled">
+                <option value="true" <%= settings.login_otp_enabled ? 'selected' : '' %>><%= t('admin.settings.otp_enabled', 'Aktif (Kirim via WA)') %></option>
+                <option value="false" <%= !settings.login_otp_enabled ? 'selected' : '' %>><%= t('admin.settings.otp_disabled', 'Nonaktif (Langsung)') %></option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- GenieACS & MikroTik -->
+        <div>
+          <h6 style="font-size:13px;color:var(--muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px"><i class="bi bi-router"></i> <%= t('admin.settings.external_api', 'API Eksternal') %></h6>
+          <div class="fg">
+            <label class="fl">GenieACS API URL</label>
+            <input class="fc" name="genieacs_url" value="<%= settings.genieacs_url || '' %>" placeholder="http://192.168.8.89:7557">
+          </div>
+          <div class="form-row">
+            <div class="fg">
+              <label class="fl">GenieACS Username</label>
+              <input class="fc" name="genieacs_username" value="<%= settings.genieacs_username || '' %>">
+            </div>
+            <div class="fg">
+              <label class="fl">GenieACS Password</label>
+              <input class="fc" type="password" name="genieacs_password" value="<%= settings.genieacs_password || '' %>">
+            </div>
+          </div>
+
+          <div class="form-row" style="margin-top:20px">
+            <div class="fg">
+              <label class="fl">MikroTik IP / Host</label>
+              <input class="fc" name="mikrotik_host" value="<%= settings.mikrotik_host || '' %>" placeholder="192.168.1.1">
+            </div>
+            <div class="fg">
+              <label class="fl">MikroTik API Port</label>
+              <input class="fc" type="number" name="mikrotik_port" value="<%= settings.mikrotik_port || 8728 %>" placeholder="8728">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="fg">
+              <label class="fl">MikroTik API User</label>
+              <input class="fc" name="mikrotik_user" value="<%= settings.mikrotik_user || '' %>">
+            </div>
+            <div class="fg">
+              <label class="fl">MikroTik API Password</label>
+              <input class="fc" type="password" name="mikrotik_password" value="<%= settings.mikrotik_password || '' %>">
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin Auth -->
+        <div>
+          <h6 style="font-size:13px;color:var(--muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px"><i class="bi bi-shield-lock"></i> Kredensial Admin</h6>
+          <div class="form-row">
+            <div class="fg">
+              <label class="fl">Username Admin</label>
+              <input class="fc" name="admin_username" value="<%= settings.admin_username || '' %>">
+            </div>
+            <div class="fg">
+              <label class="fl">Password Admin</label>
+              <input class="fc" type="password" name="admin_password" value="<%= settings.admin_password || '' %>">
+            </div>
+          </div>
+          <div class="fg">
+            <label class="fl">Admin API Key (Untuk akses luar)</label>
+            <input class="fc" name="admin_api_key" value="<%= settings.admin_api_key || '' %>">
+          </div>
+        </div>
+
+        <!-- WhatsApp -->
+        <div>
+          <h6 style="font-size:13px;color:var(--muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px"><i class="bi bi-whatsapp"></i> Integrasi WhatsApp</h6>
+          <div class="fg">
+            <label class="fl">Enable WhatsApp Bot</label>
+            <select class="fs" name="whatsapp_enabled">
+              <option value="true" <%= settings.whatsapp_enabled ? 'selected' : '' %>>Aktif</option>
+              <option value="false" <%= !settings.whatsapp_enabled ? 'selected' : '' %>>Nonaktif</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl">Nomor Admin WA (Pisahkan dengan koma)</label>
+            <input class="fc" name="whatsapp_admin_numbers" value="<%= (settings.whatsapp_admin_numbers || []).join(', ') %>" placeholder="6281xxx, 6282xxx">
+          </div>
+          <div class="fg">
+            <label class="fl">Jeda Antar Pesan Broadcast (Detik)</label>
+            <input class="fc" type="number" name="whatsapp_broadcast_delay" value="<%= settings.whatsapp_broadcast_delay || 2 %>" min="1" max="60">
+            <div style="font-size:10px; color:var(--muted); margin-top:4px">Rekomendasi: Minimal 2 detik agar tidak terdeteksi spam oleh WhatsApp.</div>
+          </div>
+        </div>
+
+        <!-- Payment Gateway -->
+        <div style="grid-column: span 2">
+          <h6 style="font-size:13px;color:var(--muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px"><i class="bi bi-wallet2"></i> Pengaturan Payment Gateway</h6>
+          
+          <div class="form-row3" style="margin-bottom: 20px;">
+            <div class="fg">
+              <label class="fl">Default Gateway</label>
+              <select class="fs" name="default_gateway">
+                <option value="tripay" <%= settings.default_gateway === 'tripay' ? 'selected' : '' %>>Tripay</option>
+                <option value="midtrans" <%= settings.default_gateway === 'midtrans' ? 'selected' : '' %>>Midtrans</option>
+                <option value="xendit" <%= settings.default_gateway === 'xendit' ? 'selected' : '' %>>Xendit</option>
+                <option value="duitku" <%= settings.default_gateway === 'duitku' ? 'selected' : '' %>>Duitku</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Tripay Section -->
+          <div style="background: rgba(0,0,0,0.02); padding: 15px; border-radius: 12px; margin-bottom: 15px;">
+            <h6 style="font-size:12px; margin-bottom: 10px;">Tripay Configuration</h6>
+            <div class="form-row3">
+              <div class="fg">
+                <label class="fl">Status Tripay</label>
+                <select class="fs" name="tripay_enabled">
+                  <option value="true" <%= settings.tripay_enabled === true ? 'selected' : '' %>>Aktif</option>
+                  <option value="false" <%= settings.tripay_enabled === false ? 'selected' : '' %>>Nonaktif</option>
+                </select>
+              </div>
+              <div class="fg">
+                <label class="fl">Tripay API Key</label>
+                <input class="fc" name="tripay_api_key" value="<%= settings.tripay_api_key || '' %>" type="password">
+              </div>
+              <div class="fg">
+                <label class="fl">Tripay Private Key</label>
+                <input class="fc" name="tripay_private_key" value="<%= settings.tripay_private_key || '' %>" type="password">
+              </div>
+            </div>
+            <div class="form-row3">
+              <div class="fg">
+                <label class="fl">Tripay Merchant Code</label>
+                <input class="fc" name="tripay_merchant_code" value="<%= settings.tripay_merchant_code || '' %>" placeholder="Txxxx">
+              </div>
+              <div class="fg">
+                <label class="fl">Tripay Mode</label>
+                <select class="fs" name="tripay_mode">
+                  <option value="sandbox" <%= settings.tripay_mode === 'sandbox' ? 'selected' : '' %>>Sandbox</option>
+                  <option value="live" <%= settings.tripay_mode === 'live' ? 'selected' : '' %>>Live</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Midtrans Section -->
+          <div style="background: rgba(0,0,0,0.02); padding: 15px; border-radius: 12px;">
+            <h6 style="font-size:12px; margin-bottom: 10px;">Midtrans Configuration</h6>
+            <div class="form-row3">
+              <div class="fg">
+                <label class="fl">Status Midtrans</label>
+                <select class="fs" name="midtrans_enabled">
+                  <option value="true" <%= settings.midtrans_enabled === true ? 'selected' : '' %>>Aktif</option>
+                  <option value="false" <%= settings.midtrans_enabled === false ? 'selected' : '' %>>Nonaktif</option>
+                </select>
+              </div>
+              <div class="fg">
+                <label class="fl">Midtrans Server Key</label>
+                <input class="fc" name="midtrans_server_key" value="<%= settings.midtrans_server_key || '' %>" type="password">
+              </div>
+              <div class="fg">
+                <label class="fl">Midtrans Mode</label>
+                <select class="fs" name="midtrans_mode">
+                  <option value="sandbox" <%= settings.midtrans_mode === 'sandbox' ? 'selected' : '' %>>Sandbox</option>
+                  <option value="live" <%= settings.midtrans_mode === 'live' ? 'selected' : '' %>>Live</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Xendit Section -->
+          <div style="background: rgba(0,0,0,0.02); padding: 15px; border-radius: 12px; margin-top: 15px;">
+            <h6 style="font-size:12px; margin-bottom: 10px;">Xendit Configuration</h6>
+            <div class="form-row2">
+              <div class="fg">
+                <label class="fl">Status Xendit</label>
+                <select class="fs" name="xendit_enabled">
+                  <option value="true" <%= settings.xendit_enabled === true ? 'selected' : '' %>>Aktif</option>
+                  <option value="false" <%= settings.xendit_enabled === false ? 'selected' : '' %>>Nonaktif</option>
+                </select>
+              </div>
+              <div class="fg">
+                <label class="fl">Xendit Secret API Key</label>
+                <input class="fc" name="xendit_api_key" value="<%= settings.xendit_api_key || '' %>" type="password" placeholder="xnd_development_...">
+              </div>
+            </div>
+            <div style="font-size: 10px; color: var(--muted); margin-top: 4px;">Xendit menggunakan callback token yang disetting di dashboard Xendit.</div>
+          </div>
+
+          <!-- Duitku Section -->
+          <div style="background: rgba(0,0,0,0.02); padding: 15px; border-radius: 12px; margin-top: 15px;">
+            <h6 style="font-size:12px; margin-bottom: 10px;">Duitku Configuration</h6>
+            <div class="form-row3">
+              <div class="fg">
+                <label class="fl">Status Duitku</label>
+                <select class="fs" name="duitku_enabled">
+                  <option value="true" <%= settings.duitku_enabled === true ? 'selected' : '' %>>Aktif</option>
+                  <option value="false" <%= settings.duitku_enabled === false ? 'selected' : '' %>>Nonaktif</option>
+                </select>
+              </div>
+              <div class="fg">
+                <label class="fl">Duitku Merchant Code</label>
+                <input class="fc" name="duitku_merchant_code" value="<%= settings.duitku_merchant_code || '' %>" placeholder="Dxxxx">
+              </div>
+              <div class="fg">
+                <label class="fl">Duitku API Key</label>
+                <input class="fc" name="duitku_api_key" value="<%= settings.duitku_api_key || '' %>" type="password">
+              </div>
+            </div>
+            <div class="form-row2">
+              <div class="fg">
+                <label class="fl">Duitku Mode</label>
+                <select class="fs" name="duitku_mode">
+                  <option value="sandbox" <%= settings.duitku_mode === 'sandbox' ? 'selected' : '' %>>Sandbox</option>
+                  <option value="live" <%= settings.duitku_mode === 'live' ? 'selected' : '' %>>Live</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="fg" style="margin-top: 15px;">
+            <label class="fl">Link Webhook (Copy ke Dashboard Gateway)</label>
+            <div style="display:flex;gap:8px">
+              <input class="fc" id="webhook_url" readonly value="">
+              <button type="button" class="btn btn-g" onclick="copyWebhook()"><i class="bi bi-copy"></i></button>
+            </div>
+            <div style="font-size: 10px; color: var(--muted); margin-top: 4px;">Gunakan link ini untuk kolom Webhook URL di Tripay atau Midtrans Notification URL.</div>
+          </div>
+        </div>
+
+      </div>
+      
+          <div class="card-bd" style="border-top:1px solid var(--border);padding-top:20px;text-align:right">
+            <button type="submit" class="btn btn-p"><i class="bi bi-save"></i> Simpan Pengaturan</button>
+          </div>
+        </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.getElementById('webhook_url').value = window.location.origin + '/customer/payment/callback';
+function copyWebhook() {
+  const el = document.getElementById('webhook_url');
+  el.select();
+  document.execCommand('copy');
+  alert('Link Webhook berhasil disalin!');
+}
+async function syncTelegram() {
+  try {
+    const res = await fetch('/admin/api/telegram/sync', { method: 'POST' });
+    const data = await res.json();
+    if (data.success) alert(data.message);
+    else alert('Gagal: ' + data.error);
+  } catch (e) { alert('Error: ' + e.message); }
+}
+setTimeout(()=>document.querySelectorAll('.alert').forEach(a=>a.style.display='none'),5000);
+</script>
+</body>
+</html>

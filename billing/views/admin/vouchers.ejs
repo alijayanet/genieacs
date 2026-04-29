@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="<%= lang || 'id' %>">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title><%= t('admin.nav.voucher_hotspot', 'Voucher Hotspot') %> | <%= company %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/admin.css">
+  <style>
+    .mtabs { display: flex; gap: 10px; margin-bottom: 14px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+    .mtab { padding: 8px 14px; border-radius: 8px; cursor: pointer; color: var(--muted); transition: all 0.2s; font-weight: 700; text-decoration: none; }
+    .mtab:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+    .mtab.active { background: var(--primary); color: white; }
+    .kv { display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end; }
+    .kv .fg { margin:0; min-width: 180px; flex: 1; }
+    .kv .fg.w120 { min-width: 120px; flex: 0 0 120px; }
+    .kv .fg.w160 { min-width: 160px; flex: 0 0 160px; }
+    .hint { font-size: 12px; color: var(--muted); }
+    .pill { display:inline-flex; align-items:center; gap:6px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); font-size: 12px; color: var(--muted); }
+    .pill b { color: var(--text); font-weight: 700; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; }
+  </style>
+</head>
+<body>
+<%- include('partials/sidebar', { activePage: 'mikrotik', company }) %>
+<div class="mw">
+  <div class="topbar">
+    <div class="tb-title"><button class="hb-menu" onclick="toggleSidebar()"><i class="bi bi-list"></i></button><i class="bi bi-ticket-perforated"></i> <%= t('admin.nav.voucher_hotspot', 'Voucher Hotspot') %></div>
+    <div class="tb-right" style="display:flex;align-items:center;gap:15px">
+      <div class="router-selector" style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.1);padding:4px 12px;border-radius:20px">
+        <i class="bi bi-hdd-network small"></i>
+        <select id="global-router-id" class="fs" style="background:transparent;border:none;color:white;padding:0;font-size:13px;width:auto;cursor:pointer" onchange="reloadAll()">
+          <option value="" style="color:black"><%= t('admin.vouchers.default_router', '-- Default Router --') %></option>
+          <% routers.forEach(r => { %>
+            <option value="<%= r.id %>" style="color:black"><%= r.name %></option>
+          <% }) %>
+        </select>
+      </div>
+      <span class="adm-badge"><i class="bi bi-person-fill"></i> <%= (typeof session !== 'undefined' && session.isCashier) ? t('admin.role.cashier', 'Kasir') : t('admin.role.admin', 'Admin') %></span>
+      <a href="/admin/logout" class="btn btn-g btn-sm"><i class="bi bi-box-arrow-left"></i></a>
+    </div>
+  </div>
+  <div class="page">
+    <% const mTab = 'vouchers'; %>
+    <% if (msg) { %>
+      <div class="alert <%= msg.type === 'success' ? 's' : (msg.type === 'error' ? 'd' : 'w') %>"><%= msg.text %></div>
+    <% } %>
+
+    <div class="mtabs">
+      <a href="/admin/mikrotik" class="mtab <%= mTab==='monitoring' ? 'active' : '' %>"><i class="bi bi-router"></i> Monitoring</a>
+      <a href="/admin/vouchers" class="mtab <%= mTab==='vouchers' ? 'active' : '' %>"><i class="bi bi-ticket-perforated"></i> Voucher Hotspot</a>
+      <a href="/admin/routers" class="mtab <%= mTab==='routers' ? 'active' : '' %>"><i class="bi bi-hdd-network"></i> Router</a>
+    </div>
+
+    <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
+      <div class="sc p"><i class="bi bi-collection sc-icon"></i><div class="sc-label"><%= t('admin.vouchers.stats.batches', 'Batch') %></div><div class="sc-val" id="stat-batches">0</div></div>
+      <div class="sc s"><i class="bi bi-ticket sc-icon"></i><div class="sc-label"><%= t('admin.vouchers.stats.vouchers', 'Voucher') %></div><div class="sc-val" id="stat-vouchers">0</div></div>
+      <div class="sc w"><i class="bi bi-check2-circle sc-icon"></i><div class="sc-label"><%= t('admin.vouchers.stats.used', 'Terpakai') %></div><div class="sc-val" id="stat-used">0</div></div>
+      <div class="sc d"><i class="bi bi-circle sc-icon"></i><div class="sc-label"><%= t('admin.vouchers.stats.unused', 'Belum') %></div><div class="sc-val" id="stat-unused">0</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-hd">
+        <h6><i class="bi bi-plus-circle"></i> <%= t('admin.vouchers.create.title', 'Buat Voucher Batch') %></h6>
+        <div class="pill"><i class="bi bi-building"></i> <b><%= settings.company_header || company %></b></div>
+      </div>
+      <div class="card-bd">
+        <div class="kv">
+          <div class="fg">
+            <label class="fl"><%= t('admin.vouchers.create.profile', 'Hotspot User Profile') %></label>
+            <select class="fc" id="profileName" onchange="onProfileChanged()">
+              <option value=""><%= t('common.loading_short', 'Memuat...') %></option>
+            </select>
+            <div class="hint" id="profileHint"></div>
+          </div>
+          <div class="fg w160">
+            <label class="fl"><%= t('admin.vouchers.create.qty', 'Jumlah') %></label>
+            <input class="fc" id="qty" type="number" min="1" max="5000" value="50">
+          </div>
+          <div class="fg w160">
+            <label class="fl"><%= t('admin.vouchers.create.price', 'Harga (Rp)') %></label>
+            <input class="fc" id="price" type="number" min="0" step="1000" placeholder="Opsional">
+          </div>
+          <div class="fg w160">
+            <label class="fl"><%= t('admin.vouchers.create.mode', 'Mode') %></label>
+            <select class="fc" id="mode" onchange="onModeChanged()">
+              <option value="voucher"><%= t('admin.vouchers.create.mode_voucher', 'Voucher (User=Pass)') %></option>
+              <option value="member"><%= t('admin.vouchers.create.mode_member', 'Member (User & Pass Beda)') %></option>
+            </select>
+          </div>
+          <div class="fg w160">
+            <label class="fl"><%= t('admin.vouchers.create.charset', 'Karakter') %></label>
+            <select class="fc" id="charset">
+              <option value="numbers"><%= t('admin.vouchers.create.charset_numbers', 'Hanya Angka') %></option>
+              <option value="letters"><%= t('admin.vouchers.create.charset_letters', 'Hanya Huruf (Kecil)') %></option>
+              <option value="mixed"><%= t('admin.vouchers.create.charset_mixed', 'Huruf & Angka') %></option>
+            </select>
+          </div>
+          <div class="fg w120">
+            <label class="fl"><%= t('admin.vouchers.create.length', 'Panjang') %></label>
+            <input class="fc" id="codeLength" type="number" min="4" max="16" value="6">
+          </div>
+          <div class="fg w120">
+            <label class="fl"><%= t('admin.vouchers.create.prefix', 'Prefix') %></label>
+            <input class="fc" id="prefix" placeholder="Opsional">
+          </div>
+          <div class="fg w120" style="flex:0 0 auto;min-width:0">
+            <button class="btn btn-p" onclick="createBatch()" id="btnCreate"><i class="bi bi-magic"></i> <%= t('admin.vouchers.create.create_btn', 'Buat') %></button>
+          </div>
+        </div>
+        <div class="hint" style="margin-top:10px" id="modeHint">
+          <%= t('admin.vouchers.create.hint_default', 'Durasi diambil dari metadata profile. Harga bisa diisi manual (kalau kosong akan pakai dari profile).') %>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd">
+        <h6><i class="bi bi-list-check"></i> <%= t('admin.vouchers.batches.title', 'Batch Voucher') %></h6>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <div style="display:flex;gap:6px;align-items:center">
+            <span class="muted" style="font-size:12px"><%= t('admin.vouchers.print_style', 'Style Print') %></span>
+            <select class="fc" id="print_style" style="min-width:220px" onchange="onPrintStyleChanged()">
+              <option value="cards" <%= (settings.voucher_print_default_style || '') === 'cards' ? 'selected' : '' %>><%= t('admin.vouchers.print_style_cards', 'Kartu (Default)') %></option>
+              <option value="mks" <%= (settings.voucher_print_default_style || '') === 'mks' ? 'selected' : '' %>><%= t('admin.vouchers.print_style_mks', 'Template Jadi: MKS') %></option>
+              <option value="simple" <%= (settings.voucher_print_default_style || '') === 'simple' ? 'selected' : '' %>><%= t('admin.vouchers.print_style_simple', 'Template Jadi: Simple') %></option>
+              <option value="minimal" <%= (settings.voucher_print_default_style || '') === 'minimal' ? 'selected' : '' %>><%= t('admin.vouchers.print_style_minimal', 'Template Jadi: Minimal') %></option>
+              <option value="template" <%= (settings.voucher_print_default_style || '') === 'template' ? 'selected' : '' %>><%= t('admin.vouchers.print_style_custom', 'Template Custom (Editor)') %></option>
+            </select>
+          </div>
+          <button class="btn btn-g btn-sm" onclick="openModal('voucherTemplateModal')"><i class="bi bi-layout-text-sidebar-reverse"></i> <%= t('admin.vouchers.template.btn', 'Template Print') %></button>
+          <button class="btn btn-g btn-sm" onclick="reloadBatches()"><i class="bi bi-arrow-clockwise"></i> <%= t('common.refresh', 'Refresh') %></button>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table class="dtbl">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th><%= t('admin.vouchers.table.router', 'Router') %></th>
+              <th>Profile</th>
+              <th>Qty</th>
+              <th><%= t('admin.vouchers.table.used', 'Terpakai') %></th>
+              <th>Status</th>
+              <th><%= t('admin.vouchers.table.created', 'Dibuat') %></th>
+              <th><%= t('common.actions', 'Aksi') %></th>
+            </tr>
+          </thead>
+          <tbody id="batches-list">
+            <tr><td colspan="8" class="text-center text-muted"><%= t('common.loading', 'Memuat data...') %></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mo" id="batchDetailModal">
+  <div class="mb" style="max-width:1100px">
+    <div class="mh">
+      <span class="mt" id="batchDetailTitle"><%= t('admin.vouchers.detail.title', 'Detail Batch') %></span>
+      <button class="mc" onclick="closeModal('batchDetailModal')">&times;</button>
+    </div>
+    <div class="mbody">
+      <div id="batchDetailMeta" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px"></div>
+      <div class="tbl-wrap">
+        <table class="dtbl">
+          <thead>
+            <tr><th><%= t('admin.vouchers.detail.code', 'Kode') %></th><th><%= t('admin.vouchers.detail.password', 'Password') %></th><th>Status</th><th><%= t('admin.vouchers.detail.used_at', 'Terpakai') %></th><th><%= t('admin.vouchers.detail.last_seen', 'Last Seen') %></th></tr>
+          </thead>
+          <tbody id="batchDetailList">
+            <tr><td colspan="5" class="text-center text-muted"><%= t('common.loading_short', 'Memuat...') %></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="mf">
+      <button type="button" class="btn btn-g" onclick="closeModal('batchDetailModal')"><%= t('common.close', 'Tutup') %></button>
+    </div>
+  </div>
+</div>
+
+<div class="mo" id="voucherTemplateModal">
+  <div class="mb" style="max-width:980px">
+    <div class="mh">
+      <span class="mt"><%= t('admin.vouchers.template.title', 'Template Print Voucher') %></span>
+      <button class="mc" onclick="closeModal('voucherTemplateModal')">&times;</button>
+    </div>
+    <div class="mbody">
+      <div class="fg" style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px">
+        <div style="flex:1;min-width:240px">
+          <label class="fl"><%= t('admin.vouchers.template.preset', 'Preset') %></label>
+          <select class="fc" id="tpl_preset" onchange="applyTemplatePreset(this.value)">
+            <option value=""><%= t('common.choose', '-- Pilih --') %></option>
+            <option value="mks"><%= t('admin.vouchers.template.preset_mks', 'Mikhmon (MKS)') %></option>
+            <option value="simple"><%= t('admin.vouchers.template.preset_simple', 'Simple') %></option>
+            <option value="empty"><%= t('admin.vouchers.template.preset_empty', 'Kosong') %></option>
+          </select>
+        </div>
+        <div class="hint" style="flex:2;min-width:260px">
+          <%= t('admin.vouchers.template.preset_hint', 'Catatan: template Mikhmon yang masih berisi kode PHP tidak bisa dipakai langsung. Gunakan preset ini lalu edit sesuai kebutuhan.') %>
+        </div>
+      </div>
+      <div class="fg" style="margin-bottom:12px">
+        <label class="fl"><%= t('admin.vouchers.template.use', 'Gunakan template custom sebagai default print') %></label>
+        <select class="fc" id="tpl_use">
+          <option value="0" <%= settings.voucher_print_use_template ? '' : 'selected' %>><%= t('common.off', 'Off') %></option>
+          <option value="1" <%= settings.voucher_print_use_template ? 'selected' : '' %>><%= t('common.on', 'On') %></option>
+        </select>
+      </div>
+      <div class="fg" style="margin-bottom:12px">
+        <label class="fl"><%= t('admin.vouchers.template.default_style', 'Default style print') %></label>
+        <select class="fc" id="tpl_default_style">
+          <option value="cards" <%= (settings.voucher_print_default_style || '') === 'cards' ? 'selected' : '' %>><%= t('admin.vouchers.print_style_cards', 'Kartu (Default)') %></option>
+          <option value="mks" <%= (settings.voucher_print_default_style || '') === 'mks' ? 'selected' : '' %>><%= t('admin.vouchers.print_style_mks', 'Template Jadi: MKS') %></option>
+          <option value="simple" <%= (settings.voucher_print_default_style || '') === 'simple' ? 'selected' : '' %>><%= t('admin.vouchers.print_style_simple', 'Template Jadi: Simple') %></option>
+          <option value="minimal" <%= (settings.voucher_print_default_style || '') === 'minimal' ? 'selected' : '' %>><%= t('admin.vouchers.print_style_minimal', 'Template Jadi: Minimal') %></option>
+          <option value="template" <%= (settings.voucher_print_default_style || '') === 'template' ? 'selected' : '' %>><%= t('admin.vouchers.print_style_custom', 'Template Custom (Editor)') %></option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl"><%= t('admin.vouchers.template.header', 'Header (opsional)') %></label>
+        <textarea class="fc" id="tpl_header" rows="5" spellcheck="false"><%= settings.voucher_print_template_header || '' %></textarea>
+      </div>
+      <div class="fg">
+        <label class="fl"><%= t('admin.vouchers.template.row', 'Row (wajib, diulang untuk setiap voucher)') %></label>
+        <textarea class="fc" id="tpl_row" rows="10" spellcheck="false"><%= settings.voucher_print_template_row || '' %></textarea>
+        <div class="hint">
+          Variables: %credential% %username% %password% %profile% %validity% %validityText% %price% %priceText% %currency% %company% %phone% %timeStamp% %#%
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl"><%= t('admin.vouchers.template.footer', 'Footer (opsional)') %></label>
+        <textarea class="fc" id="tpl_footer" rows="5" spellcheck="false"><%= settings.voucher_print_template_footer || '' %></textarea>
+      </div>
+    </div>
+    <div class="mf">
+      <button type="button" class="btn btn-g" onclick="closeModal('voucherTemplateModal')"><%= t('common.close', 'Tutup') %></button>
+      <button type="button" class="btn btn-p" onclick="saveVoucherTemplate()"><%= t('common.save', 'Simpan') %></button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const I18N = {
+    profilePricePrefix: "<%= t('admin.vouchers.js.price_prefix', 'Harga:') %>",
+    profileDurationPrefix: "<%= t('admin.vouchers.js.duration_prefix', 'Durasi:') %>",
+    modeVoucherHint: "<%= t('admin.vouchers.js.mode_voucher_hint', 'Mode Voucher: Username dan Password sama. Durasi diambil dari metadata profile. Harga bisa diisi manual.') %>",
+    modeMemberHint: "<%= t('admin.vouchers.js.mode_member_hint', 'Mode Member: Username dan Password di-generate secara terpisah. Durasi diambil dari metadata profile. Harga bisa diisi manual.') %>",
+    chooseProfileFirst: "<%= t('admin.vouchers.js.choose_profile_first', 'Pilih profile hotspot terlebih dulu.') %>",
+    invalidQty: "<%= t('admin.vouchers.js.invalid_qty', 'Jumlah voucher tidak valid.') %>",
+    processing: "<%= t('admin.vouchers.js.processing', 'Proses...') %>",
+    createFailed: "<%= t('admin.vouchers.js.create_failed', 'Gagal membuat batch') %>",
+    batchCreatedPrefix: "<%= t('admin.vouchers.js.batch_created_prefix', 'Batch') %>",
+    batchCreatedSuffix: "<%= t('admin.vouchers.js.batch_created_suffix', 'dibuat. Sistem sedang membuat voucher di MikroTik.') %>",
+    createBtn: "<%= t('admin.vouchers.create.create_btn', 'Buat') %>",
+    noBatches: "<%= t('admin.vouchers.js.no_batches', 'Belum ada batch voucher.') %>",
+    defaultRouterName: "<%= t('admin.vouchers.js.default_router', 'Default') %>",
+    actionDetail: "<%= t('common.details', 'Detail') %>",
+    actionSync: "<%= t('admin.vouchers.actions.sync', 'Sync') %>",
+    actionPrint: "<%= t('admin.vouchers.actions.print', 'Print') %>",
+    actionCsv: "<%= t('admin.vouchers.actions.csv', 'CSV') %>",
+    actionDelete: "<%= t('common.delete', 'Hapus') %>",
+    detailLoadFailed: "<%= t('admin.vouchers.js.detail_failed', 'Gagal mengambil detail') %>",
+    detailTitlePrefix: "<%= t('admin.vouchers.js.detail_title_prefix', 'Detail Batch') %>",
+    noVouchers: "<%= t('admin.vouchers.js.no_vouchers', 'Tidak ada voucher.') %>",
+    syncFailed: "<%= t('admin.vouchers.js.sync_failed', 'Gagal sync') %>",
+    syncDonePrefix: "<%= t('admin.vouchers.js.sync_done_prefix', 'Sync selesai. Used baru:') %>",
+    syncDoneMiddle: "<%= t('admin.vouchers.js.sync_done_middle', 'Missing:') %>",
+    deleteCreatingWarn: "<%= t('admin.vouchers.js.delete_creating_warn', 'Batch sedang diproses. Tunggu sampai statusnya selesai, lalu coba hapus lagi.') %>",
+    deleteConfirmPrefix: "<%= t('admin.vouchers.js.delete_confirm_prefix', 'Hapus Batch') %>",
+    deleteConfirmLine1: "<%= t('admin.vouchers.js.delete_confirm_line1', '- Data voucher batch ini akan dihapus dari sistem.') %>",
+    deleteConfirmLine2: "<%= t('admin.vouchers.js.delete_confirm_line2', '- Ini TIDAK menghapus user Hotspot yang sudah terbuat di MikroTik.') %>",
+    deleteConfirmContinue: "<%= t('admin.vouchers.js.delete_confirm_continue', 'Lanjutkan?') %>",
+    deleteFailed: "<%= t('admin.vouchers.js.delete_failed', 'Gagal menghapus batch') %>",
+    deleteSuccessPrefix: "<%= t('admin.vouchers.js.delete_success_prefix', 'Batch') %>",
+    deleteSuccessSuffix: "<%= t('admin.vouchers.js.delete_success_suffix', 'berhasil dihapus.') %>",
+    deletedVouchersPrefix: "<%= t('admin.vouchers.js.deleted_vouchers_prefix', 'Vouchers terhapus:') %>",
+    usedPrefix: "<%= t('admin.vouchers.js.used_prefix', 'Terpakai:') %>",
+    templateSaved: "<%= t('admin.vouchers.template.saved', 'Template tersimpan.') %>",
+    templateSaveFailed: "<%= t('admin.vouchers.template.save_failed', 'Gagal menyimpan template') %>"
+  };
+
+  function openModal(id){ document.getElementById(id)?.classList.add('show'); }
+  function closeModal(id){ document.getElementById(id)?.classList.remove('show'); }
+
+  function applyTemplatePreset(preset) {
+    const headerEl = document.getElementById('tpl_header');
+    const rowEl = document.getElementById('tpl_row');
+    const footerEl = document.getElementById('tpl_footer');
+    if (!headerEl || !rowEl || !footerEl) return;
+
+    const presets = {
+      empty: { header: '', row: '', footer: '' },
+      simple: {
+        header: `<style>\n@page{size:A4;margin:6mm}\n*{box-sizing:border-box}\nbody{margin:0;font-family:Arial,sans-serif;color:#0f172a}\n.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}\n.card{border:1.5px solid #334155;border-radius:10px;padding:8px 8px 22px;min-height:110px;position:relative;break-inside:avoid}\n.hd{font-weight:800;font-size:11px}\n.code{font-weight:900;font-size:22px;letter-spacing:2px;margin-top:6px;font-family:Consolas,monospace}\n.meta{font-size:10px;color:#334155;margin-top:4px}\n.wa{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);font-size:9.5px;color:#334155;white-space:nowrap}\n</style>\n<div class="grid">`,
+        row: `<div class="card">\n  <div class="hd">%company%</div>\n  <div class="meta">%profile% • %validityText% • %currency% %priceText%</div>\n  <div class="code">%username%</div>\n  <div class="meta">%password%</div>\n  <div class="wa">WA: %phone%</div>\n</div>`,
+        footer: `</div>`
+      },
+      mks: {
+        header: `<style>\n@page{size:A4;margin:6mm}\n*{box-sizing:border-box}\nbody{margin:0;font-family:Arial,sans-serif;color:#0f172a}\n.v-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}\n.vc{border:1px solid #0f172a;border-radius:10px;min-height:110px;padding:8px;position:relative;break-inside:avoid;overflow:hidden}\n.vc:before{content:\"\";position:absolute;inset:0;background:linear-gradient(120deg,rgba(59,130,246,.03),rgba(16,185,129,.025))}\n.vc>*{position:relative}\n.vh{font-weight:900;font-size:11px;letter-spacing:.2px}\n.vp{position:absolute;top:8px;right:8px;font-size:10.5px;font-weight:800;background:rgba(16,185,129,.16);border:1px solid rgba(16,185,129,.35);padding:2px 7px;border-radius:999px}\n.vm{font-size:10px;color:#334155;margin-top:6px}\n.vu{font-weight:950;font-size:18px;letter-spacing:1px;margin-top:8px;font-family:Consolas,monospace}\n.vf{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);font-size:9.5px;color:#334155;white-space:nowrap}\n</style>\n<div class="v-grid">`,
+        row: `<div class="vc">\n  <div class="vh">%company%</div>\n  <div class="vp">%currency% %priceText%</div>\n  <div class="vm">%profile% • %validityText%</div>\n  <div class="vu">%credential%</div>\n  <div class="vf">WA: %phone%</div>\n</div>`,
+        footer: `</div>`
+      }
+    };
+
+    const p = presets[preset];
+    if (!p) return;
+    headerEl.value = p.header;
+    rowEl.value = p.row;
+    footerEl.value = p.footer;
+  }
+
+  function getRouterId() {
+    const v = document.getElementById('global-router-id')?.value;
+    return v ? encodeURIComponent(v) : '';
+  }
+
+  function parseMikhmonOnLogin(script) {
+    if (!script) return null;
+    const m = String(script).match(/\",rem,.*?,(.*?),(.*?),.*?\"/);
+    if (!m) return null;
+    const validity = String(m[1] || '').trim();
+    const price = Number(String(m[2] || '').replace(/[^\d]/g, '')) || 0;
+    return { validity, price };
+  }
+
+  let profilesCache = [];
+
+  async function loadProfiles() {
+    const routerId = getRouterId();
+    const url = routerId ? `/admin/api/mikrotik/hotspot-user-profiles?routerId=${routerId}` : `/admin/api/mikrotik/hotspot-user-profiles`;
+    const res = await fetch(url);
+    const data = await res.json();
+    profilesCache = Array.isArray(data) ? data : [];
+
+    const filtered = profilesCache
+      .map(p => ({ raw: p, meta: parseMikhmonOnLogin(p.onLogin || p['on-login']) }))
+      .filter(x => x.meta && x.meta.validity);
+
+    const sel = document.getElementById('profileName');
+    sel.innerHTML = '';
+    if (filtered.length === 0) {
+      sel.innerHTML = '<option value="">Tidak ada profile dengan harga/durasi (Mikhmon)</option>';
+      document.getElementById('profileHint').innerText = '';
+      return;
+    }
+    sel.insertAdjacentHTML('beforeend', '<option value="">-- Pilih Profile --</option>');
+    for (const x of filtered) {
+      const label = `${x.raw.name} (Rp ${Number(x.meta.price || 0).toLocaleString('id-ID')} • ${x.meta.validity})`;
+      sel.insertAdjacentHTML('beforeend', `<option value="${x.raw.name}">${label}</option>`);
+    }
+    document.getElementById('profileHint').innerText = '';
+  }
+
+  (function initPrintStyle() {
+    const ps = document.getElementById('print_style');
+    if (!ps) return;
+    const current = String(ps.value || 'cards');
+    ps.value = current || 'cards';
+  })();
+
+  function onProfileChanged() {
+    const name = document.getElementById('profileName')?.value;
+    const raw = profilesCache.find(p => p.name === name);
+    const meta = raw ? parseMikhmonOnLogin(raw.onLogin || raw['on-login']) : null;
+    if (!meta) return document.getElementById('profileHint').innerText = '';
+    document.getElementById('profileHint').innerText = `${I18N.profilePricePrefix} Rp ${Number(meta.price||0).toLocaleString('id-ID')} • ${I18N.profileDurationPrefix} ${meta.validity}`;
+    const priceEl = document.getElementById('price');
+    if (priceEl && (priceEl.value === '' || Number(priceEl.value) === 0)) {
+      priceEl.value = Number(meta.price || 0) ? String(Number(meta.price || 0)) : '';
+    }
+  }
+
+  function onModeChanged() {
+    const mode = document.getElementById('mode')?.value;
+    const hint = document.getElementById('modeHint');
+    if (mode === 'voucher') {
+      hint.innerText = I18N.modeVoucherHint;
+    } else {
+      hint.innerText = I18N.modeMemberHint;
+    }
+  }
+
+  async function createBatch() {
+    const profile = document.getElementById('profileName')?.value;
+    const qty = Number(document.getElementById('qty')?.value || 0);
+    const codeLength = Number(document.getElementById('codeLength')?.value || 6);
+    const prefix = String(document.getElementById('prefix')?.value || '').trim();
+    const mode = document.getElementById('mode')?.value || 'voucher';
+    const charset = document.getElementById('charset')?.value || 'numbers';
+    const price = document.getElementById('price')?.value;
+
+    if (!profile) return alert(I18N.chooseProfileFirst);
+    if (!qty || qty < 1) return alert(I18N.invalidQty);
+
+    const routerId = getRouterId();
+    const url = routerId ? `/admin/api/vouchers/batches?routerId=${routerId}` : `/admin/api/vouchers/batches`;
+    const btn = document.getElementById('btnCreate');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> ' + I18N.processing;
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profile, qty, codeLength, prefix, mode, charset, price })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || I18N.createFailed);
+      await reloadBatches();
+      alert(`${I18N.batchCreatedPrefix} #${data.batchId} ${I18N.batchCreatedSuffix}`);
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-magic"></i> ' + I18N.createBtn;
+    }
+  }
+
+  async function reloadBatches() {
+    const routerId = getRouterId();
+    const url = routerId ? `/admin/api/vouchers/batches?routerId=${routerId}` : `/admin/api/vouchers/batches`;
+    const res = await fetch(url);
+    const batches = await res.json();
+    const list = document.getElementById('batches-list');
+    if (!Array.isArray(batches) || batches.length === 0) {
+      list.innerHTML = '<tr><td colspan="8" class="text-center text-muted">' + I18N.noBatches + '</td></tr>';
+      updateStats([]);
+      return;
+    }
+    list.innerHTML = batches.map(b => {
+      const status = String(b.status || '-');
+      const stClass = status === 'ready' ? 's' : (status === 'failed' ? 'd' : (status === 'partial' ? 'w' : 'w'));
+      const created = b.created_at ? new Date(b.created_at).toLocaleString('id-ID') : '-';
+      const qty = `${b.qty_created || 0}/${b.qty_total || 0}`;
+      const used = `${b.used_count || 0}/${b.vouchers_count || 0}`;
+      const routerName = b.router_name || I18N.defaultRouterName;
+      const selectedStyle = String(document.getElementById('print_style')?.value || 'cards');
+      const printHref = selectedStyle === 'cards'
+        ? `/admin/vouchers/batches/${b.id}/print`
+        : `/admin/vouchers/batches/${b.id}/print?style=${encodeURIComponent(selectedStyle)}`;
+      return `
+        <tr>
+          <td class="mono">#${b.id}</td>
+          <td>${routerName}</td>
+          <td>${b.profile_name || '-'}</td>
+          <td>${qty}</td>
+          <td>${used}</td>
+          <td><span class="badge ${stClass}">${status}</span></td>
+          <td>${created}</td>
+          <td style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn btn-g btn-sm" onclick="openDetail(${b.id})"><i class="bi bi-eye"></i> ${I18N.actionDetail}</button>
+            <button class="btn btn-g btn-sm" onclick="syncBatch(${b.id})"><i class="bi bi-arrow-repeat"></i> ${I18N.actionSync}</button>
+            <a class="btn btn-g btn-sm" target="_blank" href="${printHref}"><i class="bi bi-printer"></i> ${I18N.actionPrint}</a>
+            <a class="btn btn-g btn-sm" href="/admin/vouchers/batches/${b.id}/export.csv"><i class="bi bi-filetype-csv"></i> ${I18N.actionCsv}</a>
+            <button class="btn btn-g btn-sm" onclick="deleteBatch(${b.id}, '${status}')"><i class="bi bi-trash"></i> ${I18N.actionDelete}</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+    updateStats(batches);
+  }
+
+  async function saveVoucherTemplate() {
+    const use_template = document.getElementById('tpl_use')?.value === '1';
+    const default_style = document.getElementById('tpl_default_style')?.value || '';
+    const header = document.getElementById('tpl_header')?.value || '';
+    const row = document.getElementById('tpl_row')?.value || '';
+    const footer = document.getElementById('tpl_footer')?.value || '';
+    try {
+      const res = await fetch('/admin/api/vouchers/template', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ use_template, default_style, header, row, footer })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || I18N.templateSaveFailed);
+      alert(I18N.templateSaved);
+      closeModal('voucherTemplateModal');
+      const ps = document.getElementById('print_style');
+      if (ps) ps.value = default_style || 'cards';
+      await reloadBatches();
+    } catch (e) {
+      alert(e.message);
+    }
+  }
+
+  function onPrintStyleChanged() {
+    reloadBatches();
+  }
+
+  function updateStats(batches) {
+    const totalBatches = batches.length;
+    const totalV = batches.reduce((a, b) => a + (Number(b.vouchers_count || 0)), 0);
+    const used = batches.reduce((a, b) => a + (Number(b.used_count || 0)), 0);
+    const unused = Math.max(0, totalV - used);
+    document.getElementById('stat-batches').innerText = totalBatches;
+    document.getElementById('stat-vouchers').innerText = totalV;
+    document.getElementById('stat-used').innerText = used;
+    document.getElementById('stat-unused').innerText = unused;
+  }
+
+  async function openDetail(id) {
+    const routerId = getRouterId();
+    const url = routerId ? `/admin/api/vouchers/batches/${id}?routerId=${routerId}` : `/admin/api/vouchers/batches/${id}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (!res.ok) return alert(data.error || I18N.detailLoadFailed);
+    document.getElementById('batchDetailTitle').innerText = `${I18N.detailTitlePrefix} #${data.batch.id}`;
+    const meta = document.getElementById('batchDetailMeta');
+    meta.innerHTML = '';
+    meta.insertAdjacentHTML('beforeend', `<span class="pill"><i class="bi bi-hdd-network"></i> <b>${data.batch.router_name || I18N.defaultRouterName}</b></span>`);
+    meta.insertAdjacentHTML('beforeend', `<span class="pill"><i class="bi bi-ticket"></i> <b>${data.batch.profile_name}</b></span>`);
+    meta.insertAdjacentHTML('beforeend', `<span class="pill"><i class="bi bi-clock"></i> <b>${data.batch.validity || '-'}</b></span>`);
+    meta.insertAdjacentHTML('beforeend', `<span class="pill"><i class="bi bi-cash-coin"></i> <b>Rp ${Number(data.batch.price||0).toLocaleString('id-ID')}</b></span>`);
+    meta.insertAdjacentHTML('beforeend', `<span class="pill"><i class="bi bi-collection"></i> <b>${data.batch.qty_created || 0}/${data.batch.qty_total || 0}</b></span>`);
+
+    const list = document.getElementById('batchDetailList');
+    const items = Array.isArray(data.vouchers) ? data.vouchers : [];
+    if (items.length === 0) {
+      list.innerHTML = '<tr><td colspan="5" class="text-center text-muted">' + I18N.noVouchers + '</td></tr>';
+      openModal('batchDetailModal');
+      return;
+    }
+    list.innerHTML = items.map(v => {
+      const st = String(v.status || '-');
+      const usedAt = v.used_at ? new Date(v.used_at).toLocaleString('id-ID') : '-';
+      const seenAt = v.last_seen_at ? new Date(v.last_seen_at).toLocaleString('id-ID') : '-';
+      const seen = (v.last_seen_uptime || v.last_seen_comment) ? `${(v.last_seen_uptime || '-')}${v.last_seen_comment ? ' • ' + v.last_seen_comment : ''}` : '-';
+      const stClass = st === 'used' ? 's' : (st === 'created' ? 'w' : (st === 'missing' ? 'd' : 'w'));
+      return `
+        <tr>
+          <td class="mono">${v.code}</td>
+          <td class="mono">${v.password}</td>
+          <td><span class="badge ${stClass}">${st}</span></td>
+          <td>${usedAt}</td>
+          <td><div class="hint">${seenAt}</div><div class="hint">${seen}</div></td>
+        </tr>
+      `;
+    }).join('');
+    openModal('batchDetailModal');
+  }
+
+  async function syncBatch(id) {
+    const routerId = getRouterId();
+    const url = routerId ? `/admin/api/vouchers/batches/${id}/sync?routerId=${routerId}` : `/admin/api/vouchers/batches/${id}/sync`;
+    try {
+      const res = await fetch(url, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || I18N.syncFailed);
+      await reloadBatches();
+      alert(`${I18N.syncDonePrefix} ${data.usedNew || 0}, ${I18N.syncDoneMiddle} ${data.missing || 0}`);
+    } catch (e) {
+      alert(e.message);
+    }
+  }
+
+  async function deleteBatch(id, status) {
+    if (String(status) === 'creating') {
+      return alert(I18N.deleteCreatingWarn);
+    }
+    const ok = confirm(
+      `${I18N.deleteConfirmPrefix} #${id}?\n\n` +
+      `${I18N.deleteConfirmLine1}\n` +
+      `${I18N.deleteConfirmLine2}\n\n` +
+      `${I18N.deleteConfirmContinue}`
+    );
+    if (!ok) return;
+    const routerId = getRouterId();
+    const url = routerId ? `/admin/api/vouchers/batches/${id}/delete?routerId=${routerId}` : `/admin/api/vouchers/batches/${id}/delete`;
+    try {
+      const res = await fetch(url, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || I18N.deleteFailed);
+      await reloadBatches();
+      alert(`${I18N.deleteSuccessPrefix} #${id} ${I18N.deleteSuccessSuffix} ${I18N.deletedVouchersPrefix} ${data.deletedVouchers || 0}. ${I18N.usedPrefix} ${data.usedCount || 0}.`);
+    } catch (e) {
+      alert(e.message);
+    }
+  }
+
+  async function reloadAll() {
+    await loadProfiles();
+    await reloadBatches();
+  }
+
+  reloadAll();
+  setInterval(() => reloadBatches(), 12000);
+</script>
+</body>
+</html>

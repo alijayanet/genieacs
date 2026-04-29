@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="<%= lang || 'id' %>">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title><%= t('admin.agent_reports.title', 'Laporan Agent') %> | <%= company %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+<%- include('partials/sidebar', { activePage: 'agents_reports', company }) %>
+
+<div class="mw">
+  <div class="topbar">
+    <div class="tb-title">
+      <button class="hb-menu" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+      <i class="bi bi-journal-text"></i>
+      <span><%= t('admin.agent_reports.title', 'Laporan Agent') %></span>
+    </div>
+    <div class="tb-right">
+      <span class="adm-badge"><i class="bi bi-person-fill"></i> <%= (typeof session !== 'undefined' && session.isCashier) ? t('admin.role.cashier', 'Kasir') : t('admin.role.admin', 'Admin') %></span>
+      <a href="/admin/agents" class="btn btn-g btn-sm"><i class="bi bi-arrow-left"></i></a>
+    </div>
+  </div>
+
+  <div class="page">
+    <% if (msg) { %>
+      <div class="alert alert-<%= msg.type==='error'?'d':'s' %>"><%= msg.text %></div>
+    <% } %>
+
+    <div class="card">
+      <div class="card-hd">
+        <h6><i class="bi bi-funnel"></i> <%= t('common.filter', 'Filter') %></h6>
+      </div>
+      <div class="card-bd" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <select class="fs" style="min-width:220px" onchange="location='/admin/agents/reports?agentId='+encodeURIComponent(this.value)">
+          <option value=""><%= t('admin.agent_reports.filter.all_agents', 'Semua Agent') %></option>
+          <% (agents || []).forEach(a => { %>
+            <option value="<%= a.id %>" <%= agentId && Number(agentId)===Number(a.id) ? 'selected' : '' %>><%= a.name %> (@<%= a.username %>)</option>
+          <% }) %>
+        </select>
+        <span class="badge bm"><%= (txs || []).length %> <%= t('admin.agent_reports.transactions_suffix', 'transaksi') %></span>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-hd">
+        <h6><i class="bi bi-list-ul"></i> <%= t('admin.agent_reports.history', 'Riwayat Transaksi') %></h6>
+      </div>
+      <div class="tbl-wrap">
+        <table class="dtbl">
+          <thead>
+            <tr>
+              <th><%= t('admin.agent_reports.table.time', 'Waktu') %></th>
+              <th><%= t('admin.agent_reports.table.agent', 'Agent') %></th>
+              <th><%= t('admin.agent_reports.table.type', 'Jenis') %></th>
+              <th><%= t('admin.agent_reports.table.detail', 'Detail') %></th>
+              <th class="num"><%= t('admin.agent_reports.table.deduct', 'Potong Saldo') %></th>
+              <th class="num"><%= t('admin.agent_reports.table.sell', 'Harga Jual') %></th>
+              <th class="num"><%= t('admin.agent_reports.table.fee', 'Fee/Profit') %></th>
+              <th class="num"><%= t('admin.agent_reports.table.balance_after', 'Saldo Akhir') %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!txs || txs.length === 0) { %>
+              <tr><td colspan="8" class="text-center text-muted" style="padding:24px"><%= t('admin.agent_reports.empty', 'Belum ada transaksi.') %></td></tr>
+            <% } else { %>
+              <% txs.forEach(t => { %>
+                <tr>
+                  <td style="font-size:11px;color:var(--muted)"><%= t.created_at ? new Date(t.created_at).toLocaleString((lang || 'id') === 'en' ? 'en-US' : 'id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '-' %></td>
+                  <td class="fw6"><%= t.agent_name %></td>
+                  <td>
+                    <span class="badge <%= t.type==='topup' ? 'bs' : (t.type==='invoice_payment' ? 'bm' : (t.type==='voucher_sale' ? 'bp' : 'bd')) %>">
+                      <%= t.type === 'topup' ? t('admin.agent_reports.type.topup', 'TOPUP') : (t.type === 'invoice_payment' ? t('admin.agent_reports.type.invoice', 'TAGIHAN') : (t.type === 'voucher_sale' ? t('admin.agent_reports.type.voucher', 'VOUCHER') : t('admin.agent_reports.type.adjust', 'ADJUST'))) %>
+                    </span>
+                  </td>
+                  <td style="font-size:12px">
+                    <% if (t.type === 'invoice_payment') { %>
+                      <div class="fw6"><%= t.customer_name || '-' %></div>
+                      <div class="text-muted" style="font-size:11px"><%= t('admin.agent_reports.invoice_prefix', 'INV #') %><%= t.invoice_id %> &bull; Rp <%= Number(t.amount_invoice||0).toLocaleString('id-ID') %></div>
+                    <% } else if (t.type === 'voucher_sale') { %>
+                      <div class="fw6"><%= t.profile_name || '-' %> <span class="text-muted" style="font-size:11px"><%= t.router_name ? '(' + t.router_name + ')' : '' %></span></div>
+                      <div class="text-muted" style="font-size:11px"><code><%= t.voucher_code %></code> / <code><%= t.voucher_password %></code></div>
+                    <% } else { %>
+                      <div class="text-muted"><%= t.note || '-' %></div>
+                    <% } %>
+                  </td>
+                  <td class="num fw6" style="color:var(--danger)">Rp <%= Number(t.amount_buy||0).toLocaleString('id-ID') %></td>
+                  <td class="num">Rp <%= Number(t.amount_sell||0).toLocaleString('id-ID') %></td>
+                  <td class="num" style="color:var(--success)">Rp <%= Number(t.fee||0).toLocaleString('id-ID') %></td>
+                  <td class="num fw6">Rp <%= Number(t.balance_after||0).toLocaleString('id-ID') %></td>
+                </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

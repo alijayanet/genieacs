@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="<%= lang || 'id' %>">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= t('agent.dashboard_title', 'Dashboard Agent') %> - <%= company %></title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0f172a;
+      --panel: rgba(30, 41, 59, 0.92);
+      --panel2: rgba(15, 23, 42, 0.55);
+      --border:#334155;
+      --muted:#94a3b8;
+      --text:#e2e8f0;
+      --brand1:#6366f1;
+      --brand2:#3b82f6;
+      --danger:#ef4444;
+      --success:#22c55e;
+      --warn:#f59e0b;
+    }
+
+    body{
+      background: radial-gradient(1200px 600px at 10% 0%, rgba(99, 102, 241, 0.22) 0%, rgba(15, 23, 42, 0) 60%),
+        radial-gradient(900px 450px at 100% 0%, rgba(59, 130, 246, 0.18) 0%, rgba(15, 23, 42, 0) 55%),
+        var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, sans-serif;
+      padding-bottom: calc(110px + env(safe-area-inset-bottom));
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .topbar{
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(15, 23, 42, 0.82);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .topbar .inner{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 14px 16px;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width: 0;
+    }
+
+    .brand .icon{
+      width:42px;height:42px;border-radius:14px;
+      display:flex;align-items:center;justify-content:center;
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      color: #c7d2fe;
+      flex: 0 0 auto;
+    }
+
+    .brand .title{
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      font-size: 14px;
+      line-height: 1.1;
+      margin:0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .brand .sub{
+      font-size: 11px;
+      color: var(--muted);
+      margin:0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .btn-logout{
+      background: transparent;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-weight: 700;
+    }
+
+    .wrap{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 14px 16px;
+    }
+
+    .cardx{
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 22px 60px rgba(0, 0, 0, 0.45);
+      overflow: hidden;
+    }
+
+    .cardx + .cardx{
+      margin-top: 14px;
+    }
+
+    .cardx .hd{
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+    }
+
+    .cardx .hd h6{
+      margin:0;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .cardx .bd{
+      padding: 14px 16px;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.45);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      color: var(--text);
+      font-weight: 700;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .kpi{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .kpi .k{
+      background: var(--panel2);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      border-radius: 16px;
+      padding: 12px;
+    }
+    .k .lbl{ font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+    .k .val{ font-size: 16px; font-weight: 900; letter-spacing: -0.02em; }
+
+    .form-control, .form-select{
+      background: rgba(15, 23, 42, 0.55);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px 12px;
+    }
+    .form-control:focus, .form-select:focus{
+      background: rgba(15, 23, 42, 0.55);
+      color: var(--text);
+      border-color: rgba(99, 102, 241, 0.75);
+      box-shadow: none;
+    }
+    .form-control::placeholder{ color: rgba(148,163,184,0.75); }
+
+    .btn-action{
+      background: linear-gradient(135deg, var(--brand1) 0%, var(--brand2) 100%);
+      border: none;
+      color: #fff;
+      border-radius: 14px;
+      padding: 12px 12px;
+      font-weight: 900;
+      box-shadow: 0 14px 28px rgba(99, 102, 241, 0.22);
+    }
+
+    .btn-ghost{
+      background: transparent;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px 12px;
+      font-weight: 800;
+    }
+
+    .btn-mini{
+      background: transparent;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .listx{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .itemx{
+      background: var(--panel2);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      border-radius: 16px;
+      padding: 12px;
+    }
+    .itemx .top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap: 10px;
+    }
+    .itemx .t1{ font-weight: 900; }
+    .itemx .t2{ font-size: 12px; color: var(--muted); }
+    .badgey{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 900;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      background: rgba(15, 23, 42, 0.55);
+    }
+    .badgey.d{ color: #fecaca; border-color: rgba(239,68,68,0.35); background: rgba(239,68,68,0.10); }
+    .badgey.s{ color: #bbf7d0; border-color: rgba(34,197,94,0.35); background: rgba(34,197,94,0.10); }
+    .badgey.w{ color: #fde68a; border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.10); }
+
+    .tbl{
+      width:100%;
+      border-collapse: collapse;
+    }
+    .tbl td{
+      border-top: 1px solid rgba(148, 163, 184, 0.12);
+      padding: 10px 0;
+      font-size: 12px;
+      vertical-align: top;
+    }
+    .tbl td:first-child{ color: var(--muted); width: 120px; padding-right: 12px; }
+
+    .tx-actions{
+      margin-top: 10px;
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .bottom-nav{
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 30;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(148, 163, 184, 0.14);
+      padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+    }
+    .bn-wrap{
+      max-width: 980px;
+      margin: 0 auto;
+      display:flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .bn-item{
+      flex: 1 1 0;
+      background: transparent;
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      border-radius: 16px;
+      padding: 10px 8px;
+      color: var(--muted);
+      text-decoration: none;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 8px;
+      font-weight: 900;
+      font-size: 12px;
+      min-height: 44px;
+    }
+    .bn-item i{ font-size: 16px; color: var(--muted); }
+    .bn-item.active{
+      border-color: rgba(99, 102, 241, 0.55);
+      background: rgba(99, 102, 241, 0.12);
+      color: #c7d2fe;
+    }
+    .bn-item.active i{ color: #c7d2fe; }
+
+    .vgrid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    @media (min-width: 720px){
+      .vgrid{ grid-template-columns: 1fr 1fr; }
+    }
+    .vcard{
+      background: var(--panel2);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      border-radius: 16px;
+      padding: 12px;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+    }
+    .vcard:active{ transform: scale(0.99); }
+    .vcard.sel{
+      background: rgba(99, 102, 241, 0.14);
+      border-color: rgba(99, 102, 241, 0.55);
+    }
+    .vcard .t{
+      display:flex;
+      justify-content:space-between;
+      gap: 10px;
+      align-items:flex-start;
+    }
+    .vcard .nm{
+      font-weight: 900;
+      letter-spacing: -0.01em;
+    }
+    .vcard .sm{
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .vcard .pr{
+      text-align:right;
+      min-width: 120px;
+    }
+    .vcard .pr .sell{
+      font-weight: 900;
+    }
+    .vcard .meta{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 900;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      background: rgba(15, 23, 42, 0.55);
+      color: var(--text);
+    }
+    .chip.g{ border-color: rgba(34,197,94,0.35); background: rgba(34,197,94,0.10); color:#bbf7d0; }
+    .chip.r{ border-color: rgba(239,68,68,0.35); background: rgba(239,68,68,0.10); color:#fecaca; }
+    .chip.b{ border-color: rgba(99,102,241,0.35); background: rgba(99,102,241,0.10); color:#c7d2fe; }
+
+    @media (min-width: 900px){
+      .kpi{ grid-template-columns: 1fr 1fr 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="inner">
+      <div class="brand">
+        <div class="icon"><i class="bi bi-person-badge"></i></div>
+        <div style="min-width:0">
+          <p class="title"><%= t('admin.nav.agents', 'Agent') %>: <%= agent?.name || '-' %></p>
+          <p class="sub"><%= company %></p>
+        </div>
+      </div>
+      <a href="/agent/logout" class="btn-logout"><i class="bi bi-box-arrow-right"></i></a>
+    </div>
+  </div>
+
+  <div class="wrap" id="section-top">
+    <% if (msg) { %>
+      <div class="alert alert-<%= msg.type==='error' ? 'danger' : 'success' %> py-2 rounded-4" style="background: rgba(15,23,42,0.55); border:1px solid rgba(148,163,184,0.14); color: var(--text)">
+        <%= msg.text %>
+      </div>
+    <% } %>
+
+    <% if (receipt) { %>
+      <div class="cardx">
+        <div class="hd">
+          <h6><i class="bi bi-receipt"></i> <%= t('agent.receipt_last', 'Struk Terakhir') %></h6>
+          <span class="pill"><i class="bi bi-clock"></i> <%= t('agent.new', 'Baru') %></span>
+        </div>
+        <div class="bd">
+          <% if (receipt.type === 'invoice') { %>
+            <table class="tbl">
+              <tr><td><%= t('agent.time', 'Waktu') %></td><td class="fw-bold"><%= receipt.created_at ? new Date(receipt.created_at).toLocaleString('id-ID') : '-' %></td></tr>
+              <tr><td><%= t('agent.customer', 'Pelanggan') %></td><td class="fw-bold"><%= receipt.customer_name || '-' %> <span style="color:var(--muted);font-size:12px"><%= receipt.customer_phone ? '('+receipt.customer_phone+')' : '' %></span></td></tr>
+              <tr><td><%= t('agent.invoice', 'Invoice') %></td><td>#<%= receipt.invoice_id %> • <%= t('agent.period', 'Periode') %> <%= receipt.period %></td></tr>
+              <tr><td><%= t('agent.amount', 'Nominal') %></td><td class="fw-bold">Rp <%= Number(receipt.amount||0).toLocaleString('id-ID') %></td></tr>
+              <tr><td><%= t('agent.cut_balance', 'Potong Saldo') %></td><td class="fw-bold" style="color:var(--danger)">Rp <%= Number(receipt.cost||0).toLocaleString('id-ID') %></td></tr>
+              <tr><td><%= t('agent.fee', 'Fee') %></td><td class="fw-bold" style="color:var(--success)">Rp <%= Number(receipt.fee||0).toLocaleString('id-ID') %></td></tr>
+              <tr><td><%= t('agent.whatsapp', 'WhatsApp') %></td><td><span class="badgey <%= receipt.waSent ? 's' : 'w' %>"><i class="bi bi-whatsapp"></i> <%= receipt.waSent ? t('agent.wa_sent','Terkirim') : t('agent.wa_not_sent','Tidak terkirim') %></span></td></tr>
+            </table>
+            <div class="d-flex gap-2 mt-3" style="flex-wrap:wrap">
+              <% if (receipt.tx_id) { %>
+                <a class="btn-mini" href="/agent/print/tx/<%= receipt.tx_id %>" target="_blank" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px">
+                  <i class="bi bi-printer"></i> <%= t('agent.print_thermal', 'Print Thermal') %>
+                </a>
+              <% } %>
+              <button type="button" class="btn-mini" data-copy="PEMBAYARAN TAGIHAN\nWaktu: <%= receipt.created_at ? new Date(receipt.created_at).toLocaleString('id-ID') : '' %>\nPelanggan: <%= receipt.customer_name || '-' %>\nInvoice: #<%= receipt.invoice_id %> (<%= receipt.period %>)\nNominal: Rp <%= Number(receipt.amount||0).toLocaleString('id-ID') %>">
+                <i class="bi bi-clipboard"></i> <%= t('agent.copy_all', 'Copy Semua') %>
+              </button>
+            </div>
+          <% } else if (receipt.type === 'voucher') { %>
+            <table class="tbl">
+              <tr><td><%= t('agent.time', 'Waktu') %></td><td class="fw-bold"><%= receipt.created_at ? new Date(receipt.created_at).toLocaleString('id-ID') : '-' %></td></tr>
+              <tr><td><%= t('agent.package', 'Paket') %></td><td class="fw-bold"><%= receipt.profile %></td></tr>
+              <tr><td><%= t('agent.validity', 'Masa Aktif') %></td><td><%= receipt.validity || '-' %></td></tr>
+              <tr><td><%= t('agent.user', 'User') %></td><td class="fw-bold"><code id="rc-code"><%= receipt.code %></code></td></tr>
+              <tr><td><%= t('agent.pass', 'Pass') %></td><td class="fw-bold"><code id="rc-pass"><%= receipt.password %></code></td></tr>
+              <tr><td><%= t('agent.price', 'Harga') %></td><td class="fw-bold">Rp <%= Number(receipt.sell_price||0).toLocaleString('id-ID') %></td></tr>
+              <tr><td><%= t('agent.cut_balance', 'Potong Saldo') %></td><td class="fw-bold" style="color:var(--danger)">Rp <%= Number(receipt.buy_price||0).toLocaleString('id-ID') %></td></tr>
+              <tr><td><%= t('agent.profit', 'Profit') %></td><td class="fw-bold" style="color:var(--success)">Rp <%= Math.max(0, Number(receipt.sell_price||0) - Number(receipt.buy_price||0)).toLocaleString('id-ID') %></td></tr>
+              <tr><td><%= t('agent.whatsapp', 'WhatsApp') %></td><td><span class="badgey <%= receipt.waSent ? 's' : 'w' %>"><i class="bi bi-whatsapp"></i> <%= receipt.waSent ? t('agent.wa_sent','Terkirim') : t('agent.wa_not_sent','Tidak terkirim') %></span></td></tr>
+            </table>
+            <div class="d-flex gap-2 mt-3" style="flex-wrap:wrap">
+              <% if (receipt.tx_id) { %>
+                <a class="btn-mini" href="/agent/print/tx/<%= receipt.tx_id %>" target="_blank" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px">
+                  <i class="bi bi-printer"></i> <%= t('agent.print_thermal', 'Print Thermal') %>
+                </a>
+              <% } %>
+              <button type="button" class="btn-mini" data-copy="VOUCHER HOTSPOT\nWaktu: <%= receipt.created_at ? new Date(receipt.created_at).toLocaleString('id-ID') : '' %>\nPaket: <%= receipt.profile %><%= receipt.validity ? ' (' + receipt.validity + ')' : '' %>\nUser: <%= receipt.code %>\nPass: <%= receipt.password %>\nHarga: Rp <%= Number(receipt.sell_price||0).toLocaleString('id-ID') %>">
+                <i class="bi bi-clipboard"></i> <%= t('agent.copy_all', 'Copy Semua') %>
+              </button>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    <% } %>
+
+    <div class="cardx">
+      <div class="hd">
+        <h6><i class="bi bi-speedometer2"></i> <%= t('agent.summary', 'Ringkasan') %></h6>
+        <span class="pill"><i class="bi bi-shield-check"></i> <%= t('agent.balance', 'Saldo') %></span>
+      </div>
+      <div class="bd">
+        <div class="kpi">
+          <div class="k">
+            <div class="lbl"><%= t('agent.balance', 'Saldo') %></div>
+            <div class="val">Rp <%= Number(agent?.balance || 0).toLocaleString('id-ID') %></div>
+          </div>
+          <div class="k">
+            <div class="lbl"><%= t('agent.billing_fee', 'Fee Tagihan') %></div>
+            <div class="val">Rp <%= Number(agent?.billing_fee || 0).toLocaleString('id-ID') %></div>
+          </div>
+          <div class="k">
+            <div class="lbl"><%= t('agent.account_status', 'Status Akun') %></div>
+            <div class="val"><%= agent?.is_active ? t('agent.active','Aktif') : t('agent.inactive','Nonaktif') %></div>
+          </div>
+          <div class="k">
+            <div class="lbl"><%= t('agent.last_tx', 'Transaksi Terakhir') %></div>
+            <div class="val"><%= (txs && txs.length) ? '#' + txs[0].id : '-' %></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cardx" id="section-bill">
+      <div class="hd">
+        <h6><i class="bi bi-receipt"></i> <%= t('agent.pay_invoice', 'Bayar Tagihan') %></h6>
+        <span class="pill"><i class="bi bi-search"></i> <%= t('agent.search', 'Cari') %></span>
+      </div>
+      <div class="bd">
+        <form method="GET" action="/agent" class="d-flex gap-2" style="align-items:stretch">
+          <input type="text" name="q" class="form-control" value="<%= q || '' %>" placeholder="<%= t('agent.search_placeholder', 'No HP / PPPoE / Tag / ID') %>">
+          <button class="btn-ghost" type="submit" style="min-width:84px"><i class="bi bi-search"></i></button>
+        </form>
+
+        <% if (q && (!invoices || invoices.length === 0)) { %>
+          <div class="mt-3 text-muted" style="color:var(--muted)!important;font-size:12px"><%= t('agent.no_unpaid_prefix', 'Tidak ada tagihan belum bayar untuk pencarian:') %> <span class="fw-bold"><%= q %></span></div>
+        <% } %>
+
+        <% if (invoices && invoices.length > 0) { %>
+          <div class="listx mt-3">
+            <% invoices.forEach(inv => { %>
+              <div class="itemx">
+                <div class="top">
+                  <div style="min-width:0">
+                    <div class="t1"><%= inv.package_name || 'Internet' %> • <%= inv.period_month %>/<%= inv.period_year %></div>
+                    <div class="t2"><%= inv.customer_name || '-' %> <%= inv.customer_phone ? '('+inv.customer_phone+')' : '' %></div>
+                  </div>
+                  <div class="text-end">
+                    <div class="fw-bold">Rp <%= Number(inv.amount||0).toLocaleString('id-ID') %></div>
+                    <span class="badgey d"><i class="bi bi-exclamation-circle"></i> <%= t('agent.unpaid_badge', 'BELUM BAYAR') %></span>
+                  </div>
+                </div>
+
+                <form method="POST" action="/agent/pay-invoice" class="mt-3">
+                  <input type="hidden" name="invoice_id" value="<%= inv.id %>">
+                  <div class="d-grid gap-2">
+                    <input type="text" name="note" class="form-control" placeholder="<%= t('agent.note_optional', 'Catatan (opsional)') %>">
+                    <button type="submit" class="btn-action"><i class="bi bi-wallet2 me-2"></i><%= t('agent.process_pay_prefix', 'Proses Bayar') %> (Invoice #<%= inv.id %>)</button>
+                  </div>
+                </form>
+              </div>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <div class="cardx" id="section-voucher">
+      <div class="hd">
+        <h6><i class="bi bi-ticket-perforated"></i> <%= t('agent.sell_voucher', 'Jual Voucher Hotspot') %></h6>
+        <span class="pill"><i class="bi bi-lightning-charge"></i> <%= t('agent.instant', 'Instant') %></span>
+      </div>
+      <div class="bd">
+        <% if (!prices || prices.length === 0) { %>
+          <div class="text-muted" style="color:var(--muted)!important;font-size:12px"><%= t('agent.no_voucher_profiles', 'Belum ada profile voucher untuk agent ini. Minta admin mengatur harga & profile.') %></div>
+        <% } else { %>
+          <form method="POST" action="/agent/sell-voucher" class="d-grid gap-2" id="voucherForm">
+            <input type="hidden" name="price_id" id="priceIdInput" value="">
+            <div class="vgrid" id="voucherGrid">
+              <% prices.forEach(p => { 
+                   const sell = Number(p.sell_price || 0);
+                   const buy = Number(p.buy_price || 0);
+                   const profit = Math.max(0, sell - buy);
+                %>
+                <div class="vcard" role="button" tabindex="0" data-price-id="<%= p.id %>" data-title="<%= (p.profile_name||'') + (p.validity ? ' ('+p.validity+')' : '') %>">
+                  <div class="t">
+                    <div style="min-width:0">
+                      <div class="nm"><%= p.profile_name %><%= p.validity ? ` (${p.validity})` : '' %></div>
+                      <div class="sm"><%= p.router_name ? p.router_name : 'Default Router' %></div>
+                    </div>
+                    <div class="pr">
+                      <div class="sell">Rp <%= sell.toLocaleString('id-ID') %></div>
+                      <div class="sm">Potong Rp <%= buy.toLocaleString('id-ID') %></div>
+                    </div>
+                  </div>
+                  <div class="meta">
+                    <span class="chip b"><i class="bi bi-tag"></i>Jual</span>
+                    <span class="chip r"><i class="bi bi-dash-circle"></i>Potong</span>
+                    <span class="chip g"><i class="bi bi-graph-up-arrow"></i>Profit Rp <%= profit.toLocaleString('id-ID') %></span>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+            <input type="text" name="buyer_phone" class="form-control" placeholder="<%= t('agent.buyer_phone_optional', 'No WhatsApp pembeli (opsional)') %>">
+            <button type="submit" class="btn-action" id="voucherSubmit" disabled style="opacity:.65">
+              <i class="bi bi-plus-circle me-2"></i><span id="voucherBtnText"><%= t('agent.choose_voucher', 'Pilih paket voucher') %></span>
+            </button>
+          </form>
+        <% } %>
+      </div>
+    </div>
+
+    <div class="cardx" id="section-history">
+      <div class="hd">
+        <h6><i class="bi bi-clock-history"></i> <%= t('agent.history_title', 'Riwayat Singkat') %></h6>
+        <span class="pill"><i class="bi bi-list-ul"></i> 40</span>
+      </div>
+      <div class="bd">
+        <% if (!txs || txs.length === 0) { %>
+          <div class="text-muted" style="color:var(--muted)!important;font-size:12px"><%= t('agent.no_transactions', 'Belum ada transaksi.') %></div>
+        <% } else { %>
+          <div class="listx">
+            <% txs.forEach(t => { %>
+              <div class="itemx">
+                <div class="top">
+                  <div style="min-width:0">
+                    <div class="t1">
+                      <% if (t.type === 'topup') { %>
+                        <%= t('agent.tx_type.topup', 'TOPUP') %>
+                      <% } else if (t.type === 'invoice_payment') { %>
+                        <%= t('agent.tx_type.invoice', 'TAGIHAN') %>
+                      <% } else if (t.type === 'voucher_sale') { %>
+                        <%= t('agent.tx_type.voucher', 'VOUCHER') %>
+                      <% } else { %>
+                        <%= t('agent.tx_type.generic', 'TRANSAKSI') %>
+                      <% } %>
+                      <span style="color:var(--muted);font-size:11px">• <%= t.created_at ? new Date(t.created_at).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '-' %></span>
+                    </div>
+                    <div class="t2">
+                      <% if (t.type === 'invoice_payment') { %>
+                        Invoice #<%= t.invoice_id %> • Rp <%= Number(t.amount_invoice||0).toLocaleString('id-ID') %>
+                      <% } else if (t.type === 'voucher_sale') { %>
+                        <%= t.profile_name %> • <code><%= t.voucher_code %></code>
+                      <% } else { %>
+                        <%= t.note || '-' %>
+                      <% } %>
+                    </div>
+                  </div>
+                  <div class="text-end">
+                    <div class="fw-bold">Rp <%= Number(t.balance_after||0).toLocaleString('id-ID') %></div>
+                    <% if (t.type === 'topup') { %>
+                      <span class="badgey s"><i class="bi bi-plus-circle"></i> +Rp <%= Number(t.amount_buy||0).toLocaleString('id-ID') %></span>
+                    <% } else { %>
+                      <span class="badgey d"><i class="bi bi-dash-circle"></i> -Rp <%= Number(t.amount_buy||0).toLocaleString('id-ID') %></span>
+                    <% } %>
+                  </div>
+                </div>
+                <% if (t.type === 'voucher_sale' || t.type === 'invoice_payment') { %>
+                  <div class="tx-actions">
+                    <a class="btn-mini" href="/agent/print/tx/<%= t.id %>" target="_blank" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px">
+                      <i class="bi bi-printer"></i> <%= t('agent.print_thermal', 'Print Thermal') %>
+                    </a>
+                  </div>
+                <% } %>
+              </div>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <div class="bn-wrap">
+      <a href="#section-top" class="bn-item active" data-scroll="top"><i class="bi bi-house"></i><%= t('agent.nav.home', 'Beranda') %></a>
+      <a href="#section-bill" class="bn-item" data-scroll="bill"><i class="bi bi-receipt"></i><%= t('agent.nav.billing', 'Tagihan') %></a>
+      <a href="#section-voucher" class="bn-item" data-scroll="voucher"><i class="bi bi-ticket-perforated"></i><%= t('agent.nav.voucher', 'Voucher') %></a>
+      <a href="#section-history" class="bn-item" data-scroll="history"><i class="bi bi-clock-history"></i><%= t('agent.nav.history', 'Riwayat') %></a>
+    </div>
+  </nav>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    async function copyText(text) {
+      const value = String(text ?? '');
+      if (!value) return;
+      try {
+        await navigator.clipboard.writeText(value);
+      } catch (e) {
+        const ta = document.createElement('textarea');
+        ta.value = value;
+        ta.style.position = 'fixed';
+        ta.style.left = '-1000px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+      }
+    }
+
+    document.addEventListener('click', async (e) => {
+      const btn = e.target.closest('[data-copy]');
+      if (!btn) return;
+      const text = btn.getAttribute('data-copy');
+      await copyText(text);
+    });
+  </script>
+  <script>
+    (function () {
+      const grid = document.getElementById('voucherGrid');
+      const input = document.getElementById('priceIdInput');
+      const submit = document.getElementById('voucherSubmit');
+      const btnText = document.getElementById('voucherBtnText');
+      if (!grid || !input || !submit || !btnText) return;
+
+      const selectCard = (card) => {
+        const id = card.getAttribute('data-price-id') || '';
+        const title = card.getAttribute('data-title') || 'Voucher';
+        input.value = id;
+        submit.disabled = !id;
+        submit.style.opacity = id ? '1' : '.65';
+        btnText.textContent = id ? ("<%= t('agent.create_voucher_prefix', 'Buat Voucher - ') %>" + title) : "<%= t('agent.choose_voucher', 'Pilih paket voucher') %>";
+        grid.querySelectorAll('.vcard').forEach(el => el.classList.remove('sel'));
+        card.classList.add('sel');
+      };
+
+      grid.addEventListener('click', (e) => {
+        const card = e.target.closest('.vcard');
+        if (!card) return;
+        selectCard(card);
+      });
+
+      grid.addEventListener('keydown', (e) => {
+        const card = e.target.closest('.vcard');
+        if (!card) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          selectCard(card);
+        }
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const sections = {
+        top: document.getElementById('section-top'),
+        bill: document.getElementById('section-bill'),
+        voucher: document.getElementById('section-voucher'),
+        history: document.getElementById('section-history')
+      };
+
+      const items = Array.from(document.querySelectorAll('.bn-item[data-scroll]'));
+      const setActive = (key) => {
+        items.forEach(i => i.classList.toggle('active', i.getAttribute('data-scroll') === key));
+      };
+
+      const order = ['top', 'bill', 'voucher', 'history'].filter(k => sections[k]);
+
+      const getTopOffset = () => {
+        const topbar = document.querySelector('.topbar');
+        return (topbar ? topbar.offsetHeight : 0) + 10;
+      };
+
+      const scrollToKey = (key) => {
+        const el = sections[key];
+        if (!el) return;
+        const y = window.scrollY + el.getBoundingClientRect().top - getTopOffset();
+        window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+        setActive(key);
+      };
+
+      items.forEach(i => {
+        i.addEventListener('click', (e) => {
+          const key = i.getAttribute('data-scroll');
+          if (!key) return;
+          e.preventDefault();
+          scrollToKey(key);
+        });
+      });
+
+      const updateActiveFromScroll = () => {
+        if (order.length === 0) return;
+        const pos = window.scrollY + getTopOffset() + 1;
+        let current = order[0];
+        for (const key of order) {
+          const el = sections[key];
+          if (!el) continue;
+          if (el.offsetTop <= pos) current = key;
+        }
+        setActive(current);
+      };
+
+      let ticking = false;
+      window.addEventListener('scroll', () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+          ticking = false;
+          updateActiveFromScroll();
+        });
+      }, { passive: true });
+
+      window.addEventListener('resize', () => updateActiveFromScroll());
+      updateActiveFromScroll();
+    })();
+  </script>
+</body>
+</html>

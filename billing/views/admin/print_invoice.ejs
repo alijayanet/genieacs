@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="<%= lang || 'id' %>">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= t('admin.print_invoice.title', 'Cetak Struk Tagihan') %> #<%= invoice.id %></title>
+  <style>
+    @page { margin: 0; }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 12px;
+      line-height: 1.3;
+      color: #000;
+      margin: 0 auto;
+      padding: 5px 10px;
+      max-width: 58mm;
+    }
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+    .text-left { text-align: left; }
+    .bold { font-weight: bold; }
+    .title { font-size: 14px; margin-bottom: 5px; text-transform: uppercase; }
+    .divider { border-bottom: 1px dashed #000; margin: 8px 0; }
+    .row { display: flex; justify-content: space-between; }
+    .mb-1 { margin-bottom: 5px; }
+    .mt-2 { margin-top: 10px; }
+    .footer { font-size: 10px; text-align: center; margin-top: 15px; }
+    .signature { margin-top: 25px; text-align: right; }
+    .signature-name { text-decoration: underline; font-weight: bold; }
+    
+    @media print {
+      body { 
+        width: 100%; 
+        max-width: 100%;
+        padding: 5mm 5mm 0 5mm; /* Tambahan jarak aman atas 5mm, kiri-kanan 5mm */
+        margin: 0; 
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="text-center">
+    <div class="title bold"><%= company %></div>
+    <div><%= settings.company_address || t('admin.print_invoice.address_fallback', 'Pusat Layanan Internet') %></div>
+    <div><%= t('admin.print_invoice.contact_label', 'Telp/WA') %>: <%= (settings.whatsapp_admin_numbers && settings.whatsapp_admin_numbers.length > 0) ? '+' + settings.whatsapp_admin_numbers[0] : (settings.company_phone || '081234567890') %></div>
+  </div>
+  
+  <div class="divider"></div>
+  
+  <% const mns = (lang || 'id') === 'en' ? ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] : ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des']; %>
+  
+  <div class="mb-1">
+    <div><%= t('admin.print_invoice.receipt_no', 'No. Struk') %>: <span class="bold">INV-<%= invoice.id %>-<%= new Date().getFullYear() %></span></div>
+    <div><%= t('admin.print_invoice.date', 'Tanggal') %>: <%= invoice.paid_at ? new Date(invoice.paid_at).toLocaleString((lang || 'id') === 'en' ? 'en-US' : 'id-ID') : new Date().toLocaleString((lang || 'id') === 'en' ? 'en-US' : 'id-ID') %></div>
+    <div><%= t('admin.print_invoice.cashier', 'Kasir') %>: <%= invoice.paid_by_name || t('admin.print_invoice.system', 'Sistem') %></div>
+    <% if (invoice.notes) { %>
+      <div><%= t('admin.print_invoice.notes', 'Catatan') %>: <%= invoice.notes %></div>
+    <% } %>
+  </div>
+  
+  <div class="divider"></div>
+  
+  <div class="mb-1">
+    <div class="bold"><%= t('admin.print_invoice.dear', 'Yth.') %> <%= customer.name %></div>
+    <div><%= t('admin.print_invoice.id_tag', 'ID/Tag') %>: <%= customer.phone || customer.genieacs_tag || '-' %></div>
+  </div>
+  
+  <div class="divider"></div>
+  
+  <div class="mb-1">
+    <div><%= t('admin.print_invoice.payment_title', 'Pembayaran Tagihan Internet') %></div>
+    <div><%= t('admin.print_invoice.period', 'Periode') %>: <%= mns[invoice.period_month-1] %> <%= invoice.period_year %></div>
+    <div><%= t('admin.print_invoice.package', 'Paket') %>: <%= customer.package_name || t('admin.print_invoice.package_fallback', 'Internet Service') %></div>
+  </div>
+  
+  <div class="divider"></div>
+  
+  <div class="row bold">
+    <div><%= t('admin.print_invoice.total_paid', 'TOTAL BAYAR') %>:</div>
+    <div>Rp <%= invoice.amount.toLocaleString('id-ID') %></div>
+  </div>
+  
+  <div class="divider"></div>
+  
+  <div class="text-center bold" style="margin-top: 5px;">
+    *** <%= t('admin.print_invoice.paid', 'LUNAS') %> ***
+  </div>
+
+  <div class="signature">
+    <div><%= t('admin.print_invoice.manager', 'Manajer') %>,</div>
+    <br><br>
+    <div class="signature-name"><%= settings.company_manager || t('admin.print_invoice.manager_fallback', 'Admin Pusat') %></div>
+  </div>
+  
+  <div class="footer">
+    <%= t('admin.print_invoice.footer.thanks', 'Terima kasih atas pembayaran Anda.') %><br>
+    <%= t('admin.print_invoice.footer.keep_receipt', 'Simpan struk ini sebagai bukti pembayaran yang sah.') %><br>
+    --- <%= t('admin.print_invoice.footer.printed_from', 'Dicetak dari Sistem Billing') %> ---
+  </div>
+  
+  <script>
+    // Otomatis print saat halaman dibuka
+    window.onload = function() {
+      setTimeout(() => {
+        window.print();
+      }, 500);
+    }
+  </script>
+</body>
+</html>
