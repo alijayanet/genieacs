@@ -6,6 +6,8 @@ local_ip=$(hostname -I | awk '{print $1}')
 server_hostname=$(hostname)
 server_kernel=$(uname -r)
 server_uptime=$(uptime -p 2>/dev/null || uptime)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
 setup_mongodb_docker() {
     if ! command -v docker >/dev/null 2>&1; then
@@ -89,19 +91,27 @@ ensure_mongodb_running() {
 }
 
 install_billing_app() {
-    if [ ! -d "billing" ]; then
+    billing_dir="${SCRIPT_DIR%/}/billing"
+    if [ ! -d "$billing_dir" ]; then
         echo -e "${RED}Folder 'billing' tidak ditemukan. Skip install billing.${NC}"
         return 1
     fi
 
-    billing_dir="$(pwd)/billing"
     sudo apt-get update -y
     sudo apt-get install -y build-essential python3 make g++
 
     sudo useradd --system --no-create-home --user-group billing >/dev/null 2>&1 || true
     sudo chown -R billing:billing "$billing_dir"
 
-    (cd "$billing_dir" && sudo -u billing npm install --production --silent)
+    if command -v sudo >/dev/null 2>&1; then
+        (cd "$billing_dir" && sudo -u billing npm install --production --silent)
+    else
+        su -s /bin/bash -c "cd \"$billing_dir\" && npm install --production --silent" billing
+    fi
+    if [ ! -d "${billing_dir%/}/node_modules" ]; then
+        echo -e "${RED}Install dependency billing gagal (node_modules tidak terbentuk). Jalankan manual: cd billing && npm install${NC}"
+        return 1
+    fi
 
     billing_port="$(awk -F: '/"server_port"/{gsub(/[^0-9]/,"",$2); if($2!=""){print $2; exit}}' "${billing_dir}/settings.json" 2>/dev/null || true)"
     if [ -z "$billing_port" ]; then
@@ -139,6 +149,22 @@ EOF
     echo -e "${GREEN}Akses Pelanggan: ${base_url}/customer/login${NC}"
 }
 
+apply_darkmode_assets() {
+    global_node_modules="$(npm root -g 2>/dev/null || true)"
+    if [ -z "$global_node_modules" ]; then
+        global_node_modules="/usr/lib/node_modules"
+    fi
+    installed_genieacs_dir="${global_node_modules%/}/genieacs"
+    if [ -d "${SCRIPT_DIR%/}/genieacs/public" ] && [ -d "$installed_genieacs_dir/public" ]; then
+        backup_dir="${installed_genieacs_dir%/}/public.bak.$(date +%Y%m%d%H%M%S)"
+        cp -a "${installed_genieacs_dir%/}/public" "$backup_dir"
+        cp -a "${SCRIPT_DIR%/}/genieacs/public/." "${installed_genieacs_dir%/}/public/"
+        return 0
+    fi
+    echo -e "${RED}Folder public darkmode atau GenieACS terinstall tidak ditemukan. Skip copy darkmode.${NC}"
+    return 1
+}
+
 echo -e "${GREEN}============================================================================${NC}"
 echo -e "${GREEN}============================================================================${NC}"
 echo -e "${GREEN}=========== AAA   LL      IIIII     JJJ   AAA   YY   YY   AAA ==============${NC}"   
@@ -172,9 +198,8 @@ check_node_version() {
     if command -v node > /dev/null 2>&1; then
         NODE_VERSION=$(node -v | cut -d 'v' -f 2)
         NODE_MAJOR_VERSION=$(echo $NODE_VERSION | cut -d '.' -f 1)
-        NODE_MINOR_VERSION=$(echo $NODE_VERSION | cut -d '.' -f 2)
 
-        if [ "$NODE_MAJOR_VERSION" -lt 12 ] || { [ "$NODE_MAJOR_VERSION" -eq 12 ] && [ "$NODE_MINOR_VERSION" -lt 13 ]; } || [ "$NODE_MAJOR_VERSION" -gt 22 ]; then
+        if [ "$NODE_MAJOR_VERSION" -lt 20 ] || [ "$NODE_MAJOR_VERSION" -gt 22 ]; then
             return 1
         else
             return 0
@@ -197,7 +222,11 @@ else
 fi
 
 #MongoDB
-if !  systemctl is-active --quiet mongod; then
+echo "Cek MongoDB..."
+if ensure_mongodb_running; then
+    echo -e "${GREEN}============================================================================${NC}"
+    echo -e "${GREEN}=================== MongoDB sudah ada & bisa diakses. ======================${NC}"
+else
     echo -e "${GREEN}================== Menginstall MongoDB ==================${NC}"
     ubuntu_codename=""
     if [ -r /etc/os-release ]; then
@@ -225,9 +254,6 @@ if !  systemctl is-active --quiet mongod; then
         echo -e "${RED}MongoDB gagal jalan. Pastikan arsitektur OS support, lalu cek log mongod di atas.${NC}"
         exit 1
     fi
-else
-    echo -e "${GREEN}============================================================================${NC}"
-    echo -e "${GREEN}=================== mongodb sudah terinstall sebelumnya. ===================${NC}"
 fi
 
 #GenieACS
@@ -340,19 +366,6 @@ echo -e "${GREEN}===============================================================
 echo -e "${GREEN}========== GenieACS UI akses port 3000. : http://$local_ip:3000 ============${NC}"
 echo -e "${GREEN}=================== Informasi: Whatsapp 081947215703 =======================${NC}"
 echo -e "${GREEN}============================================================================${NC}"
-global_node_modules="$(npm root -g 2>/dev/null || true)"
-if [ -z "$global_node_modules" ]; then
-    global_node_modules="/usr/lib/node_modules"
-fi
-installed_genieacs_dir="${global_node_modules%/}/genieacs"
-if [ -d "genieacs/public" ] && [ -d "$installed_genieacs_dir/public" ]; then
-    backup_dir="${installed_genieacs_dir%/}/public.bak.$(date +%Y%m%d%H%M%S)"
-    cp -a "${installed_genieacs_dir%/}/public" "$backup_dir"
-    cp -a genieacs/public/. "${installed_genieacs_dir%/}/public/"
-    systemctl restart genieacs-ui >/dev/null 2>&1 || true
-elif [ -d "genieacs" ]; then
-    echo -e "${RED}Folder GenieACS terinstall tidak ditemukan di ${installed_genieacs_dir}. Skip copy darkmode.${NC}"
-fi
 echo -e "${GREEN}Sekarang install parameter. Apakah anda ingin melanjutkan? (y/n)${NC}"
 read confirmation
 
@@ -370,18 +383,37 @@ if ! ensure_mongodb_running; then
     echo -e "${RED}MongoDB tidak bisa diakses. Install parameter dibatalkan.${NC}"
     exit 1
 fi
-if [ ! -d "db" ]; then
-    echo -e "${RED}Folder 'db' tidak ditemukan di directory saat ini. Jalankan script dari folder genieacs-main.${NC}"
+systemctl stop --now genieacs-{cwmp,fs,ui,nbi} >/dev/null 2>&1 || true
+if [ ! -d "${SCRIPT_DIR%/}/db" ]; then
+    echo -e "${RED}Folder 'db' tidak ditemukan. Pastikan folder db ada di ${SCRIPT_DIR}.${NC}"
     exit 1
 fi
-sudo mongodump --host 127.0.0.1 --port 27017 --db=genieacs --out genieacs-backup
-mongorestore --host 127.0.0.1 --port 27017 --drop \
-    --nsInclude=genieacs.virtualParameters \
-    --nsInclude=genieacs.provisions \
-    --nsInclude=genieacs.presets \
-    db
-systemctl stop --now genieacs-{cwmp,fs,ui,nbi}
-systemctl start --now genieacs-{cwmp,fs,ui,nbi}
+sudo mongodump --host 127.0.0.1 --port 27017 --db=genieacs --out "${SCRIPT_DIR%/}/genieacs-backup" || true
+db_dir="${SCRIPT_DIR%/}/db"
+echo -e "${GREEN}Restore DB GenieACS (termasuk config/custom) ...${NC}"
+if [ -d "${db_dir%/}/genieacs" ]; then
+    if ! mongorestore --host 127.0.0.1 --port 27017 --drop "$db_dir"; then
+        echo -e "${RED}Restore DB gagal. Cek error mongorestore di atas.${NC}"
+        exit 1
+    fi
+else
+    shopt -s nullglob
+    bson_files=("${db_dir%/}"/*.bson)
+    shopt -u nullglob
+    if [ "${#bson_files[@]}" -eq 0 ]; then
+        echo -e "${RED}Tidak ada file .bson di ${db_dir}. Restore dibatalkan.${NC}"
+        exit 1
+    fi
+    for bson_path in "${bson_files[@]}"; do
+        collection="$(basename "$bson_path" .bson)"
+        if ! mongorestore --host 127.0.0.1 --port 27017 --drop --db=genieacs --collection="$collection" "$bson_path"; then
+            echo -e "${RED}Restore koleksi ${collection} gagal. Cek error mongorestore di atas.${NC}"
+            exit 1
+        fi
+    done
+fi
+apply_darkmode_assets || true
+systemctl start --now genieacs-{cwmp,fs,ui,nbi} >/dev/null 2>&1 || true
 echo -e "${GREEN}============================================================================${NC}"
 echo -e "${GREEN}=================== VIRTUAL PARAMETER BERHASIL DI INSTALL. =================${NC}"
 echo -e "${GREEN}===Jika ACS URL berbeda, silahkan edit di Admin >> Provosions >> inform ====${NC}"
@@ -394,4 +426,15 @@ echo -e "${GREEN}Sekarang install aplikasi Billing (folder billing). Apakah anda
 read confirmation
 if [ "$confirmation" = "y" ]; then
     install_billing_app || true
+fi
+
+echo -e "${GREEN}Selesai. Apakah ingin reboot server sekarang? (y/n)${NC}"
+read reboot_confirmation
+if [ "$reboot_confirmation" = "y" ]; then
+    echo -e "${GREEN}Reboot...${NC}"
+    if command -v sudo >/dev/null 2>&1; then
+        sudo reboot
+    else
+        reboot
+    fi
 fi
