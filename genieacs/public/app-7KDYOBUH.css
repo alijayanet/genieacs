@@ -715,6 +715,9 @@ span.CodeMirror-selectedtext {
     --color3: #f2ebd5;
     --color4: #046380;
     --color5: #002f2f;
+    --color6: #ffffff;
+    --color7: #046380;
+    --color8: #002f2f;
     --fade: .2s;
     --disabled: #666;
     --status-red: 0 80% 80%;
@@ -729,24 +732,26 @@ button,
 select,
 option,
 textarea {
-    outline-color: var(--color4);
-    font-family: sans-serif;
-    color: var(--color5)
+    outline-color: #eee;
+    font-family: system-ui;
+    color: #eee
 }
 
 a {
-    color: var(--color4);
+    color: rgb(129, 214, 129);
     cursor: pointer;
     transition: background-color var(--fade), color var(--fade)
 }
 
 a:visited {
-    color: var(--color4)
+    color: var(--color2)
 }
 
 a:hover {
-    color: #fff;
-    background-color: var(--color4)
+    color: var(--color4);
+    background-color: #690e0e;
+    box-shadow: 0 0 10px #ccc;
+    transition: background-color var(--fade), color var(--fade)
 }
 
 a span {
@@ -775,6 +780,7 @@ i {
 body {
     height: 100vh;
     display: flex;
+    background-color: #050833e7;
     flex-direction: column
 }
 
@@ -786,8 +792,8 @@ body {
 }
 
 #header {
-    background-color: #f2eddf;
-    border-bottom: 1px solid var(--color1);
+    background-color: #050225;
+    border-bottom: 1px solid var(--color4);
     overflow: visible;
     position: relative
 }
@@ -802,7 +808,7 @@ body {
 }
 
 #header>.drawer-wrapper>.drawer {
-    background-color: #ffffffe6;
+    background-color: #b90303;
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
     border-bottom: 1px solid var(--color1);
@@ -922,7 +928,7 @@ body {
     padding: .3em;
     left: 0;
     right: 0;
-    background-color: #ffffffe6;
+    background-color: #960d0d;
     border: 1px solid var(--color1);
     border-radius: 6px;
     box-shadow: 0 0 10px #ccc;
@@ -936,7 +942,8 @@ body {
 
 #header>.drawer-wrapper>.notifications-wrapper>.notification.success {
     background-color: hsl(var(--status-green) / .9);
-    border: 1px solid hsl(var(--status-green))
+    border: 1px solid hsl(var(--status-green));
+    color: #000
 }
 
 #header>.drawer-wrapper>.notifications-wrapper>.notification.warning {
@@ -964,14 +971,14 @@ body {
     display: inline-block;
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
-    border-top: 1px solid var(--color1);
-    border-left: 1px solid var(--color1);
-    border-right: 1px solid var(--color1);
+    border-top: 1px solid var(--color4);
+    border-left: 1px solid var(--color4);
+    border-right: 1px solid var(--color4);
     transition: background-color var(--fade)
 }
 
 #header>nav>ul>li:is(.active, :hover) {
-    background-color: #fff
+    background-color: #e21818
 }
 
 #header>nav>ul>li>:is(a, a:visited, a:hover) {
@@ -990,17 +997,17 @@ body {
 
 #header>.logo>img {
     margin: 10px;
-    height: 56px;
+    height: 75px;
     vertical-align: top
 }
 
 #header>.logo>.version {
     position: absolute;
-    bottom: 5px;
+    bottom: -2px;
     right: 10px;
     font-family: monospace;
     font-size: 10px;
-    color: #666
+    color: #fff
 }
 
 #header>.user-menu {
@@ -1025,12 +1032,14 @@ body {
     padding: 8px;
     border-bottom-right-radius: 6px;
     border-top-right-radius: 6px;
-    background-color: var(--color3)
+    background-color: var(--color1);
+    color: var(--color4);
+    font-weight: 700
 }
 
 #side-menu>ul>li>a:hover {
-    background-color: var(--color4);
-    color: var(--color3)
+    background-color: #000;
+    color: var(--color4)
 }
 
 #side-menu>ul>li.active {
@@ -1061,9 +1070,10 @@ table.table table.table {
 
 table.table th {
     white-space: nowrap;
-    color: var(--color4);
+    color: var(--color2);
+    box-shadow: 0 0 5px #ccc;
     font-weight: 700;
-    border-bottom: 2px solid var(--color4);
+    border-bottom: 1px var(--color2);
     margin: 0;
     padding: .2em .5em
 }
@@ -1086,16 +1096,16 @@ table.table.highlight>tbody>tr {
 }
 
 table.table.highlight>tbody>tr>td {
-    border-bottom: 1px dotted var(--color1)
+    border-bottom: 1px dotted var(--color4)
 }
 
 table.table.highlight>tbody>tr:hover {
-    background-color: var(--color3)
+    background-color: var(--color4)
 }
 
 table.table tbody>tr.empty {
     text-align: center;
-    color: var(--disabled)
+    color: var(--color2)
 }
 
 table.table tbody>tr.empty:hover {
@@ -1103,20 +1113,21 @@ table.table tbody>tr.empty:hover {
 }
 
 h1 {
-    color: var(--color4);
-    font-size: 130%;
+    color: var(--color2);
+    font-size: 110%;
     font-weight: 700
 }
 
 h2 {
-    color: var(--color5);
+    color: var(--color2);
     font-weight: 700;
-    font-size: 120%
+    font-size: 100%
 }
 
 h3 {
-    color: var(--color5);
-    font-size: 110%
+    color: var(--color2);
+    font-size: 110%;
+    font-weight: 700
 }
 
 p.error {
@@ -1140,8 +1151,9 @@ button {
 }
 
 :is(input[type=button], button).primary {
-    border: 1px solid var(--color1);
-    background-color: var(--color3)
+    border: 1px solid var(--color3);
+    background-color: var(--color1);
+    box-shadow: 0 0 10px #ccc
 }
 
 :is(input[type=button], button).critical {
@@ -1166,7 +1178,7 @@ select,
 input {
     display: block;
     border: 1px solid var(--color1);
-    background-color: var(--color3);
+    background-color: var(--color2);
     border-radius: 4px;
     transition: border-color var(--fade), background-color var(--fade)
 }
@@ -1309,7 +1321,7 @@ span.na {
 }
 
 .all-parameters>.parameter-list>table>tbody>tr:hover {
-    background-color: var(--color3)
+    background-color: var(--color5)
 }
 
 .all-parameters>.parameter-list>table>tbody>tr>td.left>* {
@@ -1346,7 +1358,10 @@ span.tag {
     background-repeat: no-repeat;
     border-radius: .2em;
     padding-left: 1em;
-    padding-right: .2em
+    padding-right: .4em;
+    color: #43766c;
+    font-weight: 700;
+    font-family: system-ui
 }
 
 .tags>.tag {
@@ -1367,7 +1382,7 @@ span.tag {
 .overlay-wrapper>.overlay {
     max-width: 90vw;
     max-height: 90vh;
-    background-color: #fff;
+    background-color: #000;
     border: 1px solid var(--color1);
     border-radius: 10px;
     padding: 10px;
@@ -1381,7 +1396,7 @@ span.tag {
 
 .autocomplete {
     box-shadow: 0 0 10px #ccc;
-    background-color: #ffffffe6;
+    background-color: #000;
     border: 1px solid var(--color1);
     border-radius: 4px;
     max-height: 300px;
@@ -1394,7 +1409,7 @@ span.tag {
 }
 
 .autocomplete>.suggestion:is(.selected, :hover) {
-    background-color: var(--color3)
+    background-color: var(--color4)
 }
 
 span.long-text {
@@ -1497,5 +1512,48 @@ th {
     line-height: normal
 }
 
+div.tab {
+    display: inline-block;
+    overflow: visible;
+    position: absolute;
+    width: 100%
+}
+
+div.tab>div.tab_content {
+    padding: 10px;
+    border-top: 1px solid var(--color4)
+}
+
+div.tab>ul {
+    font-weight: 700;
+    display: inline-block;
+    padding: 0;
+    margin: 0
+}
+
+div.tab>ul>li {
+    background-color: var(--color1);
+    display: inline-block;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-top: 1px solid var(--color4);
+    border-left: 1px solid var(--color4);
+    border-right: 1px solid var(--color4);
+    transition: background-color var(--fade)
+}
+
+div.tab>ul>li:is(.active, :hover) {
+    background-color: #000
+}
+
+div.tab>ul>li>:is(a, a:visited, a:hover) {
+    display: inline-block;
+    min-width: 140px;
+    color: var(--color4);
+    text-decoration: none;
+    background: none;
+    padding: 8px
+}
+
 /*! normalize.css v7.0.0 | MIT License | github.com/necolas/normalize.css */
-/*# sourceMappingURL=app-LU66VFYW.css.map */
+/*# sourceMappingURL=app.css.map */
