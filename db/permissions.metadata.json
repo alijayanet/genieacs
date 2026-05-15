@@ -1,1 +1,1 @@
-{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"genieacs.permissions"}],"uuid":"5772118b7d304213a2d3248321ffb6c3"}
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"c9678e86997145d4bb3e5103674fcf03","collectionName":"permissions","type":"collection"}

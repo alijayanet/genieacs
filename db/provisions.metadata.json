@@ -1,1 +1,1 @@
-{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"genieacs.provisions"}],"uuid":"03d512870ad84d579b6f73094d76c0ce"}
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"b82c5ea6944a421bb43c1af5059d8e2f","collectionName":"provisions","type":"collection"}

@@ -1,1 +1,1 @@
-{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"genieacs.tasks"},{"v":2,"key":{"device":1,"timestamp":1},"name":"device_1_timestamp_1","ns":"genieacs.tasks"}],"uuid":"017586be5e06453fbac7442a0f5d9f5b"}
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"},{"v":{"$numberInt":"2"},"key":{"device":{"$numberInt":"1"},"timestamp":{"$numberInt":"1"}},"name":"device_1_timestamp_1"}],"uuid":"0454e34fd33a497c9bfd790fef5555bd","collectionName":"tasks","type":"collection"}
